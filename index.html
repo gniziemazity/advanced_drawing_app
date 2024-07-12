@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>ADVANCED DRAWING APP</title>
+      <link rel="stylesheet" type="text/css" href="style.css" />
+   </head>
+   <body>
+      <canvas id="myCanvas"></canvas><canvas id="hitTestCanvas"></canvas>
+      <div id="toolBox">
+         <select onchange="changeTool(this.value)">
+            <option value="path" selected>Path</option>
+            <option value="rect">Rect</option>
+            <option value="select">Select</option>
+         </select>
+         <div>
+            <input
+               type="color"
+               id="fillColor"
+               value="#ff0000"
+               title="Fill Color"
+               oninput="changeFillColor(this.value)"
+            />
+            <input
+               type="checkbox"
+               id="fill"
+               checked
+               title="Fill"
+               onchange="changeFill(this.checked)"
+            />
+            <br />
+            <input
+               type="color"
+               id="strokeColor"
+               value="#0000ff"
+               title="Stroke Color"
+               oninput="changeStrokeColor(this.value)"
+            />
+            <input
+               type="checkbox"
+               id="stroke"
+               checked
+               title="Stroke"
+               onchange="changeStroke(this.checked)"
+            />
+            <br />
+            <input
+               type="range"
+               id="strokeWidth"
+               value="5"
+               min="1"
+               max="100"
+               title="Stroke Width"
+               oninput="changeStrokeWidth(this.value)"
+            />
+            <br />
+            <button onclick="undo()">Undo</button>
+         </div>
+      </div>
+      <script src="utils.js"></script>
+      <script src="toolEvents.js"></script>
+      <script src="shapes/shape.js"></script>
+      <script src="shapes/rect.js"></script>
+      <script src="shapes/path.js"></script>
+      <script src="script.js"></script>
+   </body>
+</html>

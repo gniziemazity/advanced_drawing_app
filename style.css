@@ -1,0 +1,13 @@
+canvas {
+}
+body {
+   margin: 0;
+   overflow: hidden;
+   box-sizing: border-box;
+}
+#toolBox {
+   position: absolute;
+   top: 0px;
+   left: 0px;
+   margin: 5px;
+}
