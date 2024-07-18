@@ -54,6 +54,11 @@ window.addEventListener("keydown", (e) => {
       );
       drawShapes(shapes);
    }
+
+   if (isShortcut(e.ctrlKey, e.key)) {
+      executeShortcut(e.ctrlKey, e.key);
+      e.preventDefault();
+   }
 });
 
 function changeTool(tool) {
@@ -71,6 +76,26 @@ function changeTool(tool) {
          myCanvas.addEventListener("pointerdown", downCallbackForSelect);
          break;
    }
+}
+
+function selectTool(tool) {
+   changeTool(tool);
+   const toolSelector = document.getElementById("toolSelector");
+   if (toolSelector) {
+      toolSelector.value = tool
+   }
+}
+
+function selectRectTool() {
+   selectTool("rect");
+}
+
+function selectPathTool() {
+   selectTool("path");
+}
+
+function selectSelectTool() { 
+   selectTool("select"); 
 }
 
 function drawShapes(shapes) {

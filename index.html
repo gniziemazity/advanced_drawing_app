@@ -7,7 +7,7 @@
    <body>
       <canvas id="myCanvas"></canvas><canvas id="hitTestCanvas"></canvas>
       <div id="toolBox">
-         <select onchange="changeTool(this.value)">
+         <select id="toolSelector" onchange="changeTool(this.value)">
             <option value="path" selected>Path</option>
             <option value="rect">Rect</option>
             <option value="select">Select</option>
@@ -62,5 +62,6 @@
       <script src="shapes/rect.js"></script>
       <script src="shapes/path.js"></script>
       <script src="script.js"></script>
+      <script src="shortcuts.js"></script>
    </body>
 </html>
