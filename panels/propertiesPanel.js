@@ -157,6 +157,13 @@ class PropertiesPanel {
       drawShapes(shapes);
    }
 
+   static reset() {
+      x.value = "";
+      y.value = "";
+      width.value = "";
+      height.value = "";
+   }
+
    static updateDisplay(selectedShapes) {
       if (selectedShapes.length === 0) {
          document.getElementById("properties").innerHTML = "";

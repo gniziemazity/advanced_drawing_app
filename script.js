@@ -43,6 +43,8 @@ window.addEventListener("keydown", (e) => {
          shapes.findIndex((s) => s.selected),
          1
       );
+      // comment
+      PropertiesPanel.reset()
       drawShapes(shapes);
    }
 

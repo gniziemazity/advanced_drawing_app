@@ -1,4 +1,5 @@
 function downCallbackForSelect(e) {
+   PropertiesPanel.reset()
    const startPosition = new Vector(e.offsetX, e.offsetY);
 
    const [r, g, b, a] = hitTestingCtx.getImageData(
