@@ -11,9 +11,9 @@ class Shape {
    }
    recenter() {
       const points = this.getPoints();
-      this.center = getMidPoint(points);
+      this.center = Vector.midVector(points);
       for (const point of points) {
-         const newPoint = subtractPoints(point, this.center);
+         const newPoint = Vector.subtract(point, this.center);
          point.x = newPoint.x;
          point.y = newPoint.y;
       }
@@ -49,9 +49,11 @@ class Shape {
       ctx.fillStyle = `rgb(${red},${green},${blue})`;
       ctx.strokeStyle = `rgb(${red},${green},${blue})`;
       ctx.lineWidth = this.options.strokeWidth + dilation;
-      if (this.options.fill) {
+      // always doing a fill because of the poll during the live stream
+      // most people seem to prefer selecting an object with no fill, when clicking on it
+      //if (this.options.fill) {
          ctx.fill();
-      }
+      //}
       if (this.options.stroke) {
          ctx.stroke();
       }

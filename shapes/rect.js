@@ -36,4 +36,27 @@ class Rect extends Shape {
          }
       }
    }
+
+   static addPointerDownListener(e) {
+      const mousePosition = new Vector(e.offsetX, e.offsetY);
+      currentShape = new Rect(mousePosition, getOptions());
+   
+      const moveCallback = function (e) {
+         const mousePosition = new Vector(e.offsetX, e.offsetY);
+         currentShape.setCorner2(mousePosition);
+   
+         drawShapes([...shapes, currentShape]);
+      };
+   
+      const upCallback = function (e) {
+         myCanvas.removeEventListener("pointermove", moveCallback);
+         myCanvas.removeEventListener("pointerup", upCallback);
+   
+         currentShape.recenter();
+         shapes.push(currentShape);
+      };
+      myCanvas.addEventListener("pointermove", moveCallback);
+      myCanvas.addEventListener("pointerup", upCallback);
+   }
+   
 }

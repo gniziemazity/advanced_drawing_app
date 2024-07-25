@@ -1,13 +1,3 @@
-/* FOR NEXT TIME
-Undo / Redo
-Gizmo resize / rotate
-REMEMBER PROPERTIES PANEL !!!
------------------------------
-Maybe Pen Tool (with bezier handles)
-Maybe Oval Tool (maybe width and height and bezier handles)
-Maybe Text Tool
-*/
-
 const SHOW_HIT_REGIONS = false;
 if (!SHOW_HIT_REGIONS) {
    hitTestCanvas.style.display = "none";
@@ -44,7 +34,7 @@ clearCanvas();
 const shapes = [];
 let currentShape = null;
 
-myCanvas.addEventListener("pointerdown", downCallbackForPath);
+myCanvas.addEventListener("pointerdown", Path.addPointerDownListener);
 
 window.addEventListener("keydown", (e) => {
    if (e.key === "Delete") {
@@ -62,15 +52,19 @@ window.addEventListener("keydown", (e) => {
 });
 
 function changeTool(tool) {
-   myCanvas.removeEventListener("pointerdown", downCallbackForRect);
-   myCanvas.removeEventListener("pointerdown", downCallbackForPath);
+   myCanvas.removeEventListener("pointerdown", Rect.addPointerDownListener);
+   myCanvas.removeEventListener("pointerdown", Path.addPointerDownListener);
    myCanvas.removeEventListener("pointerdown", downCallbackForSelect);
+   
+   shapes.forEach((s) => (s.selected = false));
+   drawShapes(shapes);
+   
    switch (tool) {
       case "rect":
-         myCanvas.addEventListener("pointerdown", downCallbackForRect);
+         myCanvas.addEventListener("pointerdown", Rect.addPointerDownListener);
          break;
       case "path":
-         myCanvas.addEventListener("pointerdown", downCallbackForPath);
+         myCanvas.addEventListener("pointerdown", Path.addPointerDownListener);
          break;
       case "select":
          myCanvas.addEventListener("pointerdown", downCallbackForSelect);
@@ -82,7 +76,7 @@ function selectTool(tool) {
    changeTool(tool);
    const toolSelector = document.getElementById("toolSelector");
    if (toolSelector) {
-      toolSelector.value = tool
+      toolSelector.value = tool;
    }
 }
 
@@ -133,6 +127,9 @@ function clearCanvas() {
       stageProperties.width,
       stageProperties.height
    );
+
+   ctx.textAlign = "right";
+   ctx.fillText("Contributors: "+contributors.join(", "), myCanvas.width - 10,  10);
 
    // For Debugging
    hitTestingCtx.fillStyle = "red";
