@@ -4,6 +4,10 @@ class Vector{
       this.y = y;
    }
 
+   static load(data){
+      return new Vector(data.x, data.y);
+   }
+
    add(v){
       return new Vector(this.x + v.x, this.y + v.y);
    }

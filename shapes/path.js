@@ -3,6 +3,37 @@ class Path extends Shape {
       super(options);
       this.points = [startPoint];
    }
+   
+   static load(data, stageProperties) {
+      const path = new Path();
+      path.id = data.id;
+      path.options = data.options;
+      path.center = new Vector(
+         data.center.x + stageProperties.left,
+         data.center.y + stageProperties.top
+      );
+      path.size = data.size;
+      path.selected = data.selected;
+      path.points = data.points.map((p) => 
+         Vector.load(p)
+      );
+      return path;
+   }
+
+   serialize(stageProperties) {
+      return {
+         type: "Path",
+         id: this.id,
+         options: this.options,
+         center: new Vector(
+            this.center.x - stageProperties.left,
+            this.center.y - stageProperties.top
+         ),
+         size: this.size,
+         selected: this.selected,
+         points: this.points
+      };
+   }
 
    addPoint(point) {
       this.points.push(point);

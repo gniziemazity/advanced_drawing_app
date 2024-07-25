@@ -57,10 +57,10 @@ function changeTool(tool) {
    myCanvas.removeEventListener("pointerdown", Rect.addPointerDownListener);
    myCanvas.removeEventListener("pointerdown", Path.addPointerDownListener);
    myCanvas.removeEventListener("pointerdown", downCallbackForSelect);
-   
+
    shapes.forEach((s) => (s.selected = false));
    drawShapes(shapes);
-   
+
    switch (tool) {
       case "rect":
          myCanvas.addEventListener("pointerdown", Rect.addPointerDownListener);
@@ -90,8 +90,8 @@ function selectPathTool() {
    selectTool("path");
 }
 
-function selectSelectTool() { 
-   selectTool("select"); 
+function selectSelectTool() {
+   selectTool("select");
 }
 
 function drawShapes(shapes) {
@@ -99,7 +99,12 @@ function drawShapes(shapes) {
    for (const shape of shapes) {
       shape.draw(ctx);
    }
-   hitTestingCtx.clearRect(0, 0, canvasProperties.width, canvasProperties.height);
+   hitTestingCtx.clearRect(
+      0,
+      0,
+      canvasProperties.width,
+      canvasProperties.height
+   );
    for (const shape of shapes) {
       shape.draw(hitTestingCtx, true);
    }
@@ -113,7 +118,7 @@ function getOptions() {
       stroke: stroke.checked,
       strokeWidth: Number(strokeWidth.value),
       lineCap: "round",
-      lineJoin: "round"
+      lineJoin: "round",
    };
 }
 
@@ -131,16 +136,61 @@ function clearCanvas() {
    );
 
    ctx.textAlign = "right";
-   ctx.fillText("Contributors: "+contributors.join(", "), myCanvas.width - 10,  10);
+   ctx.fillText(
+      "Contributors: " + contributors.join(", "),
+      myCanvas.width - 10,
+      10
+   );
 
    // For Debugging
    hitTestingCtx.fillStyle = "red";
-   hitTestingCtx.fillRect(0, 0, canvasProperties.width, canvasProperties.height);
+   hitTestingCtx.fillRect(
+      0,
+      0,
+      canvasProperties.width,
+      canvasProperties.height
+   );
 }
-
 
 function undo() {
    alert("ToDo");
 }
 
+function save() {
+   const data = JSON.stringify(shapes.map((s) => s.serialize(stageProperties)));
+   
+   const a = document.createElement("a");
+   const file = new Blob([data], { type: "application/json" });
+   a.href = URL.createObjectURL(file);
+   a.download = "drawing.json";
+   a.click();
+}
 
+function load(){
+   const input = document.createElement("input");
+   input.type = "file";
+   input.accept = ".json";
+   input.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+         const data = JSON.parse(e.target.result);
+         shapes.length = 0;
+         for(const shapeData of data){
+            let shape;
+            switch(shapeData.type){
+               case "Rect":
+                  shape = Rect.load(shapeData, stageProperties);
+                  break;
+               case "Path":
+                  shape = Path.load(shapeData, stageProperties);
+                  break;
+            }
+            shapes.push(shape);
+         }
+         drawShapes(shapes);
+      };
+      reader.readAsText(file);
+   };
+   input.click();
+}

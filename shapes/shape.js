@@ -7,6 +7,11 @@ class Shape {
       this.size = null;
       this.selected = false;
    }
+
+   serialize() {
+      throw new Error("serialize method must be implemented");
+   }
+
    setCenter(center) {
       this.center = center;
    }
@@ -38,7 +43,7 @@ class Shape {
       const minY = Math.min(...points.map((p) => p.y));
       const maxX = Math.max(...points.map((p) => p.x));
       const maxY = Math.max(...points.map((p) => p.y));
-      console.log(points);
+
       ctx.save();
       ctx.beginPath();
       ctx.rect(minX + center.x, minY + center.y, maxX - minX, maxY - minY);
