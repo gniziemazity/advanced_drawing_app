@@ -8,7 +8,6 @@ const shortcutUndo = {control: true, key: "z", action: undo}
 shortcuts.push(shortcutP, shortcutR, shortcutSpace, shortcutUndo)
 
 function isShortcut(control, key) {
-    console.log(control, key)
     return shortcuts.find((s) => s.key === key && s.control === control)
 }
 

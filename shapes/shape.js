@@ -4,14 +4,25 @@ class Shape {
       this.id = Math.floor(16777216 * Math.random());
       this.options = options;
       this.center = null;
+      this.size = null;
       this.selected = false;
    }
    setCenter(center) {
       this.center = center;
    }
+
+   setWidth(width) {
+      throw new Error("setWidth method must be implemented");
+   }
+
+   setHeight(height) {
+      throw new Error("setWidth method must be implemented");
+   }
+
    recenter() {
       const points = this.getPoints();
       this.center = Vector.midVector(points);
+      this.size = getSize(points);
       for (const point of points) {
          const newPoint = Vector.subtract(point, this.center);
          point.x = newPoint.x;
@@ -27,6 +38,7 @@ class Shape {
       const minY = Math.min(...points.map((p) => p.y));
       const maxX = Math.max(...points.map((p) => p.x));
       const maxY = Math.max(...points.map((p) => p.y));
+      console.log(points);
       ctx.save();
       ctx.beginPath();
       ctx.rect(minX + center.x, minY + center.y, maxX - minX, maxY - minY);

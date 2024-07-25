@@ -16,6 +16,24 @@ class Path extends Shape {
       this.points = points;
    }
 
+   setWidth(width) {
+      const size = getSize(this.points);
+      const ratio = width / size.width;
+      for (const point of this.points) {
+         point.x *= ratio;
+      }
+      this.size.width = width;
+   }
+
+   setHeight(height) {
+      const size = getSize(this.points);
+      const ratio = height / size.height;
+      for (const point of this.points) {
+         point.y *= ratio;
+      }
+      this.size.height = height;
+   }
+
    draw(ctx, hitRegion = false) {
       const center = this.center ? this.center : { x: 0, y: 0 };
       ctx.beginPath();
