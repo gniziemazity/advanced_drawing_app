@@ -29,7 +29,7 @@ function downCallbackForSelect(e) {
       const upCallback = function (e) {
          myCanvas.removeEventListener("pointermove", moveCallback);
          myCanvas.removeEventListener("pointerup", upCallback);
-         updateProperties(shapes.filter((s) => s.selected));
+         PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
       };
       myCanvas.addEventListener("pointermove", moveCallback);
       myCanvas.addEventListener("pointerup", upCallback);
