@@ -31,6 +31,7 @@ const hitTestingCtx = hitTestCanvas.getContext("2d");
 
 clearCanvas();
 
+const history = [];
 const shapes = [];
 let currentShape = null;
 
@@ -152,13 +153,23 @@ function clearCanvas() {
    );
 }
 
+function updateHistory(shapes) {
+   history.push(shapes.map((s) => s.serialize(stageProperties)));
+}
+
 function undo() {
-   alert("ToDo");
+   history.pop();
+   if (history.length > 0) {
+      loadShapes(history[history.length - 1]);
+   } else {
+      shapes.length = 0;
+   }
+   drawShapes(shapes);
 }
 
 function save() {
    const data = JSON.stringify(shapes.map((s) => s.serialize(stageProperties)));
-   
+
    const a = document.createElement("a");
    const file = new Blob([data], { type: "application/json" });
    a.href = URL.createObjectURL(file);
@@ -166,7 +177,23 @@ function save() {
    a.click();
 }
 
-function load(){
+function loadShapes(data) {
+   shapes.length = 0;
+   for (const shapeData of data) {
+      let shape;
+      switch (shapeData.type) {
+         case "Rect":
+            shape = Rect.load(shapeData, stageProperties);
+            break;
+         case "Path":
+            shape = Path.load(shapeData, stageProperties);
+            break;
+      }
+      shapes.push(shape);
+   }
+}
+
+function load() {
    const input = document.createElement("input");
    input.type = "file";
    input.accept = ".json";
@@ -175,20 +202,9 @@ function load(){
       const reader = new FileReader();
       reader.onload = (e) => {
          const data = JSON.parse(e.target.result);
-         shapes.length = 0;
-         for(const shapeData of data){
-            let shape;
-            switch(shapeData.type){
-               case "Rect":
-                  shape = Rect.load(shapeData, stageProperties);
-                  break;
-               case "Path":
-                  shape = Path.load(shapeData, stageProperties);
-                  break;
-            }
-            shapes.push(shape);
-         }
+         loadShapes(data);
          drawShapes(shapes);
+         updateHistory(shapes);
       };
       reader.readAsText(file);
    };

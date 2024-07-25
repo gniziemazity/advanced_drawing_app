@@ -7,7 +7,7 @@ class Path extends Shape {
    static load(data, stageProperties) {
       const path = new Path();
       path.id = data.id;
-      path.options = data.options;
+      path.options = JSON.parse(JSON.stringify(data.options));
       path.center = new Vector(
          data.center.x + stageProperties.left,
          data.center.y + stageProperties.top
@@ -24,7 +24,7 @@ class Path extends Shape {
       return {
          type: "Path",
          id: this.id,
-         options: this.options,
+         options: JSON.parse(JSON.stringify(this.options)),
          center: new Vector(
             this.center.x - stageProperties.left,
             this.center.y - stageProperties.top
@@ -99,6 +99,8 @@ class Path extends Shape {
    
          currentShape.recenter();
          shapes.push(currentShape);
+
+         updateHistory(shapes);
       };
       myCanvas.addEventListener("pointermove", moveCallback);
       myCanvas.addEventListener("pointerup", upCallback);

@@ -10,7 +10,7 @@ class Rect extends Shape {
    static load(data, stageProperties) {
       const rect = new Rect();
       rect.id = data.id;
-      rect.options = data.options;
+      rect.options = JSON.parse(JSON.stringify(data.options));
       rect.center = Vector.load(data.center);
       rect.center.x += stageProperties.left;
       rect.center.y += stageProperties.top;
@@ -23,7 +23,7 @@ class Rect extends Shape {
       return {
          type: "Rect",
          id: this.id,
-         options: this.options,
+         options: JSON.parse(JSON.stringify(this.options)),
          center: new Vector(
             this.center.x - stageProperties.left,
             this.center.y - stageProperties.top
@@ -112,6 +112,8 @@ class Rect extends Shape {
 
          currentShape.recenter();
          shapes.push(currentShape);
+
+         updateHistory(shapes);
       };
       myCanvas.addEventListener("pointermove", moveCallback);
       myCanvas.addEventListener("pointerup", upCallback);

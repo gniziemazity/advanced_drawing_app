@@ -82,6 +82,8 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.center.x = Number(value) + stageProperties.left));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
@@ -89,6 +91,8 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.center.y = Number(value) + stageProperties.top));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
@@ -96,6 +100,8 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => s.setWidth(Number(value)));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
@@ -103,6 +109,8 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => s.setHeight(Number(value)));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
@@ -110,11 +118,15 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.options.fillColor = value));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
    static changeFill(value) {
       shapes.filter((s) => s.selected).forEach((s) => (s.options.fill = value));
+     
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
@@ -122,6 +134,8 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.options.strokeColor = value));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
@@ -129,6 +143,8 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.options.stroke = value));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
@@ -136,6 +152,8 @@ class PropertiesPanel {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.options.strokeWidth = Number(value)));
+      
+      updateHistory(shapes);
       drawShapes(shapes);
    }
 
