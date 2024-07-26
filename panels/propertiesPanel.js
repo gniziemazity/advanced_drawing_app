@@ -166,7 +166,6 @@ class PropertiesPanel {
 
    static updateDisplay(selectedShapes) {
       if (selectedShapes.length === 0) {
-         document.getElementById("properties").innerHTML = "";
          return;
       }
 
