@@ -13,10 +13,7 @@ function downCallbackForSelect(e) {
    const shape = shapes.find((s) => s.id == id);
 
 
-   let isClickingSelectedShape = false;
-   if (shape && shape.selected) {
-      isClickingSelectedShape = true;
-   }
+   const isClickingSelectedShape = shape && shape.selected;
    
    if(!isClickingSelectedShape){
       if (e.ctrlKey === false && e.shiftKey === false) {
@@ -24,7 +21,6 @@ function downCallbackForSelect(e) {
       }
    }
 
-   drawShapes(shapes);
 
    if (shape) {
       if(!isClickingSelectedShape) {  
@@ -33,13 +29,14 @@ function downCallbackForSelect(e) {
       const selectedShapes = shapes.filter((s) => s.selected);
       const oldCenters = selectedShapes.map((s) => s.center);
       let mouseDelta=null;
-      drawShapes(shapes);
+      let isDragging = false;
 
       PropertiesPanel.updateDisplay(selectedShapes);
 
       const moveCallback = function (e) {
          const mousePosition = new Vector(e.offsetX, e.offsetY);
          mouseDelta = Vector.subtract(mousePosition, startPosition);
+         isDragging = true;
          selectedShapes.forEach((s, i) => {
             s.setCenter(Vector.add(oldCenters[i], mouseDelta));
          });
@@ -51,9 +48,8 @@ function downCallbackForSelect(e) {
          myCanvas.removeEventListener("pointermove", moveCallback);
          myCanvas.removeEventListener("pointerup", upCallback);
 
-         if(isClickingSelectedShape && !mouseDelta){
+         if(isClickingSelectedShape && !isDragging){
             shape.selected = false;
-            
             drawShapes(shapes);
          }
          PropertiesPanel.updateDisplay(selectedShapes);
@@ -65,6 +61,8 @@ function downCallbackForSelect(e) {
    } else {
       selectShapesUnderRectangle(e);
    }
+
+   drawShapes(shapes);
 }
 
 function selectShapesUnderRectangle(e) {
@@ -111,14 +109,28 @@ function selectShapesUnderRectangle(e) {
          const maxX = Math.max(...points.map((p) => p.x + shape.center.x));
          const maxY = Math.max(...points.map((p) => p.y + shape.center.y));
 
-         if (
-            minX >= rectMinX &&
-            maxX <= rectMaxX &&
-            minY >= rectMinY &&
-            maxY <= rectMaxY
-         ) {
-            shape.selected = true;
-         }
+         switch (RECTANGULAR_SELECTION_MODE) {
+            case "containment":
+               if (
+                  minX >= rectMinX &&
+                  maxX <= rectMaxX &&
+                  minY >= rectMinY &&
+                  maxY <= rectMaxY
+               ) {
+                  shape.selected = true;
+               }
+               break;
+            case "intersection":
+               if (
+                  minX <= rectMaxX &&
+                  maxX >= rectMinX &&
+                  minY <= rectMaxY &&
+                  maxY >= rectMinY
+               ) {
+                  shape.selected = true;
+               }
+               break;
+            }
       });
 
       rect.remove();

@@ -1,4 +1,6 @@
 const SHOW_HIT_REGIONS = false;
+
+const RECTANGULAR_SELECTION_MODE = "intersection"; // "intersection" or "containment"
 if (!SHOW_HIT_REGIONS) {
    hitTestCanvas.style.display = "none";
 }
@@ -166,6 +168,11 @@ function undo() {
    } else {
       shapes.length = 0;
    }
+   drawShapes(shapes);
+}
+
+function selectAll() {
+   shapes.forEach((s) => (s.selected = true));
    drawShapes(shapes);
 }
 
