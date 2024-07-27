@@ -33,7 +33,7 @@ const hitTestingCtx = hitTestCanvas.getContext("2d");
 
 clearCanvas();
 
-const redoStack=[];
+const redoStack = [];
 const history = [];
 let shapes = [];
 let currentShape = null;
@@ -42,7 +42,7 @@ let clipboard = null;
 myCanvas.addEventListener("pointerdown", Path.addPointerDownListener);
 
 document.addEventListener("keydown", (e) => {
-   if(e.target instanceof HTMLInputElement){
+   if (e.target instanceof HTMLInputElement) {
       return;
    }
 
@@ -95,32 +95,6 @@ function selectSelectTool() {
    selectTool("select");
 }
 
-function deleteSelectedShapes(){
-   let index=shapes.findIndex((s) => s.selected)
-   while(index!=-1){
-      shapes.splice(index, 1);
-      index=shapes.findIndex((s) => s.selected)
-   }
-   PropertiesPanel.reset()
-   drawShapes(shapes);
-}
-
-function drawShapes(shapes) {
-   clearCanvas();
-   for (const shape of shapes) {
-      shape.draw(ctx);
-   }
-   hitTestingCtx.clearRect(
-      0,
-      0,
-      canvasProperties.width,
-      canvasProperties.height
-   );
-   for (const shape of shapes) {
-      shape.draw(hitTestingCtx, true);
-   }
-}
-
 function getOptions() {
    return {
       fillColor: fillColor.value,
@@ -165,7 +139,7 @@ function clearCanvas() {
 
 function updateHistory(shapes) {
    history.push(shapes.map((s) => s.serialize(stageProperties)));
-   redoStack.length=0;
+   redoStack.length = 0;
 }
 
 function copy() {
@@ -179,19 +153,19 @@ function copy() {
 function paste() {
    if (clipboard) {
       shapes.forEach((s) => (s.selected = false));
-      const newShapes=loadShapes(JSON.parse(clipboard));
+      const newShapes = loadShapes(JSON.parse(clipboard));
       newShapes.forEach((s) => s.generateId());
       shapes.push(...newShapes);
-      
+
       drawShapes(shapes);
       updateHistory(shapes);
-   };
+   }
 }
 
-function redo(){
-   if(redoStack.length>0){
-      const data=redoStack.pop();
-      shapes=loadShapes(data);
+function redo() {
+   if (redoStack.length > 0) {
+      const data = redoStack.pop();
+      shapes = loadShapes(data);
       drawShapes(shapes);
       history.push(data);
       PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
@@ -201,17 +175,12 @@ function redo(){
 function undo() {
    redoStack.push(history.pop());
    if (history.length > 0) {
-      shapes=loadShapes(history[history.length - 1]);
+      shapes = loadShapes(history[history.length - 1]);
    } else {
       shapes.length = 0;
    }
    drawShapes(shapes);
    PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
-}
-
-function selectAll() {
-   shapes.forEach((s) => (s.selected = true));
-   drawShapes(shapes);
 }
 
 function save() {
@@ -224,23 +193,6 @@ function save() {
    a.click();
 }
 
-function loadShapes(data) {
-   const loadedShapes=[];
-   for (const shapeData of data) {
-      let shape;
-      switch (shapeData.type) {
-         case "Rect":
-            shape = Rect.load(shapeData, stageProperties);
-            break;
-         case "Path":
-            shape = Path.load(shapeData, stageProperties);
-            break;
-      }
-      loadedShapes.push(shape);
-   }
-   return loadedShapes;
-}
-
 function load() {
    const input = document.createElement("input");
    input.type = "file";
@@ -250,11 +202,59 @@ function load() {
       const reader = new FileReader();
       reader.onload = (e) => {
          const data = JSON.parse(e.target.result);
-         shapes=loadShapes(data);
+         shapes = loadShapes(data);
          drawShapes(shapes);
          updateHistory(shapes);
       };
       reader.readAsText(file);
    };
    input.click();
+}
+
+function do_import() {
+   const input = document.createElement("input");
+   input.type = "file";
+   input.accept = ".png";
+   input.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+         const img = new Image();
+         img.onload = () => {
+            const myImage = new MyImage(img, getOptions());
+            myImage.setCenter(
+               new Vector(
+                  stageProperties.left + stageProperties.width / 2,
+                  stageProperties.top + stageProperties.height / 2
+               )
+            );
+            shapes.push(myImage);
+            drawShapes(shapes);
+            updateHistory(shapes);
+         };
+         img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+   };
+   input.click();
+}
+
+function do_export() {
+   const tmpCanvas = document.createElement("canvas");
+   tmpCanvas.width = stageProperties.width;
+   tmpCanvas.height = stageProperties.height;
+   const tmpCtx = tmpCanvas.getContext("2d");
+   tmpCtx.translate(-stageProperties.left, -stageProperties.top);
+   for (const shape of shapes) {
+      const isSelected = shape.selected;
+      shape.selected = false;
+      shape.draw(tmpCtx);
+      shape.selected = isSelected;
+   }
+   tmpCanvas.toBlob((blob) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "screenshot.png";
+      a.click();
+   });
 }
