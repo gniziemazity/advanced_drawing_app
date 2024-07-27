@@ -3,5 +3,8 @@ const contributors = [
    "kabelo tooka",
    "iyusuf",
    "rajeshpillai",
-   "bobcravens"
+   "bobcravens",
+   "rahul thakare",
+   "michael golden",
+   "thoughtandco"
 ];

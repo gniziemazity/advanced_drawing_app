@@ -196,19 +196,47 @@ function save() {
 function load() {
    const input = document.createElement("input");
    input.type = "file";
-   input.accept = ".json";
+   input.accept = ".json, .png";
    input.onchange = (e) => {
       const file = e.target.files[0];
       const reader = new FileReader();
+      const extension = file.name.split(".").pop();
+
       reader.onload = (e) => {
-         const data = JSON.parse(e.target.result);
-         shapes = loadShapes(data);
-         drawShapes(shapes);
-         updateHistory(shapes);
+         if (extension === "json") {
+            const data = JSON.parse(e.target.result);
+            shapes = loadShapes(data);
+            drawShapes(shapes);
+            updateHistory(shapes);
+         } else if (extension === "png") {
+            loadImage(e);
+         }
       };
-      reader.readAsText(file);
+      
+      if (extension === "json") {
+         reader.readAsText(file);
+      } else if (extension === "png") {
+         reader.readAsDataURL(file);
+      }
    };
    input.click();
+}
+
+function loadImage(e) {
+   const img = new Image();
+   img.onload = () => {
+      const myImage = new MyImage(img, getOptions());
+      myImage.setCenter(
+         new Vector(
+            stageProperties.left + stageProperties.width / 2,
+            stageProperties.top + stageProperties.height / 2
+         )
+      );
+      shapes.push(myImage);
+      drawShapes(shapes);
+      updateHistory(shapes);
+   };
+   img.src = e.target.result;
 }
 
 function do_import() {
@@ -219,20 +247,7 @@ function do_import() {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
-         const img = new Image();
-         img.onload = () => {
-            const myImage = new MyImage(img, getOptions());
-            myImage.setCenter(
-               new Vector(
-                  stageProperties.left + stageProperties.width / 2,
-                  stageProperties.top + stageProperties.height / 2
-               )
-            );
-            shapes.push(myImage);
-            drawShapes(shapes);
-            updateHistory(shapes);
-         };
-         img.src = e.target.result;
+         loadImage(e);
       };
       reader.readAsDataURL(file);
    };
