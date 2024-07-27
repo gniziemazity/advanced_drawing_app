@@ -163,3 +163,33 @@ function loadShapes(data) {
    }
    return loadedShapes;
 }
+
+
+function secondCornerMoveCallback (e, startPosition, currentShape) {
+   const mousePosition = new Vector(e.offsetX, e.offsetY);
+   let secondCornerPosition = mousePosition
+   if(e.shiftKey){
+      const deltaX=startPosition.x-mousePosition.x;
+      const deltaY=startPosition.y-mousePosition.y;
+      const sgnX=deltaX>0?1:-1;
+      const sgnY=deltaY>0?1:-1;
+      const maxDelta=Math.max(Math.abs(deltaX),Math.abs(deltaY));
+      secondCornerPosition = new Vector(
+         startPosition.x - sgnX*maxDelta,
+         startPosition.y - sgnY*maxDelta
+      );
+   }
+   currentShape.setCorner2(secondCornerPosition);
+
+   drawShapes([...shapes, currentShape]);
+};
+
+function secondCornerUpCallback (e, currentShape, moveCallback, upCallback) {
+   myCanvas.removeEventListener("pointermove", moveCallback);
+   myCanvas.removeEventListener("pointerup", upCallback);
+
+   currentShape.recenter();
+   shapes.push(currentShape);
+
+   updateHistory(shapes);
+};

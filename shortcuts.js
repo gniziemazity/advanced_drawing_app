@@ -2,6 +2,8 @@ const shortcuts = [
    { control: false, key: "r", action: selectRectTool },
    { control: false, key: "p", action: selectPathTool },
    { control: false, key: "v", action: selectSelectTool },
+   { control: false, key: "o", action: selectOvalTool },
+   { control: false, key: "t", action: selectTextTool },
    { control: true, key: "z", action: undo },
    { control: true, key: "y", action: redo },
    { control: true, key: "a", action: selectAll },

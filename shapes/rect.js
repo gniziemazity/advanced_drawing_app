@@ -96,25 +96,15 @@ class Rect extends Shape {
    }
 
    static addPointerDownListener(e) {
-      const mousePosition = new Vector(e.offsetX, e.offsetY);
-      currentShape = new Rect(mousePosition, getOptions());
+      const startPosition = new Vector(e.offsetX, e.offsetY);
+      currentShape = new Rect(startPosition, getOptions());
 
-      const moveCallback = function (e) {
-         const mousePosition = new Vector(e.offsetX, e.offsetY);
-         currentShape.setCorner2(mousePosition);
-
-         drawShapes([...shapes, currentShape]);
-      };
-
-      const upCallback = function (e) {
-         myCanvas.removeEventListener("pointermove", moveCallback);
-         myCanvas.removeEventListener("pointerup", upCallback);
-
-         currentShape.recenter();
-         shapes.push(currentShape);
-
-         updateHistory(shapes);
-      };
+      const moveCallback=(e)=>{
+         secondCornerMoveCallback(e, startPosition, currentShape);
+      }
+      const upCallback=(e)=>{
+         secondCornerUpCallback(e, currentShape, moveCallback, upCallback);
+      }
       myCanvas.addEventListener("pointermove", moveCallback);
       myCanvas.addEventListener("pointerup", upCallback);
    }
