@@ -124,6 +124,8 @@ function getOptions() {
 }
 
 function clearCanvas() {
+   ctx.save();
+   
    ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
    ctx.fillStyle = "gray";
    ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);
@@ -151,6 +153,8 @@ function clearCanvas() {
       canvasProperties.width,
       canvasProperties.height
    );
+   
+   ctx.restore();
 }
 
 function updateHistory(shapes) {

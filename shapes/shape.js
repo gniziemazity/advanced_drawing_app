@@ -8,7 +8,7 @@ class Shape {
       this.selected = false;
    }
 
-   generateId() { 
+   generateId() {
       this.id = Math.floor(16777216 * Math.random());
    }
 
@@ -61,19 +61,24 @@ class Shape {
       ctx.restore();
    }
 
-   applyHitRegionStyles(ctx, dilation = 10) {
+   getHitRGB() {
       const red = (this.id & 0xff0000) >> 16;
       const green = (this.id & 0x00ff00) >> 8;
       const blue = this.id & 0x0000ff;
+      return `rgb(${red},${green},${blue})`;
+   }
+
+   applyHitRegionStyles(ctx, dilation = 10) {
+      const rgb = this.getHitRGB();
       ctx.lineCap = this.options.lineCap;
       ctx.lineJoin = this.options.lineJoin;
-      ctx.fillStyle = `rgb(${red},${green},${blue})`;
-      ctx.strokeStyle = `rgb(${red},${green},${blue})`;
+      ctx.fillStyle = rgb;
+      ctx.strokeStyle = rgb;
       ctx.lineWidth = this.options.strokeWidth + dilation;
       // always doing a fill because of the poll during the live stream
       // most people seem to prefer selecting an object with no fill, when clicking on it
       //if (this.options.fill) {
-         ctx.fill();
+      ctx.fill();
       //}
       if (this.options.stroke) {
          ctx.stroke();
@@ -113,13 +118,13 @@ class Shape {
    }
 }
 
-function deleteSelectedShapes(){
-   let index=shapes.findIndex((s) => s.selected)
-   while(index!=-1){
+function deleteSelectedShapes() {
+   let index = shapes.findIndex((s) => s.selected);
+   while (index != -1) {
       shapes.splice(index, 1);
-      index=shapes.findIndex((s) => s.selected)
+      index = shapes.findIndex((s) => s.selected);
    }
-   PropertiesPanel.reset()
+   PropertiesPanel.reset();
    drawShapes(shapes);
 }
 
@@ -145,7 +150,7 @@ function selectAll() {
 }
 
 function loadShapes(data) {
-   const loadedShapes=[];
+   const loadedShapes = [];
    for (const shapeData of data) {
       let shape;
       switch (shapeData.type) {
@@ -158,33 +163,38 @@ function loadShapes(data) {
          case "MyImage":
             shape = MyImage.load(shapeData, stageProperties);
             break;
+         case "Oval":
+            shape = Oval.load(shapeData, stageProperties);
+            break;
+         case "Text":
+            shape = Text.load(shapeData, stageProperties);
+            break;
       }
       loadedShapes.push(shape);
    }
    return loadedShapes;
 }
 
-
-function secondCornerMoveCallback (e, startPosition, currentShape) {
+function secondCornerMoveCallback(e, startPosition, currentShape) {
    const mousePosition = new Vector(e.offsetX, e.offsetY);
-   let secondCornerPosition = mousePosition
-   if(e.shiftKey){
-      const deltaX=startPosition.x-mousePosition.x;
-      const deltaY=startPosition.y-mousePosition.y;
-      const sgnX=deltaX>0?1:-1;
-      const sgnY=deltaY>0?1:-1;
-      const maxDelta=Math.max(Math.abs(deltaX),Math.abs(deltaY));
+   let secondCornerPosition = mousePosition;
+   if (e.shiftKey) {
+      const deltaX = startPosition.x - mousePosition.x;
+      const deltaY = startPosition.y - mousePosition.y;
+      const sgnX = deltaX > 0 ? 1 : -1;
+      const sgnY = deltaY > 0 ? 1 : -1;
+      const minDelta = Math.min(Math.abs(deltaX), Math.abs(deltaY));
       secondCornerPosition = new Vector(
-         startPosition.x - sgnX*maxDelta,
-         startPosition.y - sgnY*maxDelta
+         startPosition.x - sgnX * minDelta,
+         startPosition.y - sgnY * minDelta
       );
    }
    currentShape.setCorner2(secondCornerPosition);
 
    drawShapes([...shapes, currentShape]);
-};
+}
 
-function secondCornerUpCallback (e, currentShape, moveCallback, upCallback) {
+function secondCornerUpCallback(e, currentShape, moveCallback, upCallback) {
    myCanvas.removeEventListener("pointermove", moveCallback);
    myCanvas.removeEventListener("pointerup", upCallback);
 
@@ -192,4 +202,4 @@ function secondCornerUpCallback (e, currentShape, moveCallback, upCallback) {
    shapes.push(currentShape);
 
    updateHistory(shapes);
-};
+}

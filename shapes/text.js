@@ -1,10 +1,18 @@
 class Text extends Shape {
-   constructor(corner1, options) {
+   constructor(center, options) {
       super(options);
-      //take out corner 1 and corner 2 to
-      //the drawing tool itself (it will need its own object)
-      this.corner1 = corner1;
-      this.corner2 = corner1;
+      this.center = center;
+
+      //unify later with other shapes
+      this.properties = {
+         fontSize: 60,
+         font: "60px Arial",
+         textAlign: "center",
+         textBaseline: "middle",
+         dilation: 10, //for hit test
+      };
+
+      this.setText("Enter Text Here");
    }
 
    static load(data, stageProperties) {
@@ -16,6 +24,7 @@ class Text extends Shape {
       text.center.y += stageProperties.top;
       text.size = data.size;
       text.selected = data.selected;
+      text.text = data.text;
       return text;
    }
 
@@ -29,7 +38,8 @@ class Text extends Shape {
             this.center.y - stageProperties.top
          ),
          size: this.size,
-         selected: this.selected
+         text: this.text,
+         selected: this.selected,
       };
    }
 
@@ -38,19 +48,12 @@ class Text extends Shape {
    }
 
    getPoints() {
-      if(this.size){
-         return [
-            new Vector( - this.size.width / 2, - this.size.height / 2),
-            new Vector( - this.size.width / 2,this.size.height / 2),
-            new Vector(this.size.width / 2, this.size.height / 2),
-            new Vector(this.size.width / 2,  - this.size.height / 2),
-         ];
-      }else{
-         return [
-            this.corner1,
-            this.corner2,
-         ];
-      }
+      return [
+         new Vector(-this.size.width / 2, -this.size.height / 2),
+         new Vector(-this.size.width / 2, this.size.height / 2),
+         new Vector(this.size.width / 2, this.size.height / 2),
+         new Vector(this.size.width / 2, -this.size.height / 2),
+      ];
    }
 
    setPoints(points) {
@@ -59,36 +62,66 @@ class Text extends Shape {
    }
 
    setWidth(width) {
-      this.size.width = width;
+      //do nothing
    }
 
    setHeight(height) {
-      this.size.height = height;
+      //do nothing
+   }
+
+   setProperties(ctx) {
+      for (const key in this.properties) {
+         ctx[key] = this.properties[key];
+      }
+   }
+
+   // WARNING, ctx is global
+   setText(value) {
+      this.text = value;
+      ctx.save();
+      this.setProperties(ctx);
+      const metrics = ctx.measureText(this.text);
+      this.size = {};
+      this.size.width = metrics.width;
+      console.log(this.properties);
+      this.size.height = this.properties.fontSize;
+      ctx.restore();
    }
 
    draw(ctx, hitRegion = false) {
       const center = this.center ? this.center : { x: 0, y: 0 };
       let left, top, width, height;
-      if (this.size) {
-         left = center.x - this.size.width / 2;
-         top = center.y - this.size.height / 2;
-         width = this.size.width;
-         height = this.size.height;
-      } else {
-         const minX = Math.min(this.corner1.x, this.corner2.x);
-         const minY = Math.min(this.corner1.y, this.corner2.y);
-         width = Math.abs(this.corner1.x - this.corner2.x);
-         height = Math.abs(this.corner1.y - this.corner2.y);
-         left = minX + center.x;
-         top = minY + center.y;
-      }
-      ctx.beginPath();
-      ctx.rect(left, top, width, height);
+
+      left = center.x - this.size.width / 2;
+      top = center.y - this.size.height / 2;
+      width = this.size.width;
+      height = this.size.height;
+
+      ctx.save();
+      this.setProperties(ctx);
 
       if (hitRegion) {
-         this.applyHitRegionStyles(ctx);
+         ctx.beginPath();
+         const rgb = this.getHitRGB();
+         ctx.fillStyle = rgb;
+         ctx.strokeStyle = rgb;
+         ctx.lineWidth = this.options.strokeWidth + this.properties.dilation;
+         ctx.fillText(this.text, left + width / 2, top + height / 2);
+         ctx.strokeText(this.text, left + width / 2, top + height / 2);
+
+         ctx.restore();
       } else {
-         this.applyStyles(ctx);
+         ctx.beginPath();
+         if (this.options.fill) {
+            ctx.fillStyle = this.options.fillColor;
+            ctx.fillText(this.text, left + width / 2, top + height / 2);
+         }
+         if (this.options.stroke) {
+            ctx.strokeStyle = this.options.strokeColor;
+            ctx.lineWidth = this.options.strokeWidth;
+            ctx.strokeText(this.text, left + width / 2, top + height / 2);
+         }
+         ctx.restore();
          if (this.selected) {
             this.drawGizmo(ctx);
          }
@@ -96,26 +129,12 @@ class Text extends Shape {
    }
 
    static addPointerDownListener(e) {
-      const mousePosition = new Vector(e.offsetX, e.offsetY);
-      currentShape = new Rect(mousePosition, getOptions());
+      const position = new Vector(e.offsetX, e.offsetY);
+      currentShape = new Text(position, getOptions());
 
-      const moveCallback = function (e) {
-         const mousePosition = new Vector(e.offsetX, e.offsetY);
-         currentShape.setCorner2(mousePosition);
+      shapes.push(currentShape);
+      drawShapes(shapes);
 
-         drawShapes([...shapes, currentShape]);
-      };
-
-      const upCallback = function (e) {
-         myCanvas.removeEventListener("pointermove", moveCallback);
-         myCanvas.removeEventListener("pointerup", upCallback);
-
-         currentShape.recenter();
-         shapes.push(currentShape);
-
-         updateHistory(shapes);
-      };
-      myCanvas.addEventListener("pointermove", moveCallback);
-      myCanvas.addEventListener("pointerup", upCallback);
+      updateHistory(shapes);
    }
 }

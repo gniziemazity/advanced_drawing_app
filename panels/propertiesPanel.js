@@ -78,6 +78,14 @@ class PropertiesPanel {
             oninput="PropertiesPanel.previewStrokeWidth(this.value)"
             onchange="PropertiesPanel.changeStrokeWidth(this.value)"
          />
+         <br />
+         <input
+            type="text"
+            id="text"
+            value="TEST"
+            title="Text"
+            oninput="PropertiesPanel.changeText(this.value)"
+         />
          <br />`;
    }
 
@@ -176,11 +184,21 @@ class PropertiesPanel {
       updateHistory(shapes);
    }
 
+   static changeText(value) {
+      shapes
+         .filter((s) => s.selected && s.text)
+         .forEach((s) => (s.setText(value)));
+
+      updateHistory(shapes);
+      drawShapes(shapes);
+   }
+
    static reset() {
       x.value = "";
       y.value = "";
       width.value = "";
       height.value = "";
+      text.value = "";
       x.placeholder = "";
       y.placeholder = "";
       width.placeholder = "";
@@ -206,6 +224,7 @@ class PropertiesPanel {
                strokeColor: shape.options.strokeColor,
                stroke: shape.options.stroke,
                strokeWidth: shape.options.strokeWidth,
+               text: shape.text,
             };
          } else {
             if (newProperties.x !== shape.center.x - stageProperties.left) {
@@ -235,6 +254,9 @@ class PropertiesPanel {
             if (newProperties.strokeWidth !== shape.options.strokeWidth) {
                newProperties.strokeWidth = null;
             }
+            if (newProperties.text !== shape.text) {
+               newProperties.text = null;
+            }
          }
       }
       if (newProperties === null) {
@@ -259,6 +281,7 @@ class PropertiesPanel {
          strokeWidth.value = newProperties.strokeWidth
             ? newProperties.strokeWidth
             : "";
+         text.value = newProperties.text ? newProperties.text : "";
 
          const placeholderText = "Multiple Values";
          x.placeholder = newProperties.x ? "" : placeholderText;
@@ -270,6 +293,6 @@ class PropertiesPanel {
          strokeColor.placeholder = newProperties.strokeColor ? "" : placeholderText;
          stroke.placeholder = newProperties.stroke ? "" : placeholderText;
          strokeWidth.placeholder = newProperties.strokeWidth ? "" : placeholderText;
-      }
+         text.placeholder = newProperties.text ? "" : placeholderText;      }
    }
 }
