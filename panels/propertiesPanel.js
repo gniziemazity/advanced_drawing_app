@@ -100,15 +100,19 @@ class PropertiesPanel {
    }
 
    static changeWidth(value) {
+      const fixedValue=Math.max(Number(value),1);
+      width.value=fixedValue;
       shapes
          .filter((s) => s.selected)
-         .forEach((s) => s.setWidth(Number(value)));
+         .forEach((s) => s.setWidth(Number(fixedValue)));
 
       updateHistory(shapes);
       drawShapes(shapes);
    }
 
    static changeHeight(value) {
+      const fixedValue=Math.max(Number(value),1);
+      height.value=fixedValue;
       shapes
          .filter((s) => s.selected)
          .forEach((s) => s.setHeight(Number(value)));
@@ -185,6 +189,7 @@ class PropertiesPanel {
 
    static updateDisplay(selectedShapes) {
       if (selectedShapes.length === 0) {
+         PropertiesPanel.reset();
          return;
       }
 

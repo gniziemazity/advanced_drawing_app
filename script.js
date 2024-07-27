@@ -33,22 +33,17 @@ const hitTestingCtx = hitTestCanvas.getContext("2d");
 
 clearCanvas();
 
+const redoStack=[];
 const history = [];
-const shapes = [];
+let shapes = [];
 let currentShape = null;
+let clipboard = null;
 
 myCanvas.addEventListener("pointerdown", Path.addPointerDownListener);
 
-window.addEventListener("keydown", (e) => {
-   if (e.key === "Delete") {
-      let index=shapes.findIndex((s) => s.selected)
-      while(index!=-1){
-         shapes.splice(index, 1);
-         index=shapes.findIndex((s) => s.selected)
-      }
-      // comment
-      PropertiesPanel.reset()
-      drawShapes(shapes);
+document.addEventListener("keydown", (e) => {
+   if(e.target instanceof HTMLInputElement){
+      return;
    }
 
    if (isShortcut(e.ctrlKey, e.key)) {
@@ -98,6 +93,16 @@ function selectPathTool() {
 
 function selectSelectTool() {
    selectTool("select");
+}
+
+function deleteSelectedShapes(){
+   let index=shapes.findIndex((s) => s.selected)
+   while(index!=-1){
+      shapes.splice(index, 1);
+      index=shapes.findIndex((s) => s.selected)
+   }
+   PropertiesPanel.reset()
+   drawShapes(shapes);
 }
 
 function drawShapes(shapes) {
@@ -160,16 +165,48 @@ function clearCanvas() {
 
 function updateHistory(shapes) {
    history.push(shapes.map((s) => s.serialize(stageProperties)));
+   redoStack.length=0;
+}
+
+function copy() {
+   const selectedShapes = shapes.filter((s) => s.selected);
+   if (selectedShapes.length > 0) {
+      const data = selectedShapes.map((s) => s.serialize(stageProperties));
+      clipboard = JSON.stringify(data);
+   }
+}
+
+function paste() {
+   if (clipboard) {
+      shapes.forEach((s) => (s.selected = false));
+      const newShapes=loadShapes(JSON.parse(clipboard));
+      newShapes.forEach((s) => s.generateId());
+      shapes.push(...newShapes);
+      
+      drawShapes(shapes);
+      updateHistory(shapes);
+   };
+}
+
+function redo(){
+   if(redoStack.length>0){
+      const data=redoStack.pop();
+      shapes=loadShapes(data);
+      drawShapes(shapes);
+      history.push(data);
+      PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
+   }
 }
 
 function undo() {
-   history.pop();
+   redoStack.push(history.pop());
    if (history.length > 0) {
-      loadShapes(history[history.length - 1]);
+      shapes=loadShapes(history[history.length - 1]);
    } else {
       shapes.length = 0;
    }
    drawShapes(shapes);
+   PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
 }
 
 function selectAll() {
@@ -188,7 +225,7 @@ function save() {
 }
 
 function loadShapes(data) {
-   shapes.length = 0;
+   const loadedShapes=[];
    for (const shapeData of data) {
       let shape;
       switch (shapeData.type) {
@@ -199,8 +236,9 @@ function loadShapes(data) {
             shape = Path.load(shapeData, stageProperties);
             break;
       }
-      shapes.push(shape);
+      loadedShapes.push(shape);
    }
+   return loadedShapes;
 }
 
 function load() {
@@ -212,7 +250,7 @@ function load() {
       const reader = new FileReader();
       reader.onload = (e) => {
          const data = JSON.parse(e.target.result);
-         loadShapes(data);
+         shapes=loadShapes(data);
          drawShapes(shapes);
          updateHistory(shapes);
       };

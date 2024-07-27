@@ -28,7 +28,8 @@ class Rect extends Shape {
             this.center.x - stageProperties.left,
             this.center.y - stageProperties.top
          ),
-         size: this.size
+         size: this.size,
+         selected: this.selected
       };
    }
 
