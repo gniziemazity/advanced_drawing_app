@@ -13,7 +13,6 @@ class Path extends Shape {
          data.center.y + stageProperties.top
       );
       path.size = data.size;
-      path.selected = data.selected;
       path.points = data.points.map((p) => 
          Vector.load(p)
       );

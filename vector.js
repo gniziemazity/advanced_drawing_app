@@ -16,6 +16,10 @@ class Vector{
       return new Vector(this.x - v.x, this.y - v.y);
    }
 
+   magnitude(){
+      return Math.sqrt(this.x * this.x + this.y * this.y);
+   }
+
    static midVector(vectors){
       const minX = Math.min(...vectors.map((p) => p.x));
       const minY = Math.min(...vectors.map((p) => p.y));
@@ -30,5 +34,9 @@ class Vector{
 
    static subtract(v1, v2){
       return v1.subtract(v2);
+   }
+
+   static magnitude(v){
+      return v.magnitude();
    }
 }

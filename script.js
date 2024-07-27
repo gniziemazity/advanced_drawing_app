@@ -41,10 +41,11 @@ myCanvas.addEventListener("pointerdown", Path.addPointerDownListener);
 
 window.addEventListener("keydown", (e) => {
    if (e.key === "Delete") {
-      shapes.splice(
-         shapes.findIndex((s) => s.selected),
-         1
-      );
+      let index=shapes.findIndex((s) => s.selected)
+      while(index!=-1){
+         shapes.splice(index, 1);
+         index=shapes.findIndex((s) => s.selected)
+      }
       // comment
       PropertiesPanel.reset()
       drawShapes(shapes);

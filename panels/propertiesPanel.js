@@ -41,7 +41,8 @@ class PropertiesPanel {
             id="fillColor"
             value="#ff0000"
             title="Fill Color"
-            oninput="PropertiesPanel.changeFillColor(this.value)"
+            oninput="PropertiesPanel.previewFillColor(this.value)"
+            onchange="PropertiesPanel.changeFillColor(this.value)"
          />
          <input
             type="checkbox"
@@ -56,7 +57,8 @@ class PropertiesPanel {
             id="strokeColor"
             value="#0000ff"
             title="Stroke Color"
-            oninput="PropertiesPanel.changeStrokeColor(this.value)"
+            oninput="PropertiesPanel.previewStrokeColor(this.value)"
+            onchange="PropertiesPanel.changeStrokeColor(this.value)"
          />
          <input
             type="checkbox"
@@ -73,7 +75,8 @@ class PropertiesPanel {
             min="1"
             max="100"
             title="Stroke Width"
-            oninput="PropertiesPanel.changeStrokeWidth(this.value)"
+            oninput="PropertiesPanel.previewStrokeWidth(this.value)"
+            onchange="PropertiesPanel.changeStrokeWidth(this.value)"
          />
          <br />`;
    }
@@ -114,13 +117,17 @@ class PropertiesPanel {
       drawShapes(shapes);
    }
 
-   static changeFillColor(value) {
+   static previewFillColor(value) {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.options.fillColor = value));
 
-      updateHistory(shapes);
       drawShapes(shapes);
+   }
+
+   static changeFillColor(value) {
+      PropertiesPanel.previewFillColor(value);
+      updateHistory(shapes);
    }
 
    static changeFill(value) {
@@ -130,13 +137,17 @@ class PropertiesPanel {
       drawShapes(shapes);
    }
 
-   static changeStrokeColor(value) {
+   static previewStrokeColor(value) {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.options.strokeColor = value));
 
-      updateHistory(shapes);
       drawShapes(shapes);
+   }
+
+   static changeStrokeColor(value) {
+      PropertiesPanel.previewStrokeColor(value);
+      updateHistory(shapes);
    }
 
    static changeStroke(value) {
@@ -148,13 +159,17 @@ class PropertiesPanel {
       drawShapes(shapes);
    }
 
-   static changeStrokeWidth(value) {
+   static previewStrokeWidth(value) {
       shapes
          .filter((s) => s.selected)
          .forEach((s) => (s.options.strokeWidth = Number(value)));
 
-      updateHistory(shapes);
       drawShapes(shapes);
+   }
+
+   static changeStrokeWidth(value) {
+      PropertiesPanel.previewStrokeWidth(value);
+      updateHistory(shapes);
    }
 
    static reset() {

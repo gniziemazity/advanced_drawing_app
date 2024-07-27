@@ -36,6 +36,10 @@ function downCallbackForSelect(e) {
       const moveCallback = function (e) {
          const mousePosition = new Vector(e.offsetX, e.offsetY);
          mouseDelta = Vector.subtract(mousePosition, startPosition);
+         if(e.ctrlKey){
+            mouseDelta.x = Math.round(mouseDelta.x / 10) * 10;
+            mouseDelta.y = Math.round(mouseDelta.y / 10) * 10;
+         }
          isDragging = true;
          selectedShapes.forEach((s, i) => {
             s.setCenter(Vector.add(oldCenters[i], mouseDelta));
@@ -53,8 +57,9 @@ function downCallbackForSelect(e) {
             drawShapes(shapes);
          }
          PropertiesPanel.updateDisplay(selectedShapes);
-
-         updateHistory(shapes);
+         if(isDragging && mouseDelta.magnitude() > 0){
+            updateHistory(shapes);
+         }
       };
       myCanvas.addEventListener("pointermove", moveCallback);
       myCanvas.addEventListener("pointerup", upCallback);
