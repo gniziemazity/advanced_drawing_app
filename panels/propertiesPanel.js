@@ -186,7 +186,7 @@ class PropertiesPanel {
 
    static changeText(value) {
       shapes
-         .filter((s) => s.selected && s.text)
+         .filter((s) => s.selected && s.text !== undefined)
          .forEach((s) => (s.setText(value)));
 
       updateHistory(shapes);
