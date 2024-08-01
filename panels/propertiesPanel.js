@@ -1,93 +1,100 @@
 class PropertiesPanel {
    constructor(holderDiv) {
       this.holderDiv = holderDiv;
-      this.holderDiv.innerHTML = `
-         Properties
-         <br/>
-         <label for="x">X:</label>
-         <input
-            type="number"
-            id="x"
-            title="X"
-            onchange="PropertiesPanel.changeX(this.value)"
-         />
-         <br />
-         <label for="y">Y:</label>
-         <input
-            type="number"
-            id="y"
-            title="Y"
-            onchange="PropertiesPanel.changeY(this.value)"
-         />
-         <br />
-         <label for="width">Width:</label>
-         <input
-            type="number"
-            id="width"
-            title="Width"
-            onchange="PropertiesPanel.changeWidth(this.value)"
-         />
-         <br />
-         <label for="height">Height:</label>
-         <input
-            type="number"
-            id="height"
-            title="Height"
-            onchange="PropertiesPanel.changeHeight(this.value)"
-         />
-         <br />
-         <input
-            type="color"
-            id="fillColor"
-            value="#ff0000"
-            title="Fill Color"
-            oninput="PropertiesPanel.previewFillColor(this.value)"
-            onchange="PropertiesPanel.changeFillColor(this.value)"
-         />
-         <input
-            type="checkbox"
-            id="fill"
-            checked
-            title="Fill"
-            onchange="PropertiesPanel.changeFill(this.checked)"
-         />
-         <br />
-         <input
-            type="color"
-            id="strokeColor"
-            value="#0000ff"
-            title="Stroke Color"
-            oninput="PropertiesPanel.previewStrokeColor(this.value)"
-            onchange="PropertiesPanel.changeStrokeColor(this.value)"
-         />
-         <input
-            type="checkbox"
-            id="stroke"
-            checked
-            title="Stroke"
-            onchange="PropertiesPanel.changeStroke(this.checked)"
-         />
-         <br />
-         <input
-            type="range"
-            id="strokeWidth"
-            value="5"
-            min="1"
-            max="100"
-            title="Stroke Width"
-            oninput="PropertiesPanel.previewStrokeWidth(this.value)"
-            onchange="PropertiesPanel.changeStrokeWidth(this.value)"
-         />
-         <br />
-         <input
-            type="text"
-            id="text"
-            value="TEST"
-            title="Text"
-            oninput="PropertiesPanel.changeText(this.value)"
-         />
-         <br />`;
-   }
+      this.holderDiv.innerText = "Properties";
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createInputWithLabel("X", {
+           type: "number",
+           onchange: "PropertiesPanel.changeX(this.value)",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createInputWithLabel("Y", {
+           type: "number",
+           onchange: "PropertiesPanel.changeY(this.value)",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createInputWithLabel("Width", {
+           type: "number",
+           onchange: "PropertiesPanel.changeWidth(this.value)",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createInputWithLabel("Height", {
+           type: "number",
+           onchange: "PropertiesPanel.changeHeight(this.value)",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createDOMElement("input", {
+           id: "fillColor",
+           onchange: "PropertiesPanel.changeFillColor(this.value)",
+           oninput: "PropertiesPanel.previewFillColor(this.value)",
+           title: "Fill Color",
+           type: "color",
+           value: "#ff0000",
+         }),
+       );
+      this.holderDiv.appendChild(
+         createDOMElement("input", {
+           id: "fill",
+           checked: true,
+           onchange: "PropertiesPanel.changeFill(this.checked)",
+           title: "Fill",
+           type: "checkbox",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createDOMElement("input", {
+           id: "strokeColor",
+           onchange: "PropertiesPanel.changeStrokeColor(this.value)",
+           oninput: "PropertiesPanel.previewStrokeColor(this.value)",
+           title: "Stroke Color",
+           type: "color",
+           value: "#0000ff",
+         }),
+       );
+      this.holderDiv.appendChild(
+         createDOMElement("input", {
+           id: "stroke",
+           checked: true,
+           onchange: "PropertiesPanel.changeStroke(this.checked)",
+           title: "Stroke",
+           type: "checkbox",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createDOMElement("input", {
+           id: "strokeWidth",
+           max: "100",
+           min: "1",
+           onchange: "PropertiesPanel.changeStrokeWidth(this.value)",
+           oninput: "PropertiesPanel.previewStrokeWidth(this.value)",
+           title: "Stroke Width",
+           type: "range",
+           value: "5",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+      this.holderDiv.appendChild(
+         createDOMElement("input", {
+           id: "text",
+           oninput: "PropertiesPanel.changeText(this.value)",
+           title: "Stroke Width",
+           type: "text",
+           value: "TEST",
+         }),
+       );
+      this.holderDiv.appendChild(createDOMElement("br"));
+  }
 
    static changeX(value) {
       shapes
