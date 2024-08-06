@@ -203,7 +203,8 @@ function secondCornerUpCallback(e, currentShape, moveCallback, upCallback) {
    myCanvas.removeEventListener("pointerup", upCallback);
 
    currentShape.recenter();
-   shapes.push(currentShape);
-
-   updateHistory(shapes);
+   if(currentShape.size.width > 0 && currentShape.size.height > 0){
+      shapes.push(currentShape);
+      updateHistory(shapes);
+   }
 }

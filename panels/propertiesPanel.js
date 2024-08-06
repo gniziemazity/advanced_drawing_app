@@ -9,28 +9,24 @@ class PropertiesPanel {
            onchange: "PropertiesPanel.changeX(this.value)",
          }),
        );
-      this.holderDiv.appendChild(createDOMElement("br"));
       this.holderDiv.appendChild(
          createInputWithLabel("Y", {
            type: "number",
            onchange: "PropertiesPanel.changeY(this.value)",
          }),
        );
-      this.holderDiv.appendChild(createDOMElement("br"));
       this.holderDiv.appendChild(
          createInputWithLabel("Width", {
            type: "number",
            onchange: "PropertiesPanel.changeWidth(this.value)",
          }),
        );
-      this.holderDiv.appendChild(createDOMElement("br"));
       this.holderDiv.appendChild(
          createInputWithLabel("Height", {
            type: "number",
            onchange: "PropertiesPanel.changeHeight(this.value)",
          }),
        );
-      this.holderDiv.appendChild(createDOMElement("br"));
       this.holderDiv.appendChild(
          createDOMElement("input", {
            id: "fillColor",
