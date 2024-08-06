@@ -161,7 +161,7 @@ class PropertiesPanel {
             .filter((s) => s.selected)
             .forEach((s) => s.setWidth(newWidth));
 
-            setProperty(width, "data-width", newWidth);
+         setProperty(width, "data-width", newWidth);
       }
 
       updateHistory(shapes);
