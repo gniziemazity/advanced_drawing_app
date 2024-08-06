@@ -82,22 +82,12 @@ class Path extends Shape {
    static addPointerDownListener(e) {
       if (e.button !== 0) return;
 
-      const mousePosition = new Vector(e.offsetX, e.offsetY).subtract(
-         canvasProperties.offset
-      );
-      const startPosition = mousePosition
-         .scale(1 / viewport.zoom)
-         .subtract(viewport.offset);
+      const startPosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
       currentShape = new Path(startPosition, getOptions());
 
       const moveCallback = function (e) {
-         const mousePosition = new Vector(e.offsetX, e.offsetY).subtract(
-            canvasProperties.offset
-         );
-         const startPosition = mousePosition
-            .scale(1 / viewport.zoom)
-            .subtract(viewport.offset);
-         currentShape.addPoint(startPosition);
+         const mousePosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
+         currentShape.addPoint(mousePosition);
 
          drawShapes([...shapes, currentShape]);
       };

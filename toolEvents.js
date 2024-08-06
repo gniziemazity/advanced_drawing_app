@@ -3,7 +3,7 @@ function downCallbackForSelect(e) {
    
    PropertiesPanel.reset();
    const startPosition = new Vector(e.offsetX, e.offsetY);
-
+   
    const [r, g, b, a] = hitTestingCtx.getImageData(
       startPosition.x,
       startPosition.y,
@@ -35,10 +35,8 @@ function downCallbackForSelect(e) {
 
       const moveCallback = function (e) {
          const mousePosition = new Vector(e.offsetX, e.offsetY);
-         mouseDelta = Vector.scale(
-            Vector.subtract(mousePosition, startPosition),
-            1 / viewport.zoom
-         );
+         const diff= Vector.subtract(mousePosition, startPosition);
+         mouseDelta = viewport.scale(diff);
          isDragging = true;
          selectedShapes.forEach((s, i) => {
             s.setCenter(Vector.add(oldCenters[i], mouseDelta));
@@ -70,7 +68,7 @@ function downCallbackForSelect(e) {
 }
 
 function selectShapesUnderRectangle(e) {
-   const startPosition = { x: e.offsetX, y: e.offsetY };
+   const startPosition = new Vector(e.clientX, e.clientY);
 
    let rect = document.createElement("div");
    rect.style.position = "fixed";
@@ -80,25 +78,20 @@ function selectShapesUnderRectangle(e) {
    const htmlBody = document.querySelector("body");
    htmlBody.appendChild(rect);
 
-   let rectMinX,
-      rectMinY,
-      rectMaxX,
-      rectMaxY = 0;
+   let topLeft = Vector.zero();
+   let bottomRight = Vector.zero();
+   
 
    const moveCallback = function (e) {
-      const mousePosition = { x: e.clientX, y: e.clientY };
-      rectMinX = Math.min(startPosition.x, mousePosition.x);
-      rectMinY = Math.min(startPosition.y, mousePosition.y);
-      const width = Math.abs(startPosition.x - mousePosition.x);
-      const height = Math.abs(startPosition.y - mousePosition.y);
-      rectMaxX = rectMinX + width;
-      rectMaxY = rectMinY + height;
-      const left = rectMinX;
-      const top = rectMinY;
-      rect.style.left = `${left}px`;
-      rect.style.top = `${top}px`;
-      rect.style.width = `${width}px`;
-      rect.style.height = `${height}px`;
+      const mousePosition = new Vector(e.clientX, e.clientY);
+      topLeft = Vector.min(startPosition, mousePosition);
+      bottomRight = Vector.max(startPosition, mousePosition);
+      const offset = bottomRight.subtract(topLeft);
+
+      rect.style.left = `${topLeft.x}px`;
+      rect.style.top = `${topLeft.y}px`;
+      rect.style.width = `${offset.x}px`;
+      rect.style.height = `${offset.y}px`;
    };
 
    const upCallback = function (e) {
@@ -107,20 +100,8 @@ function selectShapesUnderRectangle(e) {
       rect.removeEventListener("pointerup", upCallback);
       rect.removeEventListener("pointermove", moveCallback);
 
-      rectMinX =
-         (rectMinX - canvasProperties.offset.x) / viewport.zoom -
-         viewport.offset.x;
-      rectMinY =
-         (rectMinY - canvasProperties.offset.y) / viewport.zoom -
-         viewport.offset.y;
-      rectMaxX =
-         (rectMaxX - canvasProperties.offset.x) / viewport.zoom -
-         viewport.offset.x;
-      rectMaxY =
-         (rectMaxY - canvasProperties.offset.y) / viewport.zoom -
-         viewport.offset.y;
-
-      console.log(rectMinX, rectMinY, rectMaxX, rectMaxY);
+      topLeft = viewport.getAdjustedPosition(topLeft);
+      bottomRight = viewport.getAdjustedPosition(bottomRight);
 
       shapes.forEach((shape) => {
          const points = shape.getPoints();
@@ -132,20 +113,20 @@ function selectShapesUnderRectangle(e) {
          switch (RECTANGULAR_SELECTION_MODE) {
             case "containment":
                if (
-                  minX >= rectMinX &&
-                  maxX <= rectMaxX &&
-                  minY >= rectMinY &&
-                  maxY <= rectMaxY
+                  minX >= topLeft.x &&
+                  maxX <= bottomRight.x &&
+                  minY >= topLeft.y &&
+                  maxY <= bottomRight.y
                ) {
                   shape.selected = true;
                }
                break;
             case "intersection":
                if (
-                  minX <= rectMaxX &&
-                  maxX >= rectMinX &&
-                  minY <= rectMaxY &&
-                  maxY >= rectMinY
+                  minX <= bottomRight.x &&
+                  maxX >= topLeft.x &&
+                  minY <= bottomRight.y &&
+                  maxY >= topLeft.y
                ) {
                   shape.selected = true;
                }

@@ -1,12 +1,25 @@
 class Viewport {
-   constructor(canvas, hitTestCanvas) {
+   constructor(canvas, hitTestCanvas, canvasProperties, stageProperties) {
       this.canvas = canvas;
       this.hitTestCanvas = hitTestCanvas;
+      this.canvasProperties = canvasProperties;
+      this.stageProperties = stageProperties
       this.zoom = 1;
       this.offset = Vector.zero();
       this.zoomStep = 0.05;
 
       this.#addEventListeners();
+   }
+
+   scale(vector){
+      return vector.scale(1 / this.zoom);
+   }
+   
+   getAdjustedPosition(vector) {
+      return vector
+         .subtract(this.canvasProperties.offset)
+         .scale(1 / this.zoom)
+         .subtract(this.offset);
    }
 
    #addEventListeners() {

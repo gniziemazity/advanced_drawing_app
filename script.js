@@ -13,9 +13,12 @@ const stageProperties = {
 const canvasProperties = {
    width: SHOW_HIT_REGIONS ? window.innerWidth / 2 : window.innerWidth,
    height: window.innerHeight,
-   center: Vector.zero()
+   center: Vector.zero(),
 };
-canvasProperties.offset = new Vector(canvasProperties.width / 2, canvasProperties.height / 2);
+canvasProperties.offset = new Vector(
+   canvasProperties.width / 2,
+   canvasProperties.height / 2
+);
 
 (stageProperties.left = canvasProperties.center.x - stageProperties.width / 2),
    (stageProperties.top =
@@ -27,11 +30,10 @@ hitTestCanvas.width = canvasProperties.width;
 hitTestCanvas.height = canvasProperties.height;
 
 const ctx = myCanvas.getContext("2d");
-const hitTestingCtx = hitTestCanvas.getContext("2d");
+const hitTestingCtx = hitTestCanvas.getContext("2d",{ willReadFrequently: true });
 
 ctx.translate(canvasProperties.offset.x, canvasProperties.offset.y);
 hitTestingCtx.translate(canvasProperties.offset.x, canvasProperties.offset.y);
-
 
 clearCanvas();
 drawStage();
@@ -55,7 +57,12 @@ document.addEventListener("keydown", (e) => {
    }
 });
 
-const viewport = new Viewport(myCanvas, hitTestCanvas);
+const viewport = new Viewport(
+   myCanvas,
+   hitTestCanvas,
+   canvasProperties,
+   stageProperties
+);
 
 const propertiesPanel = new PropertiesPanel(propertiesHolder);
 
@@ -130,15 +137,20 @@ function getOptions() {
 
 function clearCanvas() {
    ctx.fillStyle = "gray";
-   ctx.fillRect(-myCanvas.width / 2, -myCanvas.height / 2, myCanvas.width, myCanvas.height);
+   ctx.fillRect(
+      -myCanvas.width / 2,
+      -myCanvas.height / 2,
+      myCanvas.width,
+      myCanvas.height
+   );
 
    ctx.fillStyle = "white";
 
    ctx.textAlign = "right";
    ctx.fillText(
       "Contributors: " + contributors.join(", "),
-      myCanvas.width/2 - 10,
-      -myCanvas.height/2+10
+      myCanvas.width / 2 - 10,
+      -myCanvas.height / 2 + 10
    );
 }
 
