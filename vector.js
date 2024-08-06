@@ -4,6 +4,10 @@ class Vector{
       this.y = y;
    }
 
+   static zero(){
+      return new Vector(0, 0);
+   }
+
    static load(data){
       return new Vector(data.x, data.y);
    }
@@ -18,6 +22,10 @@ class Vector{
 
    magnitude(){
       return Math.sqrt(this.x * this.x + this.y * this.y);
+   }
+
+   scale(scalar){
+      return new Vector(this.x * scalar, this.y * scalar);
    }
 
    static midVector(vectors){
@@ -38,5 +46,9 @@ class Vector{
 
    static magnitude(v){
       return v.magnitude();
+   }
+
+   static scale(v, scalar){
+      return v.scale(scalar);
    }
 }

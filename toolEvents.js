@@ -12,30 +12,31 @@ function downCallbackForSelect(e) {
    const id = (r << 16) | (g << 8) | b;
    const shape = shapes.find((s) => s.id == id);
 
-
    const isClickingSelectedShape = shape && shape.selected;
-   
-   if(!isClickingSelectedShape){
+
+   if (!isClickingSelectedShape) {
       if (e.ctrlKey === false && e.shiftKey === false) {
          shapes.forEach((s) => (s.selected = false));
       }
    }
 
-
    if (shape) {
-      if(!isClickingSelectedShape) {  
+      if (!isClickingSelectedShape) {
          shape.selected = true;
       }
       const selectedShapes = shapes.filter((s) => s.selected);
       const oldCenters = selectedShapes.map((s) => s.center);
-      let mouseDelta=null;
+      let mouseDelta = null;
       let isDragging = false;
 
       PropertiesPanel.updateDisplay(selectedShapes);
 
       const moveCallback = function (e) {
          const mousePosition = new Vector(e.offsetX, e.offsetY);
-         mouseDelta = Vector.subtract(mousePosition, startPosition);
+         mouseDelta = Vector.scale(
+            Vector.subtract(mousePosition, startPosition),
+            1 / viewport.zoom
+         );
          isDragging = true;
          selectedShapes.forEach((s, i) => {
             s.setCenter(Vector.add(oldCenters[i], mouseDelta));
@@ -48,12 +49,12 @@ function downCallbackForSelect(e) {
          myCanvas.removeEventListener("pointermove", moveCallback);
          myCanvas.removeEventListener("pointerup", upCallback);
 
-         if(isClickingSelectedShape && !isDragging){
+         if (isClickingSelectedShape && !isDragging) {
             shape.selected = false;
             drawShapes(shapes);
          }
-         PropertiesPanel.updateDisplay( shapes.filter((s) => s.selected));
-         if(isDragging && mouseDelta.magnitude() > 0){
+         PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
+         if (isDragging && mouseDelta.magnitude() > 0) {
             updateHistory(shapes);
          }
       };
@@ -73,6 +74,7 @@ function selectShapesUnderRectangle(e) {
    rect.style.position = "fixed";
    rect.style.backgroundColor = "transparent";
    rect.style.border = "1px dotted";
+   rect.style.pointerEvents = "none";
    const htmlBody = document.querySelector("body");
    htmlBody.appendChild(rect);
 
@@ -103,6 +105,21 @@ function selectShapesUnderRectangle(e) {
       rect.removeEventListener("pointerup", upCallback);
       rect.removeEventListener("pointermove", moveCallback);
 
+      rectMinX =
+         (rectMinX - canvasProperties.offset.x) / viewport.zoom -
+         viewport.offset.x;
+      rectMinY =
+         (rectMinY - canvasProperties.offset.y) / viewport.zoom -
+         viewport.offset.y;
+      rectMaxX =
+         (rectMaxX - canvasProperties.offset.x) / viewport.zoom -
+         viewport.offset.x;
+      rectMaxY =
+         (rectMaxY - canvasProperties.offset.y) / viewport.zoom -
+         viewport.offset.y;
+
+      console.log(rectMinX, rectMinY, rectMaxX, rectMaxY);
+
       shapes.forEach((shape) => {
          const points = shape.getPoints();
          const minX = Math.min(...points.map((p) => p.x + shape.center.x));
@@ -131,7 +148,7 @@ function selectShapesUnderRectangle(e) {
                   shape.selected = true;
                }
                break;
-            }
+         }
       });
 
       rect.remove();

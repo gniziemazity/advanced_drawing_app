@@ -3,7 +3,7 @@ class Path extends Shape {
       super(options);
       this.points = [startPoint];
    }
-   
+
    static load(data, stageProperties) {
       const path = new Path();
       path.id = data.id;
@@ -13,9 +13,7 @@ class Path extends Shape {
          data.center.y + stageProperties.top
       );
       path.size = data.size;
-      path.points = data.points.map((p) => 
-         Vector.load(p)
-      );
+      path.points = data.points.map((p) => Vector.load(p));
       return path;
    }
 
@@ -30,7 +28,7 @@ class Path extends Shape {
          ),
          size: this.size,
          selected: this.selected,
-         points: this.points
+         points: this.points,
       };
    }
 
@@ -41,7 +39,7 @@ class Path extends Shape {
    getPoints() {
       return this.points;
    }
-   
+
    setPoints(points) {
       this.points = points;
    }
@@ -82,20 +80,32 @@ class Path extends Shape {
    }
 
    static addPointerDownListener(e) {
-      const mousePosition = new Vector(e.offsetX, e.offsetY);
-      currentShape = new Path(mousePosition, getOptions());
-   
+      if (e.button !== 0) return;
+
+      const mousePosition = new Vector(e.offsetX, e.offsetY).subtract(
+         canvasProperties.offset
+      );
+      const startPosition = mousePosition
+         .scale(1 / viewport.zoom)
+         .subtract(viewport.offset);
+      currentShape = new Path(startPosition, getOptions());
+
       const moveCallback = function (e) {
-         const mousePosition = new Vector(e.offsetX, e.offsetY);
-         currentShape.addPoint(mousePosition);
-   
+         const mousePosition = new Vector(e.offsetX, e.offsetY).subtract(
+            canvasProperties.offset
+         );
+         const startPosition = mousePosition
+            .scale(1 / viewport.zoom)
+            .subtract(viewport.offset);
+         currentShape.addPoint(startPosition);
+
          drawShapes([...shapes, currentShape]);
       };
-   
+
       const upCallback = function (e) {
          myCanvas.removeEventListener("pointermove", moveCallback);
          myCanvas.removeEventListener("pointerup", upCallback);
-   
+
          currentShape.recenter();
          shapes.push(currentShape);
 
@@ -104,5 +114,4 @@ class Path extends Shape {
       myCanvas.addEventListener("pointermove", moveCallback);
       myCanvas.addEventListener("pointerup", upCallback);
    }
-   
 }

@@ -29,7 +29,7 @@ class Rect extends Shape {
             this.center.y - stageProperties.top
          ),
          size: this.size,
-         selected: this.selected
+         selected: this.selected,
       };
    }
 
@@ -38,18 +38,15 @@ class Rect extends Shape {
    }
 
    getPoints() {
-      if(this.size){
+      if (this.size) {
          return [
-            new Vector( - this.size.width / 2, - this.size.height / 2),
-            new Vector( - this.size.width / 2,this.size.height / 2),
+            new Vector(-this.size.width / 2, -this.size.height / 2),
+            new Vector(-this.size.width / 2, this.size.height / 2),
             new Vector(this.size.width / 2, this.size.height / 2),
-            new Vector(this.size.width / 2,  - this.size.height / 2),
+            new Vector(this.size.width / 2, -this.size.height / 2),
          ];
-      }else{
-         return [
-            this.corner1,
-            this.corner2,
-         ];
+      } else {
+         return [this.corner1, this.corner2];
       }
    }
 
@@ -96,15 +93,21 @@ class Rect extends Shape {
    }
 
    static addPointerDownListener(e) {
-      const startPosition = new Vector(e.offsetX, e.offsetY);
+      if(e.button !== 0) return;
+
+      const mousePosition = new Vector(e.offsetX, e.offsetY).subtract(canvasProperties.offset);
+      const startPosition = mousePosition
+         .scale(1 / viewport.zoom)
+         .subtract(viewport.offset);
+
       currentShape = new Rect(startPosition, getOptions());
 
-      const moveCallback=(e)=>{
+      const moveCallback = (e) => {
          secondCornerMoveCallback(e, startPosition, currentShape);
-      }
-      const upCallback=(e)=>{
+      };
+      const upCallback = (e) => {
          secondCornerUpCallback(e, currentShape, moveCallback, upCallback);
-      }
+      };
       myCanvas.addEventListener("pointermove", moveCallback);
       myCanvas.addEventListener("pointerup", upCallback);
    }

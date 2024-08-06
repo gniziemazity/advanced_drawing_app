@@ -6,5 +6,8 @@ const contributors = [
    "bobcravens",
    "rahul thakare",
    "michael golden",
-   "thoughtandco"
+   "thoughtandco",
+   "pesterenan",
+   "V-key",
+   "Gyanendra Singh"
 ];

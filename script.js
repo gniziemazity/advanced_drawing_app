@@ -1,4 +1,4 @@
-const SHOW_HIT_REGIONS = false;
+const SHOW_HIT_REGIONS = true;
 
 const RECTANGULAR_SELECTION_MODE = "intersection"; // "intersection" or "containment"
 if (!SHOW_HIT_REGIONS) {
@@ -13,11 +13,9 @@ const stageProperties = {
 const canvasProperties = {
    width: SHOW_HIT_REGIONS ? window.innerWidth / 2 : window.innerWidth,
    height: window.innerHeight,
-   center: {
-      x: SHOW_HIT_REGIONS ? window.innerWidth / 4 : window.innerWidth / 2,
-      y: window.innerHeight / 2,
-   },
+   center: Vector.zero()
 };
+canvasProperties.offset = new Vector(canvasProperties.width / 2, canvasProperties.height / 2);
 
 (stageProperties.left = canvasProperties.center.x - stageProperties.width / 2),
    (stageProperties.top =
@@ -31,7 +29,12 @@ hitTestCanvas.height = canvasProperties.height;
 const ctx = myCanvas.getContext("2d");
 const hitTestingCtx = hitTestCanvas.getContext("2d");
 
+ctx.translate(canvasProperties.offset.x, canvasProperties.offset.y);
+hitTestingCtx.translate(canvasProperties.offset.x, canvasProperties.offset.y);
+
+
 clearCanvas();
+drawStage();
 
 const redoStack = [];
 const history = [];
@@ -51,6 +54,8 @@ document.addEventListener("keydown", (e) => {
       e.preventDefault();
    }
 });
+
+const viewport = new Viewport(myCanvas, hitTestCanvas);
 
 const propertiesPanel = new PropertiesPanel(propertiesHolder);
 
@@ -91,7 +96,7 @@ function selectTool(tool) {
    }
 }
 
-function selectOvalTool(){
+function selectOvalTool() {
    selectTool("oval");
 }
 
@@ -124,11 +129,21 @@ function getOptions() {
 }
 
 function clearCanvas() {
-   ctx.save();
-   
-   ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
    ctx.fillStyle = "gray";
-   ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);
+   ctx.fillRect(-myCanvas.width / 2, -myCanvas.height / 2, myCanvas.width, myCanvas.height);
+
+   ctx.fillStyle = "white";
+
+   ctx.textAlign = "right";
+   ctx.fillText(
+      "Contributors: " + contributors.join(", "),
+      myCanvas.width/2 - 10,
+      -myCanvas.height/2+10
+   );
+}
+
+function drawStage() {
+   ctx.save();
 
    ctx.fillStyle = "white";
    ctx.fillRect(
@@ -138,22 +153,6 @@ function clearCanvas() {
       stageProperties.height
    );
 
-   ctx.textAlign = "right";
-   ctx.fillText(
-      "Contributors: " + contributors.join(", "),
-      myCanvas.width - 10,
-      10
-   );
-
-   // For Debugging
-   hitTestingCtx.fillStyle = "red";
-   hitTestingCtx.fillRect(
-      0,
-      0,
-      canvasProperties.width,
-      canvasProperties.height
-   );
-   
    ctx.restore();
 }
 
@@ -183,8 +182,8 @@ function paste() {
 }
 
 function duplicate() {
-   copy()
-   paste()
+   copy();
+   paste();
 }
 
 function redo() {
@@ -198,7 +197,7 @@ function redo() {
 }
 
 function undo() {
-   if (!history.length) return  // prevent pushing undefined into redoStack
+   if (!history.length) return; // prevent pushing undefined into redoStack
    redoStack.push(history.pop());
    if (history.length > 0) {
       shapes = loadShapes(history[history.length - 1]);
