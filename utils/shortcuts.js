@@ -4,6 +4,8 @@ const shortcuts = [
    { control: false, key: "v", action: selectSelectTool },
    { control: false, key: "o", action: selectOvalTool },
    { control: false, key: "t", action: selectTextTool },
+   { control: false, key: "d", action: resetColors },
+   { control: false, key: "x", action: swapColors },
    { control: true, key: "z", action: undo },
    { control: true, key: "y", action: redo },
    { control: true, key: "a", action: selectAll },
