@@ -83,7 +83,6 @@ class Text extends Shape {
       const metrics = ctx.measureText(this.text);
       this.size = {};
       this.size.width = metrics.width;
-      console.log(this.properties);
       this.size.height = this.properties.fontSize;
       ctx.restore();
    }

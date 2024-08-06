@@ -137,7 +137,6 @@ function selectShapesUnderRectangle(e) {
       rect.remove();
       PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
       drawShapes(shapes);
-      updateHistory(shapes);
    };
 
    // adding eventlisteners to rect to allow rect redraw when

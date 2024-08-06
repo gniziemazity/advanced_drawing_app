@@ -182,6 +182,11 @@ function paste() {
    }
 }
 
+function duplicate() {
+   copy()
+   paste()
+}
+
 function redo() {
    if (redoStack.length > 0) {
       const data = redoStack.pop();
@@ -193,6 +198,7 @@ function redo() {
 }
 
 function undo() {
+   if (!history.length) return  // prevent pushing undefined into redoStack
    redoStack.push(history.pop());
    if (history.length > 0) {
       shapes = loadShapes(history[history.length - 1]);
