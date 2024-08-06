@@ -86,9 +86,6 @@ class Rect extends Shape {
          this.applyHitRegionStyles(ctx);
       } else {
          this.applyStyles(ctx);
-         if (this.selected) {
-            this.drawGizmo(ctx);
-         }
       }
    }
 

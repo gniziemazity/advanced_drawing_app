@@ -1,15 +1,15 @@
 class Shape {
    constructor(options) {
       // never deliberately called
-      this.generateId();
+      this.id = Shape.generateId();
       this.options = options;
       this.center = null;
       this.size = null;
       this.selected = false;
    }
 
-   generateId() {
-      this.id = Math.floor(16777216 * Math.random());
+   static generateId() {
+      return Math.floor(16777216 * Math.random());
    }
 
    serialize() {
@@ -28,6 +28,26 @@ class Shape {
       throw new Error("setWidth method must be implemented");
    }
 
+   setSize(width, height) {
+      this.setWidth(width);
+      this.setHeight(height);
+   }
+
+   changeWidth(prevWidth, ratio) {
+      this.setWidth(prevWidth * ratio);
+   }
+
+   changeHeight(prevHeight, ratio) {
+      this.setHeight(prevHeight * ratio);
+   }
+
+   changeSize(prevWidth, prevHeight, ratioWidth, ratioHeight) {
+      this.setSize(
+         prevWidth * ratioWidth,
+         prevHeight * ratioHeight
+      );
+   }
+
    recenter() {
       const points = this.getPoints();
       this.center = Vector.midVector(points);
@@ -40,36 +60,15 @@ class Shape {
       this.setPoints(points);
    }
 
-   drawGizmo(ctx) {
-      const center = this.center;
-      const points = this.getPoints();
-      const minX = Math.min(...points.map((p) => p.x));
-      const minY = Math.min(...points.map((p) => p.y));
-      const maxX = Math.max(...points.map((p) => p.x));
-      const maxY = Math.max(...points.map((p) => p.y));
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(minX + center.x, minY + center.y, maxX - minX, maxY - minY);
-      ctx.strokeStyle = "orange";
-      ctx.lineWidth = 3;
-      ctx.setLineDash([5, 5]);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(center.x, center.y, 5, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.restore();
-   }
-
-   getHitRGB() {
-      const red = (this.id & 0xff0000) >> 16;
-      const green = (this.id & 0x00ff00) >> 8;
-      const blue = this.id & 0x0000ff;
+   static getHitRGB(id) {
+      const red = (id & 0xff0000) >> 16;
+      const green = (id & 0x00ff00) >> 8;
+      const blue = id & 0x0000ff;
       return `rgb(${red},${green},${blue})`;
    }
 
    applyHitRegionStyles(ctx, dilation = 10) {
-      const rgb = this.getHitRGB();
+      const rgb = Shape.getHitRGB(this.id);
       ctx.lineCap = this.options.lineCap;
       ctx.lineJoin = this.options.lineJoin;
       ctx.fillStyle = rgb;
@@ -133,6 +132,8 @@ function deleteSelectedShapes() {
 }
 
 function drawShapes(shapes) {
+   gizmos = shapes.filter((s) => s.selected).map((s) => new Gizmo(s));
+
    ctx.save();
    hitTestingCtx.save();
 
@@ -155,8 +156,16 @@ function drawShapes(shapes) {
       shape.draw(ctx);
    }
 
+   for (const gizmo of gizmos) {
+      gizmo.draw(ctx);
+   }
+
    for (const shape of shapes) {
       shape.draw(hitTestingCtx, true);
+   }
+
+   for (const gizmo of gizmos) {
+      gizmo.draw(hitTestingCtx, true);
    }
    ctx.restore();
    hitTestingCtx.restore();

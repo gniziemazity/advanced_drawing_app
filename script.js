@@ -30,7 +30,9 @@ hitTestCanvas.width = canvasProperties.width;
 hitTestCanvas.height = canvasProperties.height;
 
 const ctx = myCanvas.getContext("2d");
-const hitTestingCtx = hitTestCanvas.getContext("2d",{ willReadFrequently: true });
+const hitTestingCtx = hitTestCanvas.getContext("2d", {
+   willReadFrequently: true,
+});
 
 ctx.translate(canvasProperties.offset.x, canvasProperties.offset.y);
 hitTestingCtx.translate(canvasProperties.offset.x, canvasProperties.offset.y);
@@ -41,6 +43,7 @@ drawStage();
 const redoStack = [];
 const history = [];
 let shapes = [];
+let gizmos = [];
 let currentShape = null;
 let clipboard = null;
 
@@ -185,7 +188,7 @@ function paste() {
    if (clipboard) {
       shapes.forEach((s) => (s.selected = false));
       const newShapes = loadShapes(JSON.parse(clipboard));
-      newShapes.forEach((s) => s.generateId());
+      newShapes.forEach((s) => (s.id = Shape.generateId()));
       shapes.push(...newShapes);
 
       drawShapes(shapes);

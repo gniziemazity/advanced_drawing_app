@@ -80,8 +80,8 @@ class Oval extends Shape {
          top = minY + center.y;
       }
       ctx.beginPath();
-      const radius1 = width / 2;
-      const radius2 = height / 2;
+      const radius1 = Math.abs(width / 2);
+      const radius2 = Math.abs(height / 2);
       ctx.ellipse(
          left + width / 2,
          top + height / 2,
@@ -96,9 +96,6 @@ class Oval extends Shape {
          this.applyHitRegionStyles(ctx);
       } else {
          this.applyStyles(ctx);
-         if (this.selected) {
-            this.drawGizmo(ctx);
-         }
       }
    }
 

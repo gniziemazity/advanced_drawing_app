@@ -3,9 +3,9 @@ class MyImage extends Shape {
       super(options);
       this.img = img;
 
-      this.size= {width: img.width, height: img.height};
+      this.size = { width: img.width, height: img.height };
 
-      const tmpCanvas= document.createElement("canvas");
+      const tmpCanvas = document.createElement("canvas");
       tmpCanvas.width = img.width;
       tmpCanvas.height = img.height;
       const tmpCtx = tmpCanvas.getContext("2d");
@@ -38,19 +38,18 @@ class MyImage extends Shape {
          ),
          size: this.size,
          base64: this.base64,
-         selected: this.selected
+         selected: this.selected,
       };
    }
 
    getPoints() {
-         return [
-            new Vector( - this.size.width / 2, - this.size.height / 2),
-            new Vector( - this.size.width / 2,this.size.height / 2),
-            new Vector(this.size.width / 2, this.size.height / 2),
-            new Vector(this.size.width / 2,  - this.size.height / 2),
-         ];
+      return [
+         new Vector(-this.size.width / 2, -this.size.height / 2),
+         new Vector(-this.size.width / 2, this.size.height / 2),
+         new Vector(this.size.width / 2, this.size.height / 2),
+         new Vector(this.size.width / 2, -this.size.height / 2),
+      ];
    }
-   
 
    setWidth(width) {
       this.size.width = width;
@@ -63,25 +62,24 @@ class MyImage extends Shape {
    draw(ctx, hitRegion = false) {
       const center = this.center ? this.center : { x: 0, y: 0 };
       let left, top, width, height;
-      
+
       left = center.x - this.size.width / 2;
       top = center.y - this.size.height / 2;
       width = this.size.width;
       height = this.size.height;
-      
 
       if (hitRegion) {
          ctx.beginPath();
          ctx.rect(left, top, width, height);
          this.applyHitRegionStyles(ctx);
       } else {
+         ctx.save();
+         ctx.translate(center.x, center.y);
+         ctx.scale(Math.sign(width), Math.sign(height));
          ctx.beginPath();
-         ctx.drawImage(this.img, left, top, width, height);
+         ctx.drawImage(this.img, -width / 2, -height / 2, width, height);
          this.applyStyles(ctx);
-         if (this.selected) {
-            this.drawGizmo(ctx);
-         }
+         ctx.restore();
       }
    }
-
 }

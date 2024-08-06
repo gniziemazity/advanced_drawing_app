@@ -101,7 +101,7 @@ class Text extends Shape {
 
       if (hitRegion) {
          ctx.beginPath();
-         const rgb = this.getHitRGB();
+         const rgb = Shape.getHitRGB(this.id);
          ctx.fillStyle = rgb;
          ctx.strokeStyle = rgb;
          ctx.lineWidth = this.options.strokeWidth + this.properties.dilation;
@@ -121,9 +121,6 @@ class Text extends Shape {
             ctx.strokeText(this.text, left + width / 2, top + height / 2);
          }
          ctx.restore();
-         if (this.selected) {
-            this.drawGizmo(ctx);
-         }
       }
    }
 
