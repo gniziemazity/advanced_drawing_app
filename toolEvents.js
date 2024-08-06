@@ -1,4 +1,6 @@
 function downCallbackForSelect(e) {
+   if(e.button !== 0) return;
+   
    PropertiesPanel.reset();
    const startPosition = new Vector(e.offsetX, e.offsetY);
 
