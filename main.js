@@ -45,8 +45,6 @@ let gizmos = [];
 let currentShape = null;
 let clipboard = null;
 
-myCanvas.addEventListener("pointerdown", PathTool.addPointerDownListener);
-
 document.addEventListener("keydown", (e) => {
 	if (e.target instanceof HTMLInputElement) {
 		return;
@@ -67,8 +65,6 @@ const viewport = new Viewport(
 
 const propertiesPanel = new PropertiesPanel(propertiesHolder);
 const toolsPanel = new ToolsPanel(toolsHolder);
-
-
 
 function resetColors() {
 	fillColor.value = "#ffffff";
@@ -144,7 +140,7 @@ function copy() {
 function paste() {
 	if (clipboard) {
 		shapes.forEach((s) => (s.selected = false));
-		const newShapes = loadShapes(JSON.parse(clipboard));
+		const newShapes = ShapeFactory.loadShapes(JSON.parse(clipboard));
 		newShapes.forEach((s) => (s.id = Shape.generateId()));
 		shapes.push(...newShapes);
 

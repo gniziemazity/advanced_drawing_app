@@ -14,4 +14,12 @@ class RectTool {
 		myCanvas.addEventListener("pointermove", moveCallback);
 		myCanvas.addEventListener("pointerup", upCallback);
 	}
+
+	static configureEventListeners() {
+		myCanvas.addEventListener("pointerdown", this.addPointerDownListener);
+	}
+
+	static removeEventListeners() {
+		myCanvas.removeEventListener("pointerdown", this.addPointerDownListener);
+	}
 }
