@@ -1,11 +1,9 @@
 class ShapeFactory {
-	static #available = {
-		Path: { shape: Path },
-		Rect: { shape: Rect },
-		Oval: { shape: Oval },
-		Text: { shape: Text },
-		MyImage: { shape: MyImage },
-	};
+	static #available = {};
+
+	static registerShape(classType, typeName) {
+		this.#available[typeName] = { shape: classType };
+	}
 
 	static loadShape(shapeData, stageProperties) {
 		const cls = this.#available[shapeData.type].shape;
@@ -14,7 +12,7 @@ class ShapeFactory {
 		return shape;
 	}
 
-	static loadShapes(data) {
+	static loadShapes(data, stageProperties) {
 		const loadedShapes = [];
 		for (const shapeData of data) {
 			const shape = this.loadShape(shapeData, stageProperties);

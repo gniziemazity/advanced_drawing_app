@@ -17,6 +17,11 @@ class ShapeTools {
 		// Add event listeners for the selected tool
 		tool.class.configureEventListeners();
 
+		// Dispatch an event to notify listeners the tool has been selected
+		Events.toolSelected.dispatchEvent(
+			new CustomEvent("toolSelected", { detail: tool })
+		);
+
 		return tool;
 	}
 }

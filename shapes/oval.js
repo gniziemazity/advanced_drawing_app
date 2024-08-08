@@ -1,4 +1,5 @@
 class Oval extends Shape {
+   
    constructor(corner1, options) {
       super(options);
       //take out corner 1 and corner 2 to
@@ -95,3 +96,5 @@ class Oval extends Shape {
    }
 
 }
+
+ShapeFactory.registerShape(Oval, "Oval");

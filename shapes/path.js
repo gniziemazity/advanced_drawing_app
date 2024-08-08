@@ -1,4 +1,4 @@
-class Path extends Shape {
+class Path extends Shape {  
    constructor(startPoint, options) {
       super(options);
       this.points = [startPoint];
@@ -82,3 +82,5 @@ class Path extends Shape {
       }
    }
 }
+
+ShapeFactory.registerShape(Path, "Path");

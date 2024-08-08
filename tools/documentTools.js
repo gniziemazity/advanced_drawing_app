@@ -1,4 +1,4 @@
-class DocumentTools{
+class DocumentTools {
 	static save() {
 		const data = JSON.stringify(
 			shapes.map((s) => s.serialize(STAGE_PROPERTIES))
@@ -23,7 +23,7 @@ class DocumentTools{
 			reader.onload = (e) => {
 				if (extension === "json") {
 					const data = JSON.parse(e.target.result);
-					shapes = ShapeFactory.loadShapes(data);
+					shapes = ShapeFactory.loadShapes(data, viewport.stageProperties);
 					viewport.drawShapes(shapes);
 					HistoryTools.record(shapes);
 				} else if (extension === "png") {
