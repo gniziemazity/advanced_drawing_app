@@ -7,13 +7,11 @@ class Oval extends Shape {
       this.corner2 = corner1;
    }
 
-   static load(data, stageProperties) {
+   static load(data) {
       const oval = new Oval();
       oval.id = data.id;
       oval.options = JSON.parse(JSON.stringify(data.options));
       oval.center = Vector.load(data.center);
-      oval.center.x += stageProperties.left;
-      oval.center.y += stageProperties.top;
       oval.size = data.size;
       oval.selected = data.selected;
       return oval;
@@ -24,10 +22,7 @@ class Oval extends Shape {
          type: "Oval",
          id: this.id,
          options: JSON.parse(JSON.stringify(this.options)),
-         center: new Vector(
-            this.center.x - stageProperties.left,
-            this.center.y - stageProperties.top
-         ),
+         center: this.center,
          size: this.size,
          selected: this.selected,
       };

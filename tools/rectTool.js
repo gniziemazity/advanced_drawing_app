@@ -11,7 +11,7 @@ class RectTool {
 		const upCallback = (e) => {
 			secondCornerUpCallback(e, currentShape, moveCallback, upCallback);
 		};
-		myCanvas.addEventListener("pointermove", moveCallback);
-		myCanvas.addEventListener("pointerup", upCallback);
+		viewport.canvas.addEventListener("pointermove", moveCallback);
+		viewport.canvas.addEventListener("pointerup", upCallback);
 	}
 }

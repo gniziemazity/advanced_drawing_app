@@ -15,13 +15,11 @@ class Text extends Shape {
       this.setText("Enter Text Here");
    }
 
-   static load(data, stageProperties) {
+   static load(data) {
       const text = new Text();
       text.id = data.id;
       text.options = JSON.parse(JSON.stringify(data.options));
       text.center = Vector.load(data.center);
-      text.center.x += stageProperties.left;
-      text.center.y += stageProperties.top;
       text.size = data.size;
       text.selected = data.selected;
       text.text = data.text;
@@ -33,10 +31,7 @@ class Text extends Shape {
          type: "Text",
          id: this.id,
          options: JSON.parse(JSON.stringify(this.options)),
-         center: new Vector(
-            this.center.x - stageProperties.left,
-            this.center.y - stageProperties.top
-         ),
+         center: this.center,
          size: this.size,
          text: this.text,
          selected: this.selected,
@@ -75,16 +70,16 @@ class Text extends Shape {
       }
    }
 
-   // WARNING, ctx is global
    setText(value) {
       this.text = value;
-      ctx.save();
-      this.setProperties(ctx);
-      const metrics = ctx.measureText(this.text);
+      // WARNING, potential memory leak
+      const tmpCanvas=document.createElement("canvas");
+      const tmpCtx=tmpCanvas.getContext("2d");
+      this.setProperties(tmpCtx);
+      const metrics = tmpCtx.measureText(this.text);
       this.size = {};
       this.size.width = metrics.width;
       this.size.height = this.properties.fontSize;
-      ctx.restore();
    }
 
    draw(ctx, hitRegion = false) {

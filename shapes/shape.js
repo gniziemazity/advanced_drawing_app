@@ -114,18 +114,11 @@ class Shape {
 	}
 }
 
-
-
-
-
 function loadShapes(data) {
 	const loadedShapes = [];
 	for (const shapeData of data) {
-      const cls=ShapeTools.tools[shapeData.type].shape;
-		const shape = cls.load(
-			shapeData,
-			STAGE_PROPERTIES
-		);
+		const cls = ShapeTools.tools[shapeData.type].shape;
+		const shape = cls.load(shapeData);
 		loadedShapes.push(shape);
 	}
 	return loadedShapes;
@@ -151,8 +144,8 @@ function secondCornerMoveCallback(e, startPosition, currentShape) {
 }
 
 function secondCornerUpCallback(e, currentShape, moveCallback, upCallback) {
-	myCanvas.removeEventListener("pointermove", moveCallback);
-	myCanvas.removeEventListener("pointerup", upCallback);
+	viewport.canvas.removeEventListener("pointermove", moveCallback);
+	viewport.canvas.removeEventListener("pointerup", upCallback);
 
 	currentShape.recenter();
 	if (currentShape.size.width > 0 && currentShape.size.height > 0) {

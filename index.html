@@ -6,13 +6,15 @@
       <link rel="stylesheet" type="text/css" href="style.css" />
    </head>
    <body>
-      <canvas id="myCanvas"></canvas><canvas id="hitTestCanvas"></canvas>
+      <div id="canvasHolder">
+         <canvas id="myCanvas"></canvas>
+      </div>
       <div id="toolsHolder" class="panel"></div>
       <div id="propertiesHolder" class="panel"></div>
 
       <script src="utils/vector.js"></script>
       <script src="utils/boundingBox.js"></script>
-      
+
       <script src="display/viewport.js"></script>
       
       <script src="shapes/shape.js"></script>

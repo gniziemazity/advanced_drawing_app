@@ -11,7 +11,7 @@ class ShapeTools {
 	static selectTool(tool) {
 		for (const key in ShapeTools.tools) {
 			const tool = ShapeTools.tools[key];
-			myCanvas.removeEventListener(
+			viewport.canvas.removeEventListener(
 				"pointerdown",
 				tool.class.addPointerDownListener
 			);
@@ -20,7 +20,7 @@ class ShapeTools {
 		shapes.forEach((s) => (s.selected = false));
 		viewport.drawShapes(shapes);
 
-		myCanvas.addEventListener(
+		viewport.canvas.addEventListener(
 			"pointerdown",
 			ShapeTools.tools[tool].class.addPointerDownListener
 		);

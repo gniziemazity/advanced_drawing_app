@@ -7,13 +7,11 @@ class Rect extends Shape {
       this.corner2 = corner1;
    }
 
-   static load(data, stageProperties) {
+   static load(data) {
       const rect = new Rect();
       rect.id = data.id;
       rect.options = JSON.parse(JSON.stringify(data.options));
       rect.center = Vector.load(data.center);
-      rect.center.x += stageProperties.left;
-      rect.center.y += stageProperties.top;
       rect.size = data.size;
       rect.selected = data.selected;
       return rect;
@@ -24,10 +22,7 @@ class Rect extends Shape {
          type: "Rect",
          id: this.id,
          options: JSON.parse(JSON.stringify(this.options)),
-         center: new Vector(
-            this.center.x - stageProperties.left,
-            this.center.y - stageProperties.top
-         ),
+         center: this.center,
          size: this.size,
          selected: this.selected,
       };

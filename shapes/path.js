@@ -4,28 +4,22 @@ class Path extends Shape {
       this.points = [startPoint];
    }
 
-   static load(data, stageProperties) {
+   static load(data) {
       const path = new Path();
       path.id = data.id;
       path.options = JSON.parse(JSON.stringify(data.options));
-      path.center = new Vector(
-         data.center.x + stageProperties.left,
-         data.center.y + stageProperties.top
-      );
+      path.center = Vector.load(data.center);
       path.size = data.size;
       path.points = data.points.map((p) => Vector.load(p));
       return path;
    }
 
-   serialize(stageProperties) {
+   serialize() {
       return {
          type: "Path",
          id: this.id,
          options: JSON.parse(JSON.stringify(this.options)),
-         center: new Vector(
-            this.center.x - stageProperties.left,
-            this.center.y - stageProperties.top
-         ),
+         center: this.center,
          size: this.size,
          selected: this.selected,
          points: this.points,

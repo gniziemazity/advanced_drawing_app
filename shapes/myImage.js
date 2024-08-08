@@ -13,15 +13,13 @@ class MyImage extends Shape {
       this.base64 = tmpCanvas.toDataURL();
    }
 
-   static load(data, stageProperties) {
+   static load(data) {
       const myImage = new MyImage(new Image());
       myImage.id = data.id;
       myImage.img.src = data.base64;
       myImage.base64 = data.base64;
       myImage.options = JSON.parse(JSON.stringify(data.options));
       myImage.center = Vector.load(data.center);
-      myImage.center.x += stageProperties.left;
-      myImage.center.y += stageProperties.top;
       myImage.size = data.size;
       myImage.selected = data.selected;
       return myImage;
@@ -32,10 +30,7 @@ class MyImage extends Shape {
          type: "MyImage",
          id: this.id,
          options: JSON.parse(JSON.stringify(this.options)),
-         center: new Vector(
-            this.center.x - stageProperties.left,
-            this.center.y - stageProperties.top
-         ),
+         center: this.center,
          size: this.size,
          base64: this.base64,
          selected: this.selected,

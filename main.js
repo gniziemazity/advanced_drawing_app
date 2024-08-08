@@ -1,4 +1,4 @@
-const SHOW_HIT_REGIONS = true;
+const SHOW_HIT_REGIONS = false;
 const RECTANGULAR_SELECTION_MODE = "intersection"; // "intersection" or "containment"
 
 const STAGE_PROPERTIES = {
@@ -7,8 +7,7 @@ const STAGE_PROPERTIES = {
 };
 
 const viewport = new Viewport(
-	myCanvas,
-	hitTestCanvas,
+	canvasHolder,
 	STAGE_PROPERTIES,
 	SHOW_HIT_REGIONS
 );
