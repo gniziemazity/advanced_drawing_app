@@ -21,7 +21,7 @@ button {
    width: 35px;
 }
 
-.tools {
+.tools-old {
    position: absolute;
    top: 10%;
    background-color: #BBB;
@@ -32,8 +32,4 @@ button {
 
 #toolsHolder {
    left: 0px;
-}
-
-#propertiesHolder {
-   right: 0px;
 }

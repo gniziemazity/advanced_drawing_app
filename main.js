@@ -19,3 +19,25 @@ let clipboard = null
 
 const propertiesPanel = new PropertiesPanel()
 const toolsPanel = new ToolsPanel(toolsHolder)
+
+document.addEventListener('DOMContentLoaded', () => {
+
+	const uiManager = new UIManager()
+	const tools = new Tools()
+
+	for (let key in ShapeTools.tools) {
+
+		if (!ShapeTools.tools[key].showButton) continue
+		const selected = ShapeTools.tools[key].selected || false
+		const icon = ShapeTools.tools[key].icon
+		const shapeTool = new Tool(icon, { selected: selected })
+		shapeTool.action = (e) => {
+			ShapeTools.selectTool(key)
+		}
+
+		tools.add(shapeTool)
+	}
+
+	uiManager.attachTools(tools)
+	uiManager.renderAll()
+})

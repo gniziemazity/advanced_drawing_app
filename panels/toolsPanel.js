@@ -1,15 +1,13 @@
 class ToolsPanel {
-	constructor(holderDiv) {
-		this.#addDocumentTools(holderDiv);
-		holderDiv.appendChild(createDOMElement("hr"));
+	constructor (holderDiv) {
+		this.#addDocumentTools(holderDiv)
+		holderDiv.appendChild(createDOMElement("hr"))
 
-		this.#addEditingTools(holderDiv);
-		holderDiv.appendChild(createDOMElement("hr"));
+		this.#addEditingTools(holderDiv)
+		holderDiv.appendChild(createDOMElement("hr"))
 
-		this.addHistoryTools(holderDiv);
-		holderDiv.appendChild(createDOMElement("hr"));
-
-		this.#addShapeTools(holderDiv);
+		this.addHistoryTools(holderDiv)
+		holderDiv.appendChild(createDOMElement("hr"))
 	}
 
 	#addDocumentTools(holderDiv) {
@@ -24,8 +22,8 @@ class ToolsPanel {
 				},
 				"💾"
 			)
-		);
-		holderDiv.appendChild(createDOMElement("br"));
+		)
+		holderDiv.appendChild(createDOMElement("br"))
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -37,8 +35,8 @@ class ToolsPanel {
 				},
 				"📁"
 			)
-		);
-		holderDiv.appendChild(createDOMElement("br"));
+		)
+		holderDiv.appendChild(createDOMElement("br"))
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -50,7 +48,7 @@ class ToolsPanel {
 				},
 				"🖼️"
 			)
-		);
+		)
 	}
 
 	#addEditingTools(holderDiv) {
@@ -65,8 +63,8 @@ class ToolsPanel {
 				},
 				"🗐"
 			)
-		);
-		holderDiv.appendChild(createDOMElement("br"));
+		)
+		holderDiv.appendChild(createDOMElement("br"))
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -78,8 +76,8 @@ class ToolsPanel {
 				},
 				"▭"
 			)
-		);
-		holderDiv.appendChild(createDOMElement("br"));
+		)
+		holderDiv.appendChild(createDOMElement("br"))
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -91,8 +89,8 @@ class ToolsPanel {
 				},
 				"🗑️"
 			)
-		);
-		holderDiv.appendChild(createDOMElement("br"));
+		)
+		holderDiv.appendChild(createDOMElement("br"))
 	}
 
 	addHistoryTools(holderDiv) {
@@ -107,8 +105,8 @@ class ToolsPanel {
 				},
 				"↩️"
 			)
-		);
-		holderDiv.appendChild(createDOMElement("br"));
+		)
+		holderDiv.appendChild(createDOMElement("br"))
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -120,23 +118,6 @@ class ToolsPanel {
 				},
 				"↪️"
 			)
-		);
-	}
-
-	#addShapeTools(holderDiv) {
-		for (let key in ShapeTools.tools) {
-			if (!ShapeTools.tools[key].showButton) continue;
-
-			holderDiv.appendChild(
-				createInputWithLabel(key, {
-					type: "radio",
-					id: key.toLowerCase() + "Radio",
-					name: "shapeTools",
-					onchange: `ShapeTools.selectTool("${key}")`,
-				})
-			);
-		}
-
-		ShapeTools.selectTool("Path");
+		)
 	}
 }
