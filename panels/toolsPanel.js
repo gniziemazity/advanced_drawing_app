@@ -1,6 +1,5 @@
 class ToolsPanel {
 	constructor(holderDiv) {
-		//this.holderDiv = holderDiv; might not be needed
 		this.#addDocumentTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
 
@@ -64,46 +63,20 @@ class ToolsPanel {
 		holderDiv.appendChild(
 			createDOMElement("div", { id: "shapeToolsHeader" }, "Shapes")
 		);
-		holderDiv.appendChild(
-			createInputWithLabel("Path", {
-				type: "radio",
-				id: "pathRadio",
-				name: "shapeTools",
-				checked: "checked",
-            onchange: "ShapeTools.selectTool('Path')"
-			})
-		);
-		holderDiv.appendChild(
-			createInputWithLabel("Rect", {
-				type: "radio",
-				id: "rectRadio",
-				name: "shapeTools",
-            onchange: "ShapeTools.selectTool('Rect')"
-			})
-		);
-		holderDiv.appendChild(
-			createInputWithLabel("Oval", {
-				type: "radio",
-				id: "ovalRadio",
-				name: "shapeTools",
-            onchange: "ShapeTools.selectTool('Oval')"
-			})
-		);
-		holderDiv.appendChild(
-			createInputWithLabel("Text", {
-				type: "radio",
-				id: "textRadio",
-				name: "shapeTools",
-            onchange: "ShapeTools.selectTool('Text')"
-			})
-		);
-		holderDiv.appendChild(
-			createInputWithLabel("Select", {
-				type: "radio",
-				id: "selectRadio",
-				name: "shapeTools",
-            onchange: "ShapeTools.selectTool('Select')"
-			})
-		);
+
+		for (let key in ShapeTools.tools) {
+         if(!ShapeTools.tools[key].showButton) continue;
+         
+			holderDiv.appendChild(
+				createInputWithLabel(key, {
+					type: "radio",
+					id: key.toLowerCase() + "Radio",
+					name: "shapeTools",
+					onchange: `ShapeTools.selectTool("${key}")`,
+				})
+			);
+		}
+
+      ShapeTools.selectTool("Path");
 	}
 }

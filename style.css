@@ -6,16 +6,20 @@ body {
    box-sizing: border-box;
    user-select: none;
 }
-#toolsHolder {
+
+.panel {
    position: absolute;
-   top: 0px;
-   left: 0px;
+   top: 10%;
+   background-color: #BBB;
+   padding: 5px;
    margin: 5px;
+   border-radius: 5px;
+}
+
+#toolsHolder {
+   left: 0px;
 }
 
 #propertiesHolder{
-   position: absolute;
-   top: 50px;
    right: 0px;
-   margin: 5px;
 }
