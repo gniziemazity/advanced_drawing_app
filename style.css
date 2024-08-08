@@ -1,6 +1,5 @@
-canvas {
-}
 body {
+   padding: 0;
    margin: 0;
    overflow: hidden;
    box-sizing: border-box;
@@ -22,7 +21,7 @@ button {
    width: 35px;
 }
 
-.panel {
+.tools-old {
    position: absolute;
    top: 10%;
    background-color: #BBB;
@@ -33,8 +32,4 @@ button {
 
 #toolsHolder {
    left: 0px;
-}
-
-#propertiesHolder{
-   right: 0px;
 }

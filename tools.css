@@ -1,0 +1,63 @@
+.tools-container {
+    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.tools {
+    position: absolute;
+    background-color: #212121;
+    color: #fff;
+    z-index: 1001;
+}
+
+.tools-head {
+    height: 15px;
+    background-color: #333;
+    cursor: move;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+    margin: 2px;
+    line-height: 11px;
+    gap: 5px;
+}
+
+.tools-head .icon {
+    cursor: pointer;
+}
+
+.tools-head .icon:first-child {
+    font-size: 13px;
+}
+
+.tools-head .icon:last-child {
+    font-size: 10px;
+    padding-right: 2px;
+}
+
+.tools-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.tools-column-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.tool {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.tool-active {
+    background-color: #333;
+}
+
+.tool:hover {
+    background-color: #333;
+}
