@@ -8,6 +8,7 @@ function getSize(points) {
       height: maxY - minY,
    };
 }
+
 /** Create a DOM Element
  * @param {string} type - Type of DOM element, eg. 'div', 'input', etc...
  * @param {Array<{ key: string, value: string }>} attributes - Attributes of the element, eg. 'onchange', 'title', etc...
@@ -45,4 +46,24 @@ function createInputWithLabel(labelText, attributes) {
     }),
   );
   return element;
+}
+
+/**
+ * Get the property value of the input element.
+ * @param {HTMLElement} element - The property input element
+ * @param {string} key - The element attribute
+ * @returns
+ */
+function getProperty(element, key) {
+  return Number(element.getAttribute(key));
+}
+
+/**
+ * Set the property value of the input element.
+ * @param {HTMLElement} element - The property input element
+ * @param {string} key - The element attribute
+ * @param {number} value - The property value
+ */
+function setProperty(element, key, value) {
+  element.setAttribute(key, value);
 }
