@@ -1,4 +1,6 @@
 class Gizmo {
+	static shouldTrackFlip = false
+	static canFlip = false
 	constructor(shape) {
 		this.shape = shape;
 
@@ -41,11 +43,14 @@ class Gizmo {
 		);
 		let mouseDelta = null;
 		let isDragging = false;
+		let prevRatio = null
 		const moveCallback = (e) => {
 			const mousePosition = new Vector(e.offsetX, e.offsetY);
 			const diff = Vector.subtract(mousePosition, startPosition);
 			mouseDelta = viewport.scale(diff);
 			isDragging = true;
+
+			Gizmo.shouldTrackFlip = true
 
 			const ratio = new Vector(
 				mouseDelta.x / this.box.width,
@@ -60,18 +65,33 @@ class Gizmo {
 
 				switch (handle.type) {
 					case Handle.RIGHT:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(prevRatio.x, ratio.x, prevRatio.y, ratio.y)
+						}
 						shape.changeWidth(oldBox.width, ratio.x);
 						break;
 					case Handle.LEFT:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(2 - prevRatio.x, 2 - ratio.x, prevRatio.y, ratio.y)
+						}
 						shape.changeWidth(oldBox.width, 2 - ratio.x);
 						break;
 					case Handle.TOP:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(prevRatio.x, ratio.x, 2 - prevRatio.y, 2 - ratio.y)
+						}
 						shape.changeHeight(oldBox.height, 2 - ratio.y);
 						break;
 					case Handle.BOTTOM:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(prevRatio.x, ratio.x, prevRatio.y, ratio.y)
+						}
 						shape.changeHeight(oldBox.height, ratio.y);
 						break;
 					case Handle.TOP_LEFT:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(2 - prevRatio.x, 2 - ratio.x, 2 - prevRatio.y, 2 - ratio.y)
+						}
 						shape.changeSize(
 							oldBox.width,
 							oldBox.height,
@@ -80,6 +100,9 @@ class Gizmo {
 						);
 						break;
 					case Handle.TOP_RIGHT:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(prevRatio.x, ratio.x, 2 - prevRatio.y, 2 - ratio.y)
+						}
 						shape.changeSize(
 							oldBox.width,
 							oldBox.height,
@@ -88,6 +111,9 @@ class Gizmo {
 						);
 						break;
 					case Handle.BOTTOM_LEFT:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(2 - prevRatio.x, 2 - ratio.x, prevRatio.y, ratio.y)
+						}
 						shape.changeSize(
 							oldBox.width,
 							oldBox.height,
@@ -96,6 +122,9 @@ class Gizmo {
 						);
 						break;
 					case Handle.BOTTOM_RIGHT:
+						if (prevRatio !== null) {
+							Gizmo.setCanFlip(prevRatio.x, ratio.x, prevRatio.y, ratio.y)
+						}
 						shape.changeSize(
 							oldBox.width,
 							oldBox.height,
@@ -106,16 +135,25 @@ class Gizmo {
 				}
 			}
 
+			prevRatio = ratio
 			viewport.drawShapes(shapes);
 			PropertiesPanel.updateDisplay(selectedShapes);
 		};
 
 		const upCallback = (e) => {
+			Gizmo.shouldTrackFlip = false
+			Gizmo.canFlip = false
 			viewport.canvas.removeEventListener("pointermove", moveCallback);
 			viewport.canvas.removeEventListener("pointerup", upCallback);
 		};
 		viewport.canvas.addEventListener("pointermove", moveCallback);
 		viewport.canvas.addEventListener("pointerup", upCallback);
+	}
+
+	static setCanFlip(prevRatioX, ratioX, prevRatioY, ratioY) {
+		if (Math.sign(prevRatioX) !== Math.sign(ratioX) || Math.sign(prevRatioY) !== Math.sign(ratioY)) {
+			Gizmo.canFlip = true
+		}
 	}
 
 	draw(ctx, hitRegion = false) {
