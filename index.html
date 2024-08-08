@@ -6,46 +6,34 @@
    </head>
    <body>
       <canvas id="myCanvas"></canvas><canvas id="hitTestCanvas"></canvas>
-      <div id="toolBox">
-         <label for="toolSelector">Tool:</label>
-         <select id="toolSelector" name="toolSelector" onchange="changeTool(this.value)">
-            <option value="path" selected>Path</option>
-            <option value="rect">Rect</option>
-            <option value="oval">Oval</option>
-            <option value="text">Text</option>
-            <option value="select">Select</option>
-         </select>
-         
-         <hr/>
-         
-         <button onclick="save()">Save</button>
-         <button onclick="load()">Load</button>
-         <button onclick="do_import()" style="display:none;">Import</button>
-         <button onclick="do_export()">Export</button>
-         
-         <hr/>
-         
-         <button onclick="undo()">Undo</button>
-         <button onclick="redo()">Redo</button>
-         
-         <hr/>
-         
-         <div id="propertiesHolder"></div>
-      </div>
+      <div id="toolsHolder"></div>
+      <div id="propertiesHolder"></div>
       <script src="utils/vector.js"></script>
       <script src="utils/boundingBox.js"></script>
       <script src="viewport.js"></script>
-      <script src="panels/propertiesPanel.js"></script>
-      <script src="contributors.js"></script>
-      <script src="utils/misc.js"></script>
-      <script src="selectTools.js"></script>
+      
       <script src="shapes/shape.js"></script>
       <script src="shapes/oval.js"></script>
       <script src="shapes/text.js"></script>
       <script src="shapes/rect.js"></script>
       <script src="shapes/path.js"></script>
       <script src="shapes/myImage.js"></script>
-      <script src="script.js"></script>
+      
+      <script src="tools/documentTools.js"></script>
+      <script src="tools/historyTools.js"></script>
+      <script src="tools/rectTool.js"></script>
+      <script src="tools/ovalTool.js"></script>
+      <script src="tools/pathTool.js"></script>
+      <script src="tools/textTool.js"></script>
+      <script src="tools/selectTool.js"></script>
+      <script src="tools/shapeTools.js"></script>
+
+      <script src="panels/propertiesPanel.js"></script>
+      <script src="panels/toolsPanel.js"></script>
+
+      <script src="contributors.js"></script>
+      <script src="utils/misc.js"></script>
+      <script src="main.js"></script>
       <script src="utils/shortcuts.js"></script>
       <script src="transformBox/gizmo.js"></script>
       <script src="transformBox/handle.js"></script>

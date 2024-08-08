@@ -9,5 +9,6 @@ const contributors = [
    "thoughtandco",
    "pesterenan",
    "V-key",
-   "Gyanendra Singh"
+   "Gyanendra Singh",
+   "mshryane"
 ];

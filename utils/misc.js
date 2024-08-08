@@ -1,12 +1,12 @@
 function getSize(points) {
-   const minX = Math.min(...points.map((p) => p.x));
-   const minY = Math.min(...points.map((p) => p.y));
-   const maxX = Math.max(...points.map((p) => p.x));
-   const maxY = Math.max(...points.map((p) => p.y));
-   return {
-      width: maxX - minX,
-      height: maxY - minY,
-   };
+	const minX = Math.min(...points.map((p) => p.x));
+	const minY = Math.min(...points.map((p) => p.y));
+	const maxX = Math.max(...points.map((p) => p.x));
+	const maxY = Math.max(...points.map((p) => p.y));
+	return {
+		width: maxX - minX,
+		height: maxY - minY,
+	};
 }
 
 /** Create a DOM Element
@@ -16,16 +16,16 @@ function getSize(points) {
  * @returns {HTMLElement} - The created DOM element.
  */
 function createDOMElement(type, attributes, text) {
-  const element = document.createElement(type);
-  if (text) {
-    element.innerText = text;
-  }
-  if (attributes) {
-    Object.entries(attributes).forEach(([key, value]) => {
-      element.setAttribute(key, value);
-    });
-  }
-  return element;
+	const element = document.createElement(type);
+	if (text) {
+		element.innerText = text;
+	}
+	if (attributes) {
+		Object.entries(attributes).forEach(([key, value]) => {
+			element.setAttribute(key, value);
+		});
+	}
+	return element;
 }
 
 /** Create input with label
@@ -34,18 +34,18 @@ function createDOMElement(type, attributes, text) {
  * @returns {HTMLElement} - A div with a label and input elements.
  */
 function createInputWithLabel(labelText, attributes) {
-  const element = document.createElement("div");
-  element.appendChild(
-    createDOMElement("label", { for: labelText.toLowerCase() }, `${labelText}: `),
-  );
-  element.appendChild(
-    createDOMElement("input", {
-      id: labelText.toLowerCase(),
-      title: labelText,
-      ...attributes,
-    }),
-  );
-  return element;
+	const element = document.createElement("div");
+	element.appendChild(
+		createDOMElement("label", { for: attributes["id"] }, `${labelText}: `)
+	);
+	element.appendChild(
+		createDOMElement("input", {
+			id: labelText.toLowerCase(),
+			title: labelText,
+			...attributes,
+		})
+	);
+	return element;
 }
 
 /**
@@ -55,7 +55,7 @@ function createInputWithLabel(labelText, attributes) {
  * @returns
  */
 function getProperty(element, key) {
-  return Number(element.getAttribute(key));
+	return Number(element.getAttribute(key));
 }
 
 /**
@@ -65,5 +65,17 @@ function getProperty(element, key) {
  * @param {number} value - The property value
  */
 function setProperty(element, key, value) {
-  element.setAttribute(key, value);
+	element.setAttribute(key, value);
+}
+
+function getNumericValue(element) {
+	return Number(element.value);
+}
+
+function getValue(element) {
+	return element.value;
+}
+
+function setValue(element, value) {
+	element.value = value;
 }

@@ -7,16 +7,14 @@ class Oval extends Shape {
       this.corner2 = corner1;
    }
 
-   static load(data, stageProperties) {
-      const oval = new Oval();
-      oval.id = data.id;
-      oval.options = JSON.parse(JSON.stringify(data.options));
-      oval.center = Vector.load(data.center);
-      oval.center.x += stageProperties.left;
-      oval.center.y += stageProperties.top;
-      oval.size = data.size;
-      oval.selected = data.selected;
-      return oval;
+   load(data, stageProperties) {
+      this.id = data.id;
+      this.options = JSON.parse(JSON.stringify(data.options));
+      this.center = Vector.load(data.center);
+      this.center.x += stageProperties.left;
+      this.center.y += stageProperties.top;
+      this.size = data.size;
+      this.selected = data.selected;
    }
 
    serialize() {
@@ -99,18 +97,4 @@ class Oval extends Shape {
       }
    }
 
-   static addPointerDownListener(e) {
-      if (e.button !== 0) return;
-      const startPosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
-      currentShape = new Oval(startPosition, getOptions());
-
-      const moveCallback = (e) => {
-         secondCornerMoveCallback(e, startPosition, currentShape);
-      };
-      const upCallback = (e) => {
-         secondCornerUpCallback(e, currentShape, moveCallback, upCallback);
-      };
-      myCanvas.addEventListener("pointermove", moveCallback);
-      myCanvas.addEventListener("pointerup", upCallback);
-   }
 }

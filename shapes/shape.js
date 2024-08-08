@@ -119,13 +119,13 @@ class Shape {
 
 function deleteSelectedShapes() {
    let index = shapes.findIndex((s) => s.selected);
-   let shoulUpdateHistory = index !== -1;
+   let shouldRecordHistory = index !== -1;
    while (index != -1) {
       shapes.splice(index, 1);
       index = shapes.findIndex((s) => s.selected);
    }
-   if (shoulUpdateHistory) {
-      updateHistory(shapes);
+   if (shouldRecordHistory) {
+      HistoryTools.record(shapes);
    }
    PropertiesPanel.reset();
    drawShapes(shapes);
@@ -228,6 +228,6 @@ function secondCornerUpCallback(e, currentShape, moveCallback, upCallback) {
    currentShape.recenter();
    if (currentShape.size.width > 0 && currentShape.size.height > 0) {
       shapes.push(currentShape);
-      updateHistory(shapes);
+      HistoryTools.record(shapes);
    }
 }
