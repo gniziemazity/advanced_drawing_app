@@ -3,7 +3,7 @@ class RectTool {
 		if (e.button !== 0) return;
 
 		const startPosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
-		currentShape = new Rect(startPosition, getOptions());
+		currentShape = new Rect(startPosition, PropertiesPanel.getValues());
 
 		const moveCallback = (e) => {
 			secondCornerMoveCallback(e, startPosition, currentShape);

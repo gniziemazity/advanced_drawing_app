@@ -114,64 +114,9 @@ class Shape {
 	}
 }
 
-function deleteSelectedShapes() {
-	let index = shapes.findIndex((s) => s.selected);
-	let shouldRecordHistory = index !== -1;
-	while (index != -1) {
-		shapes.splice(index, 1);
-		index = shapes.findIndex((s) => s.selected);
-	}
-	if (shouldRecordHistory) {
-		HistoryTools.record(shapes);
-	}
-	PropertiesPanel.reset();
-	drawShapes(shapes);
-}
 
-function drawShapes(shapes) {
-	gizmos = shapes.filter((s) => s.selected).map((s) => new Gizmo(s));
 
-	ctx.save();
-	hitTestingCtx.save();
 
-	clearCanvas();
-	hitTestingCtx.clearRect(
-		-canvasProperties.width / 2,
-		-canvasProperties.height / 2,
-		canvasProperties.width,
-		canvasProperties.height
-	);
-
-	ctx.scale(viewport.zoom, viewport.zoom);
-	hitTestingCtx.scale(viewport.zoom, viewport.zoom);
-
-	ctx.translate(viewport.offset.x, viewport.offset.y);
-	hitTestingCtx.translate(viewport.offset.x, viewport.offset.y);
-
-	drawStage();
-	for (const shape of shapes) {
-		shape.draw(ctx);
-	}
-
-	for (const gizmo of gizmos) {
-		gizmo.draw(ctx);
-	}
-
-	for (const shape of shapes) {
-		shape.draw(hitTestingCtx, true);
-	}
-
-	for (const gizmo of gizmos) {
-		gizmo.draw(hitTestingCtx, true);
-	}
-	ctx.restore();
-	hitTestingCtx.restore();
-}
-
-function selectAll() {
-	shapes.forEach((s) => (s.selected = true));
-	drawShapes(shapes);
-}
 
 function loadShapes(data) {
 	const loadedShapes = [];
@@ -179,7 +124,7 @@ function loadShapes(data) {
       const cls=ShapeTools.tools[shapeData.type].shape;
 		const shape = cls.load(
 			shapeData,
-			stageProperties
+			STAGE_PROPERTIES
 		);
 		loadedShapes.push(shape);
 	}
@@ -202,7 +147,7 @@ function secondCornerMoveCallback(e, startPosition, currentShape) {
 	}
 	currentShape.setCorner2(secondCornerPosition);
 
-	drawShapes([...shapes, currentShape]);
+	viewport.drawShapes([...shapes, currentShape]);
 }
 
 function secondCornerUpCallback(e, currentShape, moveCallback, upCallback) {

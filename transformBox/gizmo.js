@@ -106,7 +106,7 @@ class Gizmo {
 				}
 			}
 
-			drawShapes(shapes);
+			viewport.drawShapes(shapes);
 			PropertiesPanel.updateDisplay(selectedShapes);
 		};
 

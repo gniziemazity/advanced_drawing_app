@@ -44,7 +44,6 @@ class PropertiesPanel {
 				oninput: "PropertiesPanel.previewFillColor(this.value)",
 				title: "Fill Color",
 				type: "color",
-				value: "#ff0000",
 			})
 		);
 		this.holderDiv.appendChild(
@@ -56,6 +55,13 @@ class PropertiesPanel {
 				type: "checkbox",
 			})
 		);
+		this.holderDiv.appendChild(
+			createDOMElement(
+				"button",
+				{ id: "resetBtn", onclick: "PropertiesPanel.resetColors()" },
+				"Reset"
+			)
+		);
 		this.holderDiv.appendChild(createDOMElement("br"));
 		this.holderDiv.appendChild(
 			createDOMElement("input", {
@@ -64,7 +70,6 @@ class PropertiesPanel {
 				oninput: "PropertiesPanel.previewStrokeColor(this.value)",
 				title: "Stroke Color",
 				type: "color",
-				value: "#0000ff",
 			})
 		);
 		this.holderDiv.appendChild(
@@ -75,6 +80,13 @@ class PropertiesPanel {
 				title: "Stroke",
 				type: "checkbox",
 			})
+		);
+		this.holderDiv.appendChild(
+			createDOMElement(
+				"button",
+				{ id: "swapBtn", onclick: "PropertiesPanel.swapColors()" },
+				"Swap"
+			)
 		);
 		this.holderDiv.appendChild(createDOMElement("br"));
 		this.holderDiv.appendChild(
@@ -100,24 +112,26 @@ class PropertiesPanel {
 			})
 		);
 		this.holderDiv.appendChild(createDOMElement("br"));
+
+		PropertiesPanel.resetColors();
 	}
 
 	static changeX(value) {
 		shapes
 			.filter((s) => s.selected)
-			.forEach((s) => (s.center.x = Number(value) + stageProperties.left));
+			.forEach((s) => (s.center.x = Number(value) + STAGE_PROPERTIES.left));
 
 		HistoryTools.record(shapes);
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static changeY(value) {
 		shapes
 			.filter((s) => s.selected)
-			.forEach((s) => (s.center.y = Number(value) + stageProperties.top));
+			.forEach((s) => (s.center.y = Number(value) + STAGE_PROPERTIES.top));
 
 		HistoryTools.record(shapes);
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static changeWidth(value) {
@@ -144,7 +158,7 @@ class PropertiesPanel {
 		}
 
 		HistoryTools.record(shapes);
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static changeHeight(value) {
@@ -171,7 +185,7 @@ class PropertiesPanel {
 		}
 
 		HistoryTools.record(shapes);
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static previewFillColor(value) {
@@ -179,7 +193,7 @@ class PropertiesPanel {
 			.filter((s) => s.selected)
 			.forEach((s) => (s.options.fillColor = value));
 
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static changeFillColor(value) {
@@ -191,7 +205,7 @@ class PropertiesPanel {
 		shapes.filter((s) => s.selected).forEach((s) => (s.options.fill = value));
 
 		HistoryTools.record(shapes);
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static previewStrokeColor(value) {
@@ -199,7 +213,7 @@ class PropertiesPanel {
 			.filter((s) => s.selected)
 			.forEach((s) => (s.options.strokeColor = value));
 
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static changeStrokeColor(value) {
@@ -213,7 +227,7 @@ class PropertiesPanel {
 			.forEach((s) => (s.options.stroke = value));
 
 		HistoryTools.record(shapes);
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static previewStrokeWidth(value) {
@@ -221,7 +235,7 @@ class PropertiesPanel {
 			.filter((s) => s.selected)
 			.forEach((s) => (s.options.strokeWidth = Number(value)));
 
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 	}
 
 	static changeStrokeWidth(value) {
@@ -235,7 +249,25 @@ class PropertiesPanel {
 			.forEach((s) => s.setText(value));
 
 		HistoryTools.record(shapes);
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
+	}
+
+	static resetColors() {
+		fillColor.value = "#ffffff";
+		strokeColor.value = "#000000";
+		PropertiesPanel.changeFillColor(fillColor.value);
+		PropertiesPanel.changeStrokeColor(strokeColor.value);
+	}
+
+	static swapColors() {
+		const fillStyle = fillColor.value;
+		const strokeStyle = strokeColor.value;
+
+		fillColor.value = strokeStyle;
+		strokeColor.value = fillStyle;
+
+		PropertiesPanel.changeFillColor(fillColor.value);
+		PropertiesPanel.changeStrokeColor(strokeColor.value);
 	}
 
 	static reset() {
@@ -250,6 +282,18 @@ class PropertiesPanel {
 		heightInput.placeholder = "";
 	}
 
+	static getValues() {
+		return {
+			fillColor: fillColor.value,
+			strokeColor: strokeColor.value,
+			fill: fill.checked,
+			stroke: stroke.checked,
+			strokeWidth: Number(strokeWidth.value),
+			lineCap: "round",
+			lineJoin: "round",
+		};
+	}
+
 	static updateDisplay(selectedShapes) {
 		if (selectedShapes.length === 0) {
 			PropertiesPanel.reset();
@@ -260,8 +304,8 @@ class PropertiesPanel {
 		for (const shape of selectedShapes) {
 			if (newProperties === null) {
 				newProperties = {
-					x: shape.center.x - stageProperties.left,
-					y: shape.center.y - stageProperties.top,
+					x: shape.center.x - STAGE_PROPERTIES.left,
+					y: shape.center.y - STAGE_PROPERTIES.top,
 					width: shape.size.width,
 					height: shape.size.height,
 					fillColor: shape.options.fillColor,
@@ -272,10 +316,10 @@ class PropertiesPanel {
 					text: shape.text,
 				};
 			} else {
-				if (newProperties.x !== shape.center.x - stageProperties.left) {
+				if (newProperties.x !== shape.center.x - STAGE_PROPERTIES.left) {
 					newProperties.x = null;
 				}
-				if (newProperties.y !== shape.center.y - stageProperties.top) {
+				if (newProperties.y !== shape.center.y - STAGE_PROPERTIES.top) {
 					newProperties.y = null;
 				}
 				if (newProperties.width !== shape.size.width) {

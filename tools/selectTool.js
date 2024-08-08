@@ -5,7 +5,7 @@ class SelectTool{
       PropertiesPanel.reset();
       const startPosition = new Vector(e.offsetX, e.offsetY);
    
-      const [r, g, b, a] = hitTestingCtx.getImageData(
+      const [r, g, b, a] = viewport.hitTestingCtx.getImageData(
          startPosition.x,
          startPosition.y,
          1,
@@ -49,7 +49,7 @@ class SelectTool{
             selectedShapes.forEach((s, i) => {
                s.setCenter(Vector.add(oldCenters[i], mouseDelta));
             });
-            drawShapes(shapes);
+            viewport.drawShapes(shapes);
             PropertiesPanel.updateDisplay(selectedShapes);
          };
    
@@ -59,7 +59,7 @@ class SelectTool{
    
             if (isClickingSelectedShape && !isDragging) {
                shape.selected = false;
-               drawShapes(shapes);
+               viewport.drawShapes(shapes);
             }
             PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
             if (isDragging && mouseDelta.magnitude() > 0) {
@@ -72,7 +72,7 @@ class SelectTool{
          SelectTool.selectShapesUnderRectangle(e);
       }
    
-      drawShapes(shapes);
+      viewport.drawShapes(shapes);
    }
 
    static selectShapesUnderRectangle(e) {
@@ -133,7 +133,7 @@ class SelectTool{
    
          rect.remove();
          PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
-         drawShapes(shapes);
+         viewport.drawShapes(shapes);
       };
    
       // adding eventlisteners to rect to allow rect redraw when

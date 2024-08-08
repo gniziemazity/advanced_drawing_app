@@ -3,6 +3,9 @@ class ToolsPanel {
 		this.#addDocumentTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
 
+		this.#addEditingTools(holderDiv);
+		holderDiv.appendChild(createDOMElement("hr"));
+
 		this.addHistoryTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
 
@@ -11,62 +14,119 @@ class ToolsPanel {
 
 	#addDocumentTools(holderDiv) {
 		holderDiv.appendChild(
-			createDOMElement("div", { id: "documentToolsHeader" }, "Document")
-		);
-		holderDiv.appendChild(
 			createDOMElement(
 				"button",
-				{ id: "saveBtn", onclick: "DocumentTools.save()" },
-				"Save"
+				{
+					id: "saveBtn",
+					title: "Save",
+					class: "tool-button",
+					onclick: "DocumentTools.save()",
+				},
+				"💾"
 			)
 		);
 		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
-				{ id: "loadBtn", onclick: "DocumentTools.load()" },
-				"Load"
+				{
+					id: "loadBtn",
+					title: "Load",
+					class: "tool-button",
+					onclick: "DocumentTools.load()",
+				},
+				"📁"
 			)
 		);
 		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
-				{ id: "exportBtn", onclick: "DocumentTools.do_export()" },
-				"Export"
+				{
+					id: "exportBtn",
+					title: "Export",
+					class: "tool-button",
+					onclick: "DocumentTools.do_export()",
+				},
+				"🖼️"
 			)
 		);
 	}
 
-	addHistoryTools(holderDiv) {
-		holderDiv.appendChild(
-			createDOMElement("div", { id: "historyToolsHeader" }, "History")
-		);
+	#addEditingTools(holderDiv) {
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
-				{ id: "undoBtn", onclick: "HistoryTools.undo()" },
-				"Undo"
+				{
+					id: "copyBtn",
+					title: "Copy",
+					class: "tool-button",
+					onclick: "EditingTools.duplicate()",
+				},
+				"🗐"
 			)
 		);
 		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
-				{ id: "redoBtn", onclick: "HistoryTools.redo()" },
-				"Redo"
+				{
+					id: "selectAllBtn",
+					title: "Select All",
+					class: "tool-button",
+					onclick: "EditingTools.selectAll()",
+				},
+				"▭"
+			)
+		);
+		holderDiv.appendChild(createDOMElement("br"));
+		holderDiv.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "deleteBtn",
+					title: "Delete",
+					class: "tool-button",
+					onclick: "EditingTools.delete()",
+				},
+				"🗑️"
+			)
+		);
+		holderDiv.appendChild(createDOMElement("br"));
+	}
+
+	addHistoryTools(holderDiv) {
+		holderDiv.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "undoBtn",
+					title: "Undo",
+					class: "tool-button",
+					onclick: "HistoryTools.undo()",
+				},
+				"↩️"
+			)
+		);
+		holderDiv.appendChild(createDOMElement("br"));
+		holderDiv.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "redoBtn",
+					title: "Redo",
+					class: "tool-button",
+					onclick: "HistoryTools.redo()",
+				},
+				"↪️"
 			)
 		);
 	}
 
 	#addShapeTools(holderDiv) {
-		holderDiv.appendChild(
-			createDOMElement("div", { id: "shapeToolsHeader" }, "Shapes")
-		);
-
 		for (let key in ShapeTools.tools) {
-         if(!ShapeTools.tools[key].showButton) continue;
-         
+			if (!ShapeTools.tools[key].showButton) continue;
+
 			holderDiv.appendChild(
 				createInputWithLabel(key, {
 					type: "radio",
@@ -77,6 +137,6 @@ class ToolsPanel {
 			);
 		}
 
-      ShapeTools.selectTool("Path");
+		ShapeTools.selectTool("Path");
 	}
 }

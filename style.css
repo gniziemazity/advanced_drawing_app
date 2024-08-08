@@ -7,6 +7,21 @@ body {
    user-select: none;
 }
 
+
+button {
+   background: #EEE;
+   border: none;
+   padding: 3px;
+   border-radius: 4px;
+   font-size: large;
+   margin: 2px;
+   cursor: pointer;
+}
+
+.tool-button {
+   width: 35px;
+}
+
 .panel {
    position: absolute;
    top: 10%;

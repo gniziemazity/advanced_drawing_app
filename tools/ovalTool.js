@@ -2,7 +2,7 @@ class OvalTool {
 	static addPointerDownListener(e) {
 		if (e.button !== 0) return;
 		const startPosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
-		currentShape = new Oval(startPosition, getOptions());
+		currentShape = new Oval(startPosition, PropertiesPanel.getValues());
 
 		const moveCallback = (e) => {
 			secondCornerMoveCallback(e, startPosition, currentShape);

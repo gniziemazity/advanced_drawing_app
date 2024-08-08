@@ -1,7 +1,7 @@
 class DocumentTools{
 	static save() {
 		const data = JSON.stringify(
-			shapes.map((s) => s.serialize(stageProperties))
+			shapes.map((s) => s.serialize(STAGE_PROPERTIES))
 		);
 
 		const a = document.createElement("a");
@@ -24,7 +24,7 @@ class DocumentTools{
 				if (extension === "json") {
 					const data = JSON.parse(e.target.result);
 					shapes = loadShapes(data);
-					drawShapes(shapes);
+					viewport.drawShapes(shapes);
 					HistoryTools.record(shapes);
 				} else if (extension === "png") {
 					DocumentTools.loadImage(e);
@@ -43,15 +43,15 @@ class DocumentTools{
 	static loadImage(e) {
 		const img = new Image();
 		img.onload = () => {
-			const myImage = new MyImage(img, getOptions());
+			const myImage = new MyImage(img, PropertiesPanel.getValues());
 			myImage.setCenter(
 				new Vector(
-					stageProperties.left + stageProperties.width / 2,
-					stageProperties.top + stageProperties.height / 2
+					STAGE_PROPERTIES.left + STAGE_PROPERTIES.width / 2,
+					STAGE_PROPERTIES.top + STAGE_PROPERTIES.height / 2
 				)
 			);
 			shapes.push(myImage);
-			drawShapes(shapes);
+			viewport.drawShapes(shapes);
 			HistoryTools.record(shapes);
 		};
 		img.src = e.target.result;
@@ -59,10 +59,10 @@ class DocumentTools{
 
 	static do_export() {
 		const tmpCanvas = document.createElement("canvas");
-		tmpCanvas.width = stageProperties.width;
-		tmpCanvas.height = stageProperties.height;
+		tmpCanvas.width = STAGE_PROPERTIES.width;
+		tmpCanvas.height = STAGE_PROPERTIES.height;
 		const tmpCtx = tmpCanvas.getContext("2d");
-		tmpCtx.translate(-stageProperties.left, -stageProperties.top);
+		tmpCtx.translate(-STAGE_PROPERTIES.left, -STAGE_PROPERTIES.top);
 		for (const shape of shapes) {
 			const isSelected = shape.selected;
 			shape.selected = false;

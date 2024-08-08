@@ -18,7 +18,7 @@ class ShapeTools {
 		}
 
 		shapes.forEach((s) => (s.selected = false));
-		drawShapes(shapes);
+		viewport.drawShapes(shapes);
 
 		myCanvas.addEventListener(
 			"pointerdown",
