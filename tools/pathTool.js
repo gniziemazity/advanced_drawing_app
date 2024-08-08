@@ -19,11 +19,20 @@ class PathTool {
 			viewport.canvas.removeEventListener("pointerup", upCallback);
 
 			currentShape.recenter();
-			shapes.push(currentShape);
-
-			HistoryTools.record(shapes);
+			if (currentShape.size.width > 0 && currentShape.size.height > 0) {
+				shapes.push(currentShape);
+				HistoryTools.record(shapes);
+			}
 		};
 		viewport.canvas.addEventListener("pointermove", moveCallback);
 		viewport.canvas.addEventListener("pointerup", upCallback);
+	}
+
+  static configureEventListeners() {
+		myCanvas.addEventListener("pointerdown", this.addPointerDownListener);
+	}
+
+	static removeEventListeners() {
+		myCanvas.removeEventListener("pointerdown", this.addPointerDownListener);
 	}
 }

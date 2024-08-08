@@ -23,7 +23,7 @@ class DocumentTools{
 			reader.onload = (e) => {
 				if (extension === "json") {
 					const data = JSON.parse(e.target.result);
-					shapes = loadShapes(data);
+					shapes = ShapeFactory.loadShapes(data);
 					viewport.drawShapes(shapes);
 					HistoryTools.record(shapes);
 				} else if (extension === "png") {
