@@ -25,7 +25,6 @@ class ToolsPanel {
 				"💾"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -38,7 +37,6 @@ class ToolsPanel {
 				"📁"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -66,7 +64,6 @@ class ToolsPanel {
 				"🗐"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -79,7 +76,6 @@ class ToolsPanel {
 				"▭"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -92,7 +88,6 @@ class ToolsPanel {
 				"🗑️"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 	}
 
 	addHistoryTools(holderDiv) {
@@ -108,7 +103,6 @@ class ToolsPanel {
 				"↩️"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
