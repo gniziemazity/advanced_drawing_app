@@ -5,6 +5,7 @@ class Shape {
 		this.options = options;
 		this.center = null;
 		this.size = null;
+		this.rotation = { angle: 0 };
 		this.selected = false;
 	}
 
@@ -26,6 +27,32 @@ class Shape {
 
 	setHeight(height) {
 		throw new Error("setWidth method must be implemented");
+	}
+
+	setRotation(angle) {
+		this.rotation.angle= angle;
+		this.rotation.angle %= 360;
+	}
+
+	rotateBy(angle) {
+      this.rotation.angle +=angle;
+	  this.rotation.angle %= 360;
+	}
+
+	rotateCanvas(ctx){
+		if (this.rotation?.angle && this.center) {
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate(-(this.rotation.angle * Math.PI) / 180);
+			ctx.translate(-this.center.x, -this.center.y);
+		}
+	}
+
+	resetCanvasRotation(ctx){
+		if (this.rotation?.angle && this.center) {
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate((this.rotation.angle * Math.PI) / 180);
+			ctx.translate(-this.center.x, -this.center.y);
+		}
 	}
 
 	setSize(width, height) {

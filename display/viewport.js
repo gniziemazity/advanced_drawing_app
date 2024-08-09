@@ -80,7 +80,9 @@ class Viewport {
 
 		this.#drawStage();
 		for (const shape of shapes) {
+			shape.rotateCanvas(this.ctx);
 			shape.draw(this.ctx);
+			shape.resetCanvasRotation(this.ctx);
 		}
 
 		for (const gizmo of gizmos) {
@@ -88,7 +90,9 @@ class Viewport {
 		}
 
 		for (const shape of shapes) {
+			shape.rotateCanvas(this.hitTestingCtx);
 			shape.draw(this.hitTestingCtx, true);
+			shape.resetCanvasRotation(this.hitTestingCtx);
 		}
 
 		for (const gizmo of gizmos) {

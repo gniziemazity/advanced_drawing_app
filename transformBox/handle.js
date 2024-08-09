@@ -9,16 +9,22 @@ class Handle {
    static BOTTOM_LEFT = 6;
    static BOTTOM_RIGHT = 7;
 
-   constructor(center, type) {
+   constructor(center, type, rotation) {
       this.center = center;
       this.id = Shape.generateId();
       this.type = type;
+      this.rotation = rotation;
    }
 
    draw(ctx, hitRegion = false) {
       const size = Handle.size / viewport.zoom;
       ctx.fillStyle = hitRegion ? Shape.getHitRGB(this.id) : "black";;
       ctx.strokeStyle = "white";
+      if (this.rotation?.angle && this.center) {
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate(-(this.rotation.angle * Math.PI) / 180);
+			ctx.translate(-this.center.x, -this.center.y);
+		}
       ctx.fillRect(
          this.center.x - size / 2,
          this.center.y - size / 2,
@@ -33,5 +39,10 @@ class Handle {
             size
          );
       }
+      if (this.rotation?.angle && this.center) {
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate((this.rotation.angle * Math.PI) / 180);
+			ctx.translate(-this.center.x, -this.center.y);
+		}
    }
 }
