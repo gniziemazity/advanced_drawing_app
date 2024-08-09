@@ -36,7 +36,7 @@ function createDOMElement(type, attributes, text) {
 function createInputWithLabel(labelText, attributes) {
 	const element = document.createElement("div");
 	element.appendChild(
-		createDOMElement("label", { for: attributes["id"] }, `${labelText}: `)
+		createDOMElement("label", { for: attributes["id"] || labelText.toLowerCase() }, `${labelText}: `)
 	);
 	element.appendChild(
 		createDOMElement("input", {
