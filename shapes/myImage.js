@@ -78,3 +78,5 @@ class MyImage extends Shape {
       }
    }
 }
+
+ShapeFactory.registerShape(MyImage, "MyImage");

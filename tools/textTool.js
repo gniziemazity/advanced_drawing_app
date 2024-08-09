@@ -10,4 +10,12 @@ class TextTool {
 
 		HistoryTools.record(shapes);
 	}
+
+  static configureEventListeners() {
+		myCanvas.addEventListener("pointerdown", this.addPointerDownListener);
+	}
+
+	static removeEventListeners() {
+		myCanvas.removeEventListener("pointerdown", this.addPointerDownListener);
+	}
 }

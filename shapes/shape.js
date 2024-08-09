@@ -114,16 +114,6 @@ class Shape {
 	}
 }
 
-function loadShapes(data) {
-	const loadedShapes = [];
-	for (const shapeData of data) {
-		const cls = ShapeTools.tools[shapeData.type].shape;
-		const shape = cls.load(shapeData);
-		loadedShapes.push(shape);
-	}
-	return loadedShapes;
-}
-
 function secondCornerMoveCallback(e, startPosition, currentShape) {
 	const mousePosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
 	let secondCornerPosition = mousePosition;
