@@ -1,6 +1,6 @@
 class Gizmo {
 	static shouldTrackFlip = false
-	static canFlip = false
+	static canFlip = {x: false, y:false}
 	constructor(shape) {
 		this.shape = shape;
 
@@ -142,7 +142,7 @@ class Gizmo {
 
 		const upCallback = (e) => {
 			Gizmo.shouldTrackFlip = false
-			Gizmo.canFlip = false
+			Gizmo.canFlip = {x: false, y: false}
 			viewport.canvas.removeEventListener("pointermove", moveCallback);
 			viewport.canvas.removeEventListener("pointerup", upCallback);
 		};
@@ -151,8 +151,11 @@ class Gizmo {
 	}
 
 	static setCanFlip(prevRatioX, ratioX, prevRatioY, ratioY) {
-		if (Math.sign(prevRatioX) !== Math.sign(ratioX) || Math.sign(prevRatioY) !== Math.sign(ratioY)) {
-			Gizmo.canFlip = true
+		if (Math.sign(prevRatioX) !== Math.sign(ratioX)) {
+			Gizmo.canFlip.x = true
+		}
+		if (Math.sign(prevRatioY) !== Math.sign(ratioY)) {
+			Gizmo.canFlip.y = true
 		}
 	}
 

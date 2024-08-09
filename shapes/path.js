@@ -43,8 +43,8 @@ class Path extends Shape {
       let flip = 1
 
       if (Gizmo.shouldTrackFlip) {
-         if (Gizmo.canFlip) {
-            Gizmo.canFlip = false
+         if (Gizmo.canFlip.x) {
+            Gizmo.canFlip.x = false
             flip = Math.sign(width) !== Math.sign(this.size.width) ? -1 : 1;
          }
       } else {
@@ -68,8 +68,8 @@ class Path extends Shape {
       let flip = 1
 
       if (Gizmo.shouldTrackFlip) {
-         if (Gizmo.canFlip) {
-            Gizmo.canFlip = false
+         if (Gizmo.canFlip.y) {
+            Gizmo.canFlip.y = false
             flip = Math.sign(height) !== Math.sign(this.size.height) ? -1 : 1;
          }
       } else {

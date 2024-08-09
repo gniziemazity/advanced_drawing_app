@@ -47,12 +47,25 @@ class MyImage extends Shape {
    }
 
    setWidth(width) {
-      this.size.width = width;
+      if (Gizmo.canFlip.x) {
+         Gizmo.canFlip.x = false
+         width = Math.abs(width) * Math.sign(this.size.width) * -1
+      } else {
+         width = Math.abs(width) * Math.sign(this.size.width);
+      }
+      this.size.width = width
    }
 
    setHeight(height) {
-      this.size.height = height;
+      if (Gizmo.canFlip.y) {
+         Gizmo.canFlip.y = false
+         height = Math.abs(height) * Math.sign(this.size.height) * -1
+      } else {
+         height = Math.abs(height) * Math.sign(this.size.height);
+      }
+      this.size.height = height
    }
+   
 
    draw(ctx, hitRegion = false) {
       const center = this.center ? this.center : { x: 0, y: 0 };
