@@ -47,13 +47,20 @@ class Gizmo {
 			mouseDelta = viewport.scale(diff);
 			isDragging = true;
 
-			const ratio = new Vector(
+			let ratio = new Vector(
 				mouseDelta.x / this.box.width,
 				mouseDelta.y / this.box.height
 			)
 				.scale(2)
 				.add(new Vector(1, 1));
 
+			// Preserve aspect ratio if shift key is held
+			// region shift key preserve ratio
+			if (e.shiftKey) {
+				const minRatio = Math.min(Math.abs(ratio.x), Math.abs(ratio.y));
+				ratio = new Vector(Math.sign(ratio.x) * minRatio, Math.sign(ratio.y) * minRatio);
+			}
+			// endregion
 			for (let i = 0; i < selectedShapes.length; i++) {
 				const shape = selectedShapes[i];
 				const oldBox = oldBoxes[i];
