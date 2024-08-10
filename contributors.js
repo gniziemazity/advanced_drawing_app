@@ -1,16 +1,17 @@
 const contributors = [
-	"egbertpostma",
-	"kabelo tooka",
-	"iyusuf",
-	"rajeshpillai",
-	"bobcravens",
-	"rahul thakare",
-	"michael golden",
-	"thoughtandco",
-	"pesterenan",
-	"V-key",
-	"Gyanendra Singh",
-	"mshryane",
+   "iyusuf",
+   "michael golden",
+   "pesterenan",
+   "rahul thakare",
+   "egbertpostma",
+   "kabelo tooka",
+   "rajeshpillai",
+   "bobcravens",
+   "thoughtandco",
+   "V-key",
+   "Gyanendra Singh",
+   "mshryane",
+   "Mihir-Fluxbyte"
 ];
 
 document.getElementById("contributors").innerHTML = contributors.join(", ");

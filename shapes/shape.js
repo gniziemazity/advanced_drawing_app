@@ -114,28 +114,16 @@ class Shape {
 	}
 }
 
-function loadShapes(data) {
-	const loadedShapes = [];
-	for (const shapeData of data) {
-		const cls = ShapeTools.tools[shapeData.type].shape;
-		const shape = cls.load(shapeData);
-		loadedShapes.push(shape);
-	}
-	return loadedShapes;
-}
-
 function secondCornerMoveCallback(e, startPosition, currentShape) {
 	const mousePosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
 	let secondCornerPosition = mousePosition;
 	if (e.shiftKey) {
 		const deltaX = startPosition.x - mousePosition.x;
 		const deltaY = startPosition.y - mousePosition.y;
-		const sgnX = deltaX > 0 ? 1 : -1;
-		const sgnY = deltaY > 0 ? 1 : -1;
 		const minDelta = Math.min(Math.abs(deltaX), Math.abs(deltaY));
 		secondCornerPosition = new Vector(
-			startPosition.x - sgnX * minDelta,
-			startPosition.y - sgnY * minDelta
+			startPosition.x - Math.sign(deltaX) * minDelta,
+			startPosition.y - Math.sign(deltaY) * minDelta
 		);
 	}
 	currentShape.setCorner2(secondCornerPosition);

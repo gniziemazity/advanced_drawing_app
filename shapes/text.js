@@ -118,5 +118,6 @@ class Text extends Shape {
          ctx.restore();
       }
    }
-
 }
+
+ShapeFactory.registerShape(Text, "Text");
