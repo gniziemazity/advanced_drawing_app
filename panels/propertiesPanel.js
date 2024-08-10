@@ -1,50 +1,79 @@
 class PropertiesPanel {
 	constructor(holderDiv) {
 		this.holderDiv = holderDiv;
-		this.holderDiv.innerText = "Properties";
-		this.holderDiv.appendChild(createDOMElement("br"));
-		this.holderDiv.appendChild(
+
+		const panelHeaderDiv = createDOMElement("div", {
+			class: "panel-head",
+		});
+		panelHeaderDiv.innerText = "Properties";
+
+		const panelBodyDiv = createDOMElement("div", {
+			class: "panel-body",
+			["data-title"]: "Properties",
+		});
+
+		this.holderDiv.appendChild(panelHeaderDiv);
+		this.holderDiv.appendChild(panelBodyDiv);
+
+		const transformSection = createDOMElement("div", {
+			class: "panel-section",
+			["data-title"]: "Transform",
+		});
+		const colorSection = createDOMElement("div", {
+			class: "panel-section grid",
+			["data-title"]: "Color",
+		});
+		const textSection = createDOMElement("div", {
+			class: "panel-section grid",
+			["data-title"]: "Text",
+		});
+
+		panelBodyDiv.appendChild(transformSection);
+		panelBodyDiv.appendChild(colorSection);
+		panelBodyDiv.appendChild(textSection);
+
+		transformSection.appendChild(
 			createInputWithLabel("X", {
 				type: "number",
 				onchange: "PropertiesPanel.changeX(this.value)",
 				id: "xInput",
 			})
 		);
-		this.holderDiv.appendChild(
+		transformSection.appendChild(
 			createInputWithLabel("Y", {
 				type: "number",
 				onchange: "PropertiesPanel.changeY(this.value)",
 				id: "yInput",
 			})
 		);
-		this.holderDiv.appendChild(
+		transformSection.appendChild(
 			createInputWithLabel("Width", {
 				type: "number",
 				onchange: "PropertiesPanel.changeWidth(this.value)",
 				id: "widthInput",
 			})
 		);
-		this.holderDiv.appendChild(
+		transformSection.appendChild(
 			createInputWithLabel("Height", {
 				type: "number",
 				onchange: "PropertiesPanel.changeHeight(this.value)",
 				id: "heightInput",
 			})
 		);
-		this.holderDiv.appendChild(
+		transformSection.appendChild(
 			createInputWithLabel("Rotation", {
 				type: "number",
 				onchange: "PropertiesPanel.setRotation(this.value)",
 				id: "rotationInput",
 			})
 		);
-		this.holderDiv.appendChild(
+		transformSection.appendChild(
 			createInputWithLabel("Constrain", {
 				type: "checkbox",
 				id: "constrainDimensions",
 			})
 		);
-		this.holderDiv.appendChild(
+		colorSection.appendChild(
 			createDOMElement("input", {
 				id: "fillColor",
 				onchange: "PropertiesPanel.changeFillColor(this.value)",
@@ -53,7 +82,7 @@ class PropertiesPanel {
 				type: "color",
 			})
 		);
-		this.holderDiv.appendChild(
+		colorSection.appendChild(
 			createDOMElement("input", {
 				id: "fill",
 				checked: true,
@@ -62,15 +91,14 @@ class PropertiesPanel {
 				type: "checkbox",
 			})
 		);
-		this.holderDiv.appendChild(
+		colorSection.appendChild(
 			createDOMElement(
 				"button",
 				{ id: "resetBtn", onclick: "PropertiesPanel.resetColors()" },
 				"Reset"
 			)
 		);
-		this.holderDiv.appendChild(createDOMElement("br"));
-		this.holderDiv.appendChild(
+		colorSection.appendChild(
 			createDOMElement("input", {
 				id: "strokeColor",
 				onchange: "PropertiesPanel.changeStrokeColor(this.value)",
@@ -79,7 +107,7 @@ class PropertiesPanel {
 				type: "color",
 			})
 		);
-		this.holderDiv.appendChild(
+		colorSection.appendChild(
 			createDOMElement("input", {
 				id: "stroke",
 				checked: true,
@@ -88,15 +116,14 @@ class PropertiesPanel {
 				type: "checkbox",
 			})
 		);
-		this.holderDiv.appendChild(
+		colorSection.appendChild(
 			createDOMElement(
 				"button",
 				{ id: "swapBtn", onclick: "PropertiesPanel.swapColors()" },
 				"Swap"
 			)
 		);
-		this.holderDiv.appendChild(createDOMElement("br"));
-		this.holderDiv.appendChild(
+		colorSection.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidth",
 				max: "100",
@@ -108,8 +135,7 @@ class PropertiesPanel {
 				value: "5",
 			})
 		);
-		this.holderDiv.appendChild(createDOMElement("br"));
-		this.holderDiv.appendChild(
+		textSection.appendChild(
 			createDOMElement("input", {
 				id: "text",
 				oninput: "PropertiesPanel.changeText(this.value)",
@@ -118,7 +144,6 @@ class PropertiesPanel {
 				value: "TEST",
 			})
 		);
-		this.holderDiv.appendChild(createDOMElement("br"));
 
 		PropertiesPanel.resetColors();
 	}

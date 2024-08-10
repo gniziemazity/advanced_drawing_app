@@ -1,4 +1,4 @@
-class Rect extends Shape {
+class Rect extends Shape {  
    constructor(corner1, options) {
       super(options);
       //take out corner 1 and corner 2 to
@@ -86,3 +86,5 @@ class Rect extends Shape {
       }
    }
 }
+
+ShapeFactory.registerShape(Rect, "Rect");

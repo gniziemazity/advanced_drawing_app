@@ -67,66 +67,66 @@ class Gizmo {
 			mouseDelta = viewport.scale(diff);
 			isDragging = true;
 
-			const ratio = new Vector(
+			let ratio = new Vector(
 				mouseDelta.x / this.box.width,
 				mouseDelta.y / this.box.height
 			)
 				.scale(2)
 				.add(new Vector(1, 1));
 
+			switch (handle.type) {
+				case Handle.RIGHT:
+					ratio = new Vector(ratio.x, 1);
+					break;
+				case Handle.LEFT:
+					ratio = new Vector(2 - ratio.x, 1);
+					break;
+				case Handle.TOP:
+					ratio = new Vector(1, 2 - ratio.y);
+					break;
+				case Handle.BOTTOM:
+					ratio = new Vector(1, ratio.y);
+					break;
+				case Handle.TOP_LEFT:
+					ratio = new Vector(2 - ratio.x, 2 - ratio.y);
+					break;
+				case Handle.TOP_RIGHT:
+					ratio = new Vector(ratio.x, 2 - ratio.y);
+					break;
+				case Handle.BOTTOM_LEFT:
+					ratio = new Vector(2 - ratio.x, ratio.y);
+					break;
+				case Handle.BOTTOM_RIGHT:
+					ratio = new Vector(ratio.x, ratio.y);
+					break;
+			}
+
+			// Preserve aspect ratio if shift key is held
+			// region shift key preserve ratio
+			if (
+				e.shiftKey &&
+				[
+					Handle.TOP_LEFT,
+					Handle.TOP_RIGHT,
+					Handle.BOTTOM_LEFT,
+					Handle.BOTTOM_RIGHT,
+				].includes(handle.type)
+			) {
+				const scaler = Math.max(Math.abs(ratio.x), Math.abs(ratio.y));
+				ratio = new Vector(
+					Math.sign(ratio.x) * scaler,
+					Math.sign(ratio.y) * scaler
+				);
+			}
+
+			// endregion
 			for (let i = 0; i < selectedShapes.length; i++) {
 				const shape = selectedShapes[i];
 				const oldBox = oldBoxes[i];
-
-				switch (handle.type) {
-					case Handle.RIGHT:
-						shape.changeWidth(oldBox.width, ratio.x);
-						break;
-					case Handle.LEFT:
-						shape.changeWidth(oldBox.width, 2 - ratio.x);
-						break;
-					case Handle.TOP:
-						shape.changeHeight(oldBox.height, 2 - ratio.y);
-						break;
-					case Handle.BOTTOM:
-						shape.changeHeight(oldBox.height, ratio.y);
-						break;
-					case Handle.TOP_LEFT:
-						shape.changeSize(
-							oldBox.width,
-							oldBox.height,
-							2 - ratio.x,
-							2 - ratio.y
-						);
-						break;
-					case Handle.TOP_RIGHT:
-						shape.changeSize(
-							oldBox.width,
-							oldBox.height,
-							ratio.x,
-							2 - ratio.y
-						);
-						break;
-					case Handle.BOTTOM_LEFT:
-						shape.changeSize(
-							oldBox.width,
-							oldBox.height,
-							2 - ratio.x,
-							ratio.y
-						);
-						break;
-					case Handle.BOTTOM_RIGHT:
-						shape.changeSize(
-							oldBox.width,
-							oldBox.height,
-							ratio.x,
-							ratio.y
-						);
-						break;
-					case Handle.ROTATE:
-						// TODO: rotate shape by calculated angle
-						shape.rotateBy(0);
-                        break;
+				if(handle.type === Handle.ROTATE) {
+					shape.rotateBy(0);
+				} else {
+					shape.changeSize(oldBox.width, oldBox.height, ratio.x, ratio.y);
 				}
 			}
 

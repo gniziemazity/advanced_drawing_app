@@ -1,31 +1,27 @@
 class ShapeTools {
-	static tools = {
-		Path: { class: PathTool, shape: Path, showButton: true },
-		Rect: { class: RectTool, shape: Rect, showButton: true },
-		Oval: { class: OvalTool, shape: Oval, showButton: true },
-		Text: { class: TextTool, shape: Text, showButton: true },
-		Select: { class: SelectTool, showButton: true },
-		MyImage: { class: MyImageTool, shape: MyImage, showButton: false },
-	};
+	static tools = [
+		{ name: "Path", class: PathTool, showButton: true },
+		{ name: "Rect", class: RectTool, showButton: true },
+		{ name: "Oval", class: OvalTool, showButton: true },
+		{ name: "Text", class: TextTool, showButton: true },
+		{ name: "Select", class: SelectTool, showButton: true },
+		{ name: "Image", class: MyImageTool, showButton: false },
+	];
 
-	static selectTool(tool) {
-		for (const key in ShapeTools.tools) {
-			const tool = ShapeTools.tools[key];
-			viewport.canvas.removeEventListener(
-				"pointerdown",
-				tool.class.addPointerDownListener
-			);
-		}
+	static selectTool(type) {
+		// Remove all event listeners
+		ShapeTools.tools.forEach((tool) => tool.class.removeEventListeners());
 
-		shapes.forEach((s) => (s.selected = false));
-		viewport.drawShapes(shapes);
+		const tool = ShapeTools.tools.find((x) => x.name === type);
 
-		viewport.canvas.addEventListener(
-			"pointerdown",
-			ShapeTools.tools[tool].class.addPointerDownListener
+		// Add event listeners for the selected tool
+		tool.class.configureEventListeners();
+
+		// Dispatch an event to notify listeners the tool has been selected
+		Events.toolSelected.dispatchEvent(
+			new CustomEvent("toolSelected", { detail: tool })
 		);
 
-		const radioBtn = document.getElementById(tool.toLowerCase() + "Radio");
-		radioBtn.checked = true;
+		return tool;
 	}
 }

@@ -10,6 +10,12 @@ class ToolsPanel {
 		holderDiv.appendChild(createDOMElement("hr"));
 
 		this.#addShapeTools(holderDiv);
+
+		// Add event listener for tool selection
+		Events.toolSelected.addEventListener("toolSelected", (e) => {
+			this.#selectToolComponent(e.detail);
+			console.log(e);
+		});
 	}
 
 	#addDocumentTools(holderDiv) {
@@ -25,7 +31,6 @@ class ToolsPanel {
 				"💾"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -38,7 +43,6 @@ class ToolsPanel {
 				"📁"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -66,7 +70,6 @@ class ToolsPanel {
 				"🗐"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -79,7 +82,6 @@ class ToolsPanel {
 				"▭"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -92,7 +94,6 @@ class ToolsPanel {
 				"🗑️"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 	}
 
 	addHistoryTools(holderDiv) {
@@ -108,7 +109,6 @@ class ToolsPanel {
 				"↩️"
 			)
 		);
-		holderDiv.appendChild(createDOMElement("br"));
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",
@@ -124,19 +124,28 @@ class ToolsPanel {
 	}
 
 	#addShapeTools(holderDiv) {
-		for (let key in ShapeTools.tools) {
-			if (!ShapeTools.tools[key].showButton) continue;
+		for (let tool of ShapeTools.tools) {
+			if (!tool.showButton) continue;
 
 			holderDiv.appendChild(
-				createInputWithLabel(key, {
+				createInputWithLabel(tool.name, {
 					type: "radio",
-					id: key.toLowerCase() + "Radio",
+					id: tool.name.toLowerCase() + "Radio",
 					name: "shapeTools",
-					onchange: `ShapeTools.selectTool("${key}")`,
+					onchange: `ShapeTools.selectTool("${tool.name}")`,
 				})
 			);
 		}
 
-		ShapeTools.selectTool("Path");
+		const selectedTool = ShapeTools.selectTool("Path");
+
+		// Check the radio button for the selected tool
+		if (selectedTool) {
+			this.#selectToolComponent(selectedTool);
+		}
+	}
+
+	#selectToolComponent(tool) {
+		document.getElementById(tool.name.toLowerCase() + "Radio").checked = true;
 	}
 }

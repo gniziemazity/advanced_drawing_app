@@ -103,7 +103,7 @@ class Viewport {
 	}
 
 	#clearCanvas() {
-		this.ctx.fillStyle = "gray";
+		this.ctx.fillStyle = "#e0e0e0";
 		this.ctx.fillRect(
 			-this.canvas.width / 2,
 			-this.canvas.height / 2,
@@ -112,13 +112,6 @@ class Viewport {
 		);
 
 		this.ctx.fillStyle = "white";
-
-		this.ctx.textAlign = "right";
-		this.ctx.fillText(
-			"Contributors: " + contributors.join(", "),
-			this.canvas.width / 2 - 10,
-			-this.canvas.height / 2 + 10
-		);
 	}
 
 	#drawStage() {
