@@ -6,28 +6,48 @@ class Gizmo {
 		this.box = BoundingBox.fromPoints(
 			this.shape.getPoints().map((p) => p.add(this.center))
 		);
+		this.rotation = shape.rotation;
+
+		// generate handle points after rotation at center of shape
+        const topLeft = this.box.topLeft.rotateByCenterPoint(this.center, this.rotation);
+        const topRight = this.box.topRight.rotateByCenterPoint(this.center, this.rotation);
+        const bottomLeft = this.box.bottomLeft.rotateByCenterPoint(this.center, this.rotation);
+        const bottomRight = this.box.bottomRight.rotateByCenterPoint(this.center, this.rotation);
+		const rotationPoint = Vector.midVector([this.box.topLeft, this.box.topRight]).subtract(new Vector(0, 2 * Handle.size
+		)).rotateByCenterPoint(this.center, this.rotation);
 
 		this.handles = [
-			new Handle(this.box.topLeft, Handle.TOP_LEFT),
-			new Handle(this.box.topRight, Handle.TOP_RIGHT),
-			new Handle(this.box.bottomLeft, Handle.BOTTOM_LEFT),
-			new Handle(this.box.bottomRight, Handle.BOTTOM_RIGHT),
+			new Handle(topLeft, Handle.TOP_LEFT, this.rotation),
+			new Handle(topRight, Handle.TOP_RIGHT, this.rotation),
+			new Handle(bottomLeft, Handle.BOTTOM_LEFT, this.rotation),
+			new Handle(bottomRight, Handle.BOTTOM_RIGHT, this.rotation),
 			new Handle(
-				Vector.midVector([this.box.topLeft, this.box.topRight]),
-				Handle.TOP
+				Vector.midVector([topLeft,topRight]),
+				Handle.TOP,
+				this.rotation
 			),
 			new Handle(
-				Vector.midVector([this.box.bottomLeft, this.box.bottomRight]),
-				Handle.BOTTOM
+				Vector.midVector([bottomLeft, bottomRight]),
+				Handle.BOTTOM,
+				this.rotation
 			),
 			new Handle(
-				Vector.midVector([this.box.topLeft, this.box.bottomLeft]),
-				Handle.LEFT
+				Vector.midVector([topLeft, bottomLeft]),
+				Handle.LEFT,
+				this.rotation
 			),
 			new Handle(
-				Vector.midVector([this.box.topRight, this.box.bottomRight]),
-				Handle.RIGHT
+				Vector.midVector([topRight, bottomRight]),
+				Handle.RIGHT,
+				this.rotation
 			),
+			// Add handle to create rotate functionality on all shapes
+			...(featureFlags.ROTATE_HANDLE ? 
+			[new Handle(
+				rotationPoint,
+                Handle.ROTATE,
+				this.rotation
+            )] : []),
 		];
 	}
 
@@ -103,8 +123,11 @@ class Gizmo {
 			for (let i = 0; i < selectedShapes.length; i++) {
 				const shape = selectedShapes[i];
 				const oldBox = oldBoxes[i];
-
-				shape.changeSize(oldBox.width, oldBox.height, ratio.x, ratio.y);
+				if(handle.type === Handle.ROTATE) {
+					shape.rotateBy(0);
+				} else {
+					shape.changeSize(oldBox.width, oldBox.height, ratio.x, ratio.y);
+				}
 			}
 
 			viewport.drawShapes(shapes);
@@ -122,12 +145,23 @@ class Gizmo {
 	draw(ctx, hitRegion = false) {
 		ctx.save();
 		ctx.beginPath();
+
+		if (this.rotation?.angle && this.center) {
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate(-(this.rotation.angle * Math.PI) / 180);
+			ctx.translate(-this.center.x, -this.center.y);
+		}
 		ctx.rect(
 			this.box.topLeft.x,
 			this.box.topLeft.y,
 			this.box.width,
 			this.box.height
 		);
+		if (this.rotation?.angle && this.center) {
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate((this.rotation.angle * Math.PI) / 180);
+			ctx.translate(-this.center.x, -this.center.y);
+		}
 		ctx.strokeStyle = "white";
 		ctx.lineWidth = 2 / viewport.zoom;
 		ctx.stroke();

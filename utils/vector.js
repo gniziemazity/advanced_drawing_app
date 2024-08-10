@@ -87,4 +87,14 @@ class Vector {
       }
       return bottomRight;
    }
+
+   rotateByCenterPoint(center, rotation) {
+      const cos = Math.cos(-rotation.angle * Math.PI / 180);
+      const sin = Math.sin(-rotation.angle * Math.PI / 180);
+
+      return new Vector(
+          cos * (this.x - center.x) - sin * (this.y - center.y) + center.x,
+          sin * (this.x - center.x) + cos * (this.y - center.y) + center.y
+      );
+  }
 }
