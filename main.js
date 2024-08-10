@@ -1,4 +1,4 @@
-const SHOW_HIT_REGIONS = false;
+const SHOW_HIT_REGIONS = true;
 const RECTANGULAR_SELECTION_MODE = "intersection"; // "intersection" or "containment"
 const featureFlags = {
 	'ROTATE_HANDLE': true, // Need to find angle for this to work

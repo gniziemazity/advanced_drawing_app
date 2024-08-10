@@ -21,9 +21,9 @@ class Handle {
       const size = Handle.size / viewport.zoom;
       ctx.fillStyle = hitRegion ? Shape.getHitRGB(this.id) : "black";;
       ctx.strokeStyle = "white";
-      if (this.rotation?.angle && this.center) {
+      if (this.center) {
 			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate(-(this.rotation.angle * Math.PI) / 180);
+			ctx.rotate(-(this.rotation * Math.PI) / 180);
 			ctx.translate(-this.center.x, -this.center.y);
 		}
       ctx.fillRect(
@@ -40,9 +40,9 @@ class Handle {
             size
          );
       }
-      if (this.rotation?.angle && this.center) {
+      if (this.center) {
 			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate((this.rotation.angle * Math.PI) / 180);
+			ctx.rotate((this.rotation* Math.PI) / 180);
 			ctx.translate(-this.center.x, -this.center.y);
 		}
    }
