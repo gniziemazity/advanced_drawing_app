@@ -16,7 +16,6 @@
 	--text-color: #000;
 
 	--toolbar-width: 34px;
-	--accent: #3482f6;
 }
 
 /* Dark mode if the user's system prefers it */
@@ -237,10 +236,11 @@ textarea {
 	padding-top: 3px;
 	padding-bottom: 3px;
 	display: inline-block;
-	animation: scroll-left 20s linear infinite;
-	background-color: var(--accent);
-	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-		1px 1px 0 #000;
+   animation: scroll-left 20s linear normal;
+   width: 100%;
+}
+#contributors:hover {
+   animation-play-state: paused;
 }
 
 @keyframes scroll-left {
