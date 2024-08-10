@@ -1,4 +1,5 @@
 class Viewport {
+	// add test comment
 	constructor(canvasHolderDiv, stageProperties, showHitRegions) {
 		this.canvas = canvasHolderDiv.querySelector("canvas");
 		this.hitTestCanvas = document.createElement("canvas");
