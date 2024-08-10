@@ -27,4 +27,12 @@ class PathTool {
 		viewport.canvas.addEventListener("pointermove", moveCallback);
 		viewport.canvas.addEventListener("pointerup", upCallback);
 	}
+
+  static configureEventListeners() {
+		myCanvas.addEventListener("pointerdown", this.addPointerDownListener);
+	}
+
+	static removeEventListeners() {
+		myCanvas.removeEventListener("pointerdown", this.addPointerDownListener);
+	}
 }

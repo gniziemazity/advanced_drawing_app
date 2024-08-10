@@ -144,4 +144,11 @@ class SelectTool{
       rect.addEventListener("pointermove", moveCallback);
    }
    
+  static configureEventListeners() {
+		myCanvas.addEventListener("pointerdown", this.addPointerDownListener);
+	}
+
+	static removeEventListeners() {
+		myCanvas.removeEventListener("pointerdown", this.addPointerDownListener);
+	}
 }
