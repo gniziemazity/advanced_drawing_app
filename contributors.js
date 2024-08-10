@@ -13,3 +13,5 @@ const contributors = [
    "mshryane",
    "Mihir-Fluxbyte"
 ];
+
+document.getElementById("contributors").innerHTML = contributors.join(", ");
