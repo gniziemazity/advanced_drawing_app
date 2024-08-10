@@ -42,7 +42,17 @@ class Path extends Shape {
 
    setWidth(width) {
       const size = getSize(this.points);
-      const flip = Math.sign(width) != Math.sign(this.size.width) ? -1 : 1;
+      let flip = 1
+
+      if (Gizmo.shouldTrackFlip) {
+         if (Gizmo.canFlip.x) {
+            Gizmo.canFlip.x = false
+            flip = Math.sign(width) !== Math.sign(this.size.width) ? -1 : 1;
+         }
+      } else {
+         flip = Math.sign(width) !== Math.sign(this.size.width) ? -1 : 1;
+      }
+      
       const eps = 0.0001;
       if (size.width == 0) {
          console.error("Size 0 problem!");
@@ -50,14 +60,24 @@ class Path extends Shape {
       const _width = size.width == 0 ? eps : size.width;
       const ratio = (flip * Math.abs(width)) / _width;
       for (const point of this.points) {
-         point.x *= ratio;
+         point.x *= ratio
       }
       this.size.width = width;
    }
 
    setHeight(height) {
       const size = getSize(this.points);
-      const flip = Math.sign(height) != Math.sign(this.size.height) ? -1 : 1;
+      let flip = 1
+
+      if (Gizmo.shouldTrackFlip) {
+         if (Gizmo.canFlip.y) {
+            Gizmo.canFlip.y = false
+            flip = Math.sign(height) !== Math.sign(this.size.height) ? -1 : 1;
+         }
+      } else {
+         flip = Math.sign(height) !== Math.sign(this.size.height) ? -1 : 1;
+      }
+      
       const eps = 0.0001;
       if (size.height == 0) {
          console.error("Size 0 problem!");
@@ -69,7 +89,7 @@ class Path extends Shape {
       }
       this.size.height = height;
    }
-
+   
    draw(ctx, hitRegion = false) {
       const center = this.center ? this.center : { x: 0, y: 0 };
       ctx.beginPath();

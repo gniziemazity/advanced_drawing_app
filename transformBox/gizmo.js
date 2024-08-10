@@ -1,4 +1,6 @@
 class Gizmo {
+	static shouldTrackFlip = false
+	static canFlip = {x: false, y:false}
 	constructor(shape) {
 		this.shape = shape;
 
@@ -77,11 +79,13 @@ class Gizmo {
 		);
 		let mouseDelta = null;
 		let isDragging = false;
+		let prevRatio = null
 		const moveCallback = (e) => {
 			const mousePosition = new Vector(e.offsetX, e.offsetY);
 			const diff = Vector.subtract(mousePosition, startPosition);
 			mouseDelta = viewport.scale(diff);
 			isDragging = true;
+			Gizmo.shouldTrackFlip = true
 
 			let ratio = new Vector(
 				mouseDelta.x / this.box.width,
@@ -140,6 +144,11 @@ class Gizmo {
 				const shape = selectedShapes[i];
 				const oldBox = oldBoxes[i];
 				const oldRotation = oldRotations[i];
+
+				if (prevRatio !== null) {
+					Gizmo.setCanFlip(prevRatio.x, ratio.x, prevRatio.y, ratio.y)
+				}
+
 				if (handle.type === Handle.ROTATE) {
 					const fixedStart = viewport.getAdjustedPosition(startPosition);
 					const fixedMouse = viewport.getAdjustedPosition(mousePosition);
@@ -155,16 +164,28 @@ class Gizmo {
 				}
 			}
 
+			prevRatio = ratio
 			viewport.drawShapes(shapes);
 			PropertiesPanel.updateDisplay(selectedShapes);
 		};
 
 		const upCallback = (e) => {
+			Gizmo.shouldTrackFlip = false
+			Gizmo.canFlip = {x: false, y: false}
 			viewport.canvas.removeEventListener("pointermove", moveCallback);
 			viewport.canvas.removeEventListener("pointerup", upCallback);
 		};
 		viewport.canvas.addEventListener("pointermove", moveCallback);
 		viewport.canvas.addEventListener("pointerup", upCallback);
+	}
+
+	static setCanFlip(prevRatioX, ratioX, prevRatioY, ratioY) {
+		if (Math.sign(prevRatioX) !== Math.sign(ratioX)) {
+			Gizmo.canFlip.x = true
+		}
+		if (Math.sign(prevRatioY) !== Math.sign(ratioY)) {
+			Gizmo.canFlip.y = true
+		}
 	}
 
 	draw(ctx, hitRegion = false) {
