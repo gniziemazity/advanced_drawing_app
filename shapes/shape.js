@@ -5,7 +5,7 @@ class Shape {
 		this.options = options;
 		this.center = null;
 		this.size = null;
-		this.rotation = { angle: 0 };
+		this.rotation = 0;
 		this.selected = false;
 	}
 
@@ -30,27 +30,27 @@ class Shape {
 	}
 
 	setRotation(angle) {
-		this.rotation.angle= angle;
-		this.rotation.angle %= 360;
+		this.rotation = angle;
+		this.rotation %= 360;
 	}
 
 	rotateBy(angle) {
-      this.rotation.angle +=angle;
-	  this.rotation.angle %= 360;
+      this.rotation +=angle;
+	  this.rotation %= 360;
 	}
 
 	rotateCanvas(ctx){
-		if (this.rotation?.angle && this.center) {
+		if (this.center) {
 			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate(-(this.rotation.angle * Math.PI) / 180);
+			ctx.rotate(-(this.rotation * Math.PI) / 180);
 			ctx.translate(-this.center.x, -this.center.y);
 		}
 	}
 
 	resetCanvasRotation(ctx){
-		if (this.rotation?.angle && this.center) {
+		if (this.center) {
 			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate((this.rotation.angle * Math.PI) / 180);
+			ctx.rotate((this.rotation * Math.PI) / 180);
 			ctx.translate(-this.center.x, -this.center.y);
 		}
 	}

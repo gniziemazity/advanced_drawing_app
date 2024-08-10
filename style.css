@@ -173,7 +173,7 @@ textarea {
 }
 
 .panel-section > div > label {
-	min-width: 3rem;
+	min-width: 4rem;
 	padding: var(--gap);
 }
 

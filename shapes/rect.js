@@ -14,7 +14,7 @@ class Rect extends Shape {
       rect.center = Vector.load(data.center);
       rect.size = data.size;
       rect.selected = data.selected;
-      rect.rotation = data.rotation;
+      rect.rotation = data.rotation??0;
       return rect;
    }
 
@@ -26,7 +26,7 @@ class Rect extends Shape {
          center: this.center,
          size: this.size,
          selected: this.selected,
-         rotation: JSON.parse(JSON.stringify(this.rotation)),
+         rotation: this.rotation,
       };
    }
 

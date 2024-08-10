@@ -97,8 +97,8 @@ class Vector {
    }
 
    rotateByCenterPoint(center, rotation) {
-      const cos = Math.cos(-rotation.angle * Math.PI / 180);
-      const sin = Math.sin(-rotation.angle * Math.PI / 180);
+      const cos = Math.cos(-rotation * Math.PI / 180);
+      const sin = Math.sin(-rotation * Math.PI / 180);
 
       return new Vector(
           cos * (this.x - center.x) - sin * (this.y - center.y) + center.x,

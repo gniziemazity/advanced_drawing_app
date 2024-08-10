@@ -360,7 +360,7 @@ class PropertiesPanel {
 					stroke: shape.options.stroke,
 					strokeWidth: shape.options.strokeWidth,
 					text: shape.text,
-					rotationAngle: shape.rotation.angle,
+					rotationAngle: shape.rotation,
 				};
 			} else {
 				if (newProperties.x !== shape.center.x - STAGE_PROPERTIES.left) {
@@ -393,7 +393,7 @@ class PropertiesPanel {
 				if (newProperties.text !== shape.text) {
 					newProperties.text = null;
 				}
-				if (newProperties.rotationAngle !== shape.rotation.angle) {
+				if (newProperties.rotationAngle !== shape.rotation) {
 					newProperties.rotationAngle = null;
 				}
 			}
