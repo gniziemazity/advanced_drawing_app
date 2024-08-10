@@ -8,6 +8,7 @@ class Handle {
    static TOP_RIGHT = 5;
    static BOTTOM_LEFT = 6;
    static BOTTOM_RIGHT = 7;
+   static ROTATE = 8;
 
    constructor(center, type, rotation) {
       this.center = center;

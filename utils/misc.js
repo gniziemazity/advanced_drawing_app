@@ -79,3 +79,11 @@ function getValue(element) {
 function setValue(element, value) {
 	element.value = value;
 }
+
+function getAngleBetweenVectors(A, B) {
+	return Math.acos(A.dot(B) / (A.magnitude() * B.magnitude()));
+}
+
+function getSignedAngleBetweenVectors(A, B) {
+	return Math.atan2(A.y, A.x) - Math.atan2(B.y, B.x);
+}

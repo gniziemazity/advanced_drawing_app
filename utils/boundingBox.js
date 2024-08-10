@@ -6,6 +6,7 @@ class BoundingBox {
       this.height = bottomRight.y - topLeft.y;
       this.topRight = new Vector(bottomRight.x, topLeft.y);
       this.bottomLeft = new Vector(topLeft.x, bottomRight.y);
+      this.center = Vector.midVector([topLeft, bottomRight]);
    }
    static fromPoints(points) {
       const topLeft = Vector.topLeft(points);

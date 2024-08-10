@@ -14,7 +14,6 @@ class ToolsPanel {
 		// Add event listener for tool selection
 		Events.toolSelected.addEventListener("toolSelected", (e) => {
 			this.#selectToolComponent(e.detail);
-			console.log(e);
 		});
 	}
 

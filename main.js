@@ -1,7 +1,7 @@
 const SHOW_HIT_REGIONS = false;
 const RECTANGULAR_SELECTION_MODE = "intersection"; // "intersection" or "containment"
 const featureFlags = {
-	'ROTATE_HANDLE': false, // Need to find angle for this to work
+	'ROTATE_HANDLE': true, // Need to find angle for this to work
 }
 
 const STAGE_PROPERTIES = {

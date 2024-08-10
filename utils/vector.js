@@ -40,6 +40,10 @@ class Vector {
       return new Vector(Math.max(this.x, v.x), Math.max(this.y, v.y));
    }
 
+   dot(v) {
+      return this.x * v.x + this.y * v.y;
+   }
+
    static midVector(vectors) {
       const minX = Math.min(...vectors.map((p) => p.x));
       const minY = Math.min(...vectors.map((p) => p.y));
@@ -70,6 +74,10 @@ class Vector {
 
    static max(v1, v2) {
       return v1.max(v2);
+   }
+
+   static dot(v1, v2) {
+      return v1.dot(v2);
    }
 
    static topLeft(vectors) {
