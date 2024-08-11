@@ -1,12 +1,11 @@
 class Viewport {
-	// add test comment
 	constructor(canvasHolderDiv, stageProperties, showHitRegions) {
 		this.canvas = canvasHolderDiv.querySelector("canvas");
 		this.hitTestCanvas = document.createElement("canvas");
 		this.hitTestCanvas.style.position = "absolute";
 		this.hitTestCanvas.style.right = "0px";
 		this.hitTestCanvas.style.zIndex = 1;
-      this.hitTestCanvas.style.pointerEvents = "none";
+      	this.hitTestCanvas.style.pointerEvents = "none";
 		canvasHolderDiv.appendChild(this.hitTestCanvas);
 
 		this.ctx = this.canvas.getContext("2d");

@@ -4,6 +4,7 @@ const shortcuts = [
 	{ control: false, key: "v", action: () => ShapeTools.selectTool("Select") },
 	{ control: false, key: "o", action: () => ShapeTools.selectTool("Oval") },
 	{ control: false, key: "t", action: () => ShapeTools.selectTool("Text") },
+	{ control: true, key: "u", action: () => window.open(window.location.pathname.replace("index.html", "") + "test.html", "_blank")},
 	{ control: false, key: "d", action: PropertiesPanel.resetColors },
 	{ control: false, key: "x", action: PropertiesPanel.swapColors },
 	{ control: true, key: "z", action: HistoryTools.undo },

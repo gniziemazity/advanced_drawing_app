@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>ADVANCED DRAWING APP TEST</title>
+	</head>
+	<body>
+		<style>
+			main {
+				display: none;
+			}
+		</style>
+		<main>
+			<section id="menuBar">
+				<div class="menu-container">
+					<span>
+						<button class="menu-item">File</button>
+						<button class="menu-item">Edit</button>
+					</span>
+				</div>
+				<div class="menu-container">
+					<div id="contributorsContainer">
+						<div id="contributors"></div>
+					</div>
+				</div>
+			</section>
+	
+			<div id="canvasHolder">
+				<canvas id="myCanvas"></canvas>
+			</div>
+			<div id="toolsHolder" class="panel"></div>
+			<div id="propertiesHolder" class="panel"></div>
+		</main>	
+		<script src="utils/vector.js"></script>
+		<script src="utils/boundingBox.js"></script>
+		<script src="utils/events.js"></script>
+
+		<script src="display/viewport.js"></script>
+
+		<script src="shapes/shapeFactory.js"></script>
+		<script src="shapes/shape.js"></script>
+		<script src="shapes/oval.js"></script>
+		<script src="shapes/text.js"></script>
+		<script src="shapes/rect.js"></script>
+		<script src="shapes/path.js"></script>
+		<script src="shapes/myImage.js"></script>
+
+
+		<script src="tools/documentTools.js"></script>
+		<script src="tools/historyTools.js"></script>
+		<script src="tools/editingTools.js"></script>
+
+		<script src="tools/rectTool.js"></script>
+		<script src="tools/ovalTool.js"></script>
+		<script src="tools/pathTool.js"></script>
+		<script src="tools/textTool.js"></script>
+		<script src="tools/selectTool.js"></script>
+		<script src="tools/myImageTool.js"></script>
+		<script src="tools/shapeTools.js"></script>
+
+		<script src="panels/propertiesPanel.js"></script>
+		<script src="panels/toolsPanel.js"></script>
+
+		<script src="contributors.js"></script>
+		<script src="utils/misc.js"></script>
+		<script src="main.js"></script>
+		<script src="utils/shortcuts.js"></script>
+		<script src="transformBox/gizmo.js"></script>
+		<script src="transformBox/handle.js"></script>
+		<script src="test/test.js"></script>
+	</body>
+</html>
