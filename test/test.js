@@ -1,4 +1,4 @@
-const notDrawable = ["Image", "Select"]
+const notDrawable = ["Image", "Select", "Text"]
 
 function beforeEach() {
     shapes = [];
@@ -6,6 +6,7 @@ function beforeEach() {
     currentShape = null;
     clipboard = null;
     clearViewPort(viewport)
+    clearHitTestCanvas(viewport)
 }
 
 function clearViewPort(viewport) {
@@ -18,30 +19,70 @@ function clearViewPort(viewport) {
     );
 }
 
+function clearHitTestCanvas(viewport) {
+    viewport.hitTestingCtx.fillStyle = "#fff";
+    viewport.hitTestingCtx.fillRect(
+        -viewport.canvas.width / 2,
+        -viewport.canvas.height / 2,
+        viewport.canvas.width,
+        viewport.canvas.height
+    );
+}
+
 function getRandomXcanvasPoint() {
-    return Math.round(Math.random() * (viewport.canvas.width / 2))
+    return Math.round(Math.random() * viewport.canvas.width)
 }
 
 function getRandomYcanvasPoint() {
-    return Math.round(Math.random() * (viewport.canvas.height / 2))
+    return Math.round(Math.random() * viewport.canvas.height)
 }
 
 function getShapeAtPoint(x, y) {
-    let e = dispatchMouseEventOnCanvas("pointerdown", x, y)
     setCurrentTool("Select")
+    let e = dispatchMouseEventOnCanvas("pointerdown", x, y)
+
+    // deselect already selected shape based on original selectTool.pointerdown event
+    // and redraw
+    shapes.forEach((s) => s.selected = false)
+    gizmos = []
+    viewport.drawShapes(shapes)
+
     const startPosition = new Vector(e.offsetX, e.offsetY);
 
     const [r, g, b, a] = viewport.hitTestingCtx.getImageData(
         startPosition.x,
         startPosition.y,
-        1,
-        1
+        2,
+        2,
+        { colorSpace: "srgb" }
     ).data;
 
     const id = (r << 16) | (g << 8) | b;
-    const shape = shapes.find((s) => s.id == id);
+    const shape = shapes.find((s) => s.id == id) || shapes.find((s) => rgbDiffLessThanThreshHold(s.id, id));
     dispatchMouseEventOnCanvas("pointerup", x, y)
+    if (!shape) {
+        console.log(id, shapes)
+        debugger
+        // noticed sometimes ctx.getImageData returns slightly different
+        // rgb values different from shape.id by 1 e.g [30, 248, 7] and [29, 248, 6]
+        // so i wrote the rgbDiffLessThanThreshHold function.
+        // is there a chance this function could solve the occassional anti-aliased
+        // hit region click bug? where it does not pick the shape under click?
+    }
     return shape
+}
+
+// maybe this function could solve the occassional anti-aliased
+// hit region click bug? where it does not pick the shape under click?
+function rgbDiffLessThanThreshHold(id1, id2, treshHold=10) {
+    return Math.abs(getHitRGBSum(id1) - getHitRGBSum(id2)) < treshHold
+}
+
+function getHitRGBSum(id) {
+    const red = (id & 0xff0000) >> 16;
+    const green = (id & 0x00ff00) >> 8;
+    const blue = id & 0x0000ff;
+    return red + green + blue
 }
 
 function setCurrentTool(tool) {
@@ -70,13 +111,13 @@ function simulateShapeDraw(shapeName, startX, startY, endX, endY) {
 function TestAllShapesCanBeDrawn() {
     try {
         for (const shapeTool of ShapeTools.tools) {
+            beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
-                beforeEach()
                 let startPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
                 let endPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
                 let mid = Vector.midVector([startPoint, endPoint])
-                let shape = getShapeAtPoint(mid.x, mid.y)
+                let shape = getShapeAtPoint(Math.round(mid.x), Math.round(mid.y))
                 if (shape?.constructor.name !== shapeTool.name) {
                     failed(TestAllShapesCanBeDrawn, "failed to draw " + shapeTool.name)
                 } else {
@@ -164,6 +205,24 @@ async function TestLoadExportedPNG() {
     }
 }
 
+async function TestLoadingPreviousDrawings() {
+    try {
+        for (let drawing of previosDrawings) {
+            beforeEach()
+            assert(shapes.length === 0, "shapes should be empty")
+            let blob = drawing.type === "json"? jsonToBlob(drawing.content) : dataURLToBlob(drawing.content)
+            let loadedShapes = await mimicDocumentToolsDotLoad(blob, drawing.type)
+            if (loadedShapes.length === 0) {
+                failed(TestLoadingPreviousDrawings, "failed: reload drawing: " + drawing.name)
+            } else {
+                success(TestLoadingPreviousDrawings, "successfully reloaded " + drawing.name)
+            }
+        }
+    } catch (err) {
+        failed(TestLoadingPreviousDrawings, err.message)
+    }
+}
+
 function assert(shouldBeTrue, msg) {
     if (!shouldBeTrue) {
         throw new Error("assert: " + msg)
@@ -229,6 +288,10 @@ function mimicDocumentToolsDotExport() {
 }
 
 function mimicDocumentToolsDotLoad(blob, type) {
+    return loadBlob(blob, type)
+}
+
+async function loadBlob(blob, type) {
     const reader = new FileReader();
 
     if (type === "json") {
@@ -267,11 +330,57 @@ function mimicDocumentToolsDotLoad(blob, type) {
     })
 }
 
+function dataURLToBlob(dataURL) {
+    const [header, base64Data] = dataURL.split(',');
+    const mimeString = header.match(/:(.*?);/)[1];
+    const byteString = atob(base64Data);
+    const byteArray = new Uint8Array(byteString.length);
+
+    for (let i = 0; i < byteString.length; i++) {
+        byteArray[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([byteArray], { type: mimeString });
+}
+
+function jsonToBlob(jsonString) {
+    return new Blob([jsonString], { type: 'application/json' })
+}
+
+function logFileContent() {
+    let attributes = {
+        type: "file",
+    }
+    let element = createInputWithLabel("file", attributes)
+    element.onchange =  (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        const extension = file.name.split(".").pop();
+    
+        reader.onload = (e) => {
+            if (extension === "json") {
+                console.log(e.target.result);
+            } else if (extension === "png") {
+                console.log(e.target.result);
+            }
+        };
+    
+        if (extension === "json") {
+            reader.readAsText(file);
+        } else if (extension === "png") {
+            reader.readAsDataURL(file);
+        }
+    }
+    element.style.color = "green"
+    appendElementToBody(element)
+}
+
 TestAllShapesCanBeDrawn()
 TestSave();
 async function runasyncTestsSynchroniously() {
     await TestExport()
     await TestLoadSavedJSON()
     await TestLoadExportedPNG()
+    await TestLoadingPreviousDrawings()
 }
 runasyncTestsSynchroniously()
