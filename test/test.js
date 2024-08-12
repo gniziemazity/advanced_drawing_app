@@ -108,6 +108,20 @@ function simulateShapeDraw(shapeName, startX, startY, endX, endY) {
     dispatchMouseEventOnCanvas("pointerup", endX, endY)
 }
 
+function simulateShapeDelete(startX, startY, endX, endY) {
+    setCurrentTool("Select")
+    dispatchMouseEventOnCanvas("pointerdown", startX, startY)
+    dispatchMouseEventOnCanvas("pointerup", endX, endY)
+    EditingTools.delete()
+}
+
+function simulateShapeCopyAndPaste(startX, startY, endX, endY) {
+    setCurrentTool("Select")
+    dispatchMouseEventOnCanvas("pointerdown", startX, startY)
+    dispatchMouseEventOnCanvas("pointerup", endX, endY)
+    EditingTools.duplicate()
+}
+
 function TestAllShapesCanBeDrawn() {
     try {
         for (const shapeTool of ShapeTools.tools) {
@@ -127,6 +141,46 @@ function TestAllShapesCanBeDrawn() {
         }
     } catch (err) {
         failed(TestAllShapesCanBeDrawn, err.message)
+    }
+}
+
+function TestAllShapesCanBeDeleted() {
+    try {
+        for (const shapeTool of ShapeTools.tools) {
+            beforeEach()
+            if (!notDrawable.includes(shapeTool.name)) {
+                let startPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+                let endPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+                simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
+                assert(shapes.length === 1, "shapes length should be 1 after draw")
+                let mid = Vector.midVector([startPoint, endPoint])
+                simulateShapeDelete(mid.x, mid.y, mid.x, mid.y)
+                assert(shapes.length === 0, "shapes length should be 0 after delete")
+                success(TestAllShapesCanBeDeleted, `deleted ${shapeTool.name} successfully`)
+            }
+        }
+    } catch (err) {
+        failed(TestAllShapesCanBeDeleted, err.message)
+    }
+}
+
+function TestAllShapesCanBeCopyAndPasted() {
+    try {
+        for (const shapeTool of ShapeTools.tools) {
+            beforeEach()
+            if (!notDrawable.includes(shapeTool.name)) {
+                let startPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+                let endPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+                simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
+                assert(shapes.length === 1, "shapes length should be 1 after draw")
+                let mid = Vector.midVector([startPoint, endPoint])
+                simulateShapeCopyAndPaste(mid.x, mid.y, mid.x, mid.y)
+                assert(shapes.length === 2, "shapes length should be x2 after copy and paste")
+                success(TestAllShapesCanBeCopyAndPasted, `copy pasted ${shapeTool.name} successfully`)
+            }
+        }
+    } catch (err) {
+        failed(TestAllShapesCanBeCopyAndPasted, err.message)
     }
 }
 
@@ -236,15 +290,32 @@ function appendElementToBody(element) {
 function success(func, msg) {
     let detail = `${func.name}:  ${msg}`
     let element = createDOMElement("div", null, detail)
+    element.appendChild(createDOMElement("hr"))
     element.style.color = "green"
+    element.style.width = "fit-content"
     appendElementToBody(element)
 }
 
 function failed(func, msg) {
     let detail = `${func.name}:  ${msg}`
     let element = createDOMElement("div", null, detail)
+    element.appendChild(createDOMElement("hr"))
     element.style.color = "red"
+    element.style.width = "fit-content"
     appendElementToBody(element)
+}
+
+function displayNotTested() {
+ let notTested = ["PropertiesPanel functions", "Gizmo handles and its effects"]
+ notTested.forEach(detail => {
+    let tab = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    let element = document.createElement("div")
+    element.innerHTML = `${tab}not tested: ${detail}`
+    element.style.color = "blue"
+    element.style.width = "fit-content"
+    element.appendChild(createDOMElement("hr"))
+    appendElementToBody(element)
+ })
 }
 
 function drawAllShapes() {
@@ -377,10 +448,13 @@ function logFileContent() {
 
 TestAllShapesCanBeDrawn()
 TestSave();
+TestAllShapesCanBeDeleted()
+TestAllShapesCanBeCopyAndPasted()
 async function runasyncTestsSynchroniously() {
     await TestExport()
     await TestLoadSavedJSON()
     await TestLoadExportedPNG()
     await TestLoadingPreviousDrawings()
+    displayNotTested()
 }
 runasyncTestsSynchroniously()
