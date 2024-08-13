@@ -236,11 +236,11 @@ textarea {
 	padding-top: 3px;
 	padding-bottom: 3px;
 	display: inline-block;
-   animation: scroll-left 20s linear normal;
-   width: 100%;
+	animation: scroll-left 20s linear normal;
+	width: 100%;
 }
 #contributors:hover {
-   animation-play-state: paused;
+	animation-play-state: paused;
 }
 
 @keyframes scroll-left {
@@ -250,4 +250,12 @@ textarea {
 	100% {
 		transform: translateX(-100%);
 	}
+}
+
+#binding {
+	margin-left: 40px;
+	float: left;
+	width: 200px;
+	border: 1px solid red;
+	padding: 4px;
 }

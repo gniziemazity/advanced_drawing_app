@@ -1,12 +1,33 @@
-class Shape {
+class Shape extends Observable {
+	_selected = false;
+
 	constructor(options) {
+		super();
 		// never deliberately called
 		this.id = Shape.generateId();
 		this.options = options;
 		this.center = null;
 		this.size = null;
 		this.rotation = 0;
-		this.selected = false;
+		this._selected = false;
+	}
+
+	set selected(value) {
+		this._selected = value;
+
+		if (value) {
+			Events.shapeSelected.dispatchEvent(
+				new CustomEvent("selected", { detail: this })
+			);
+		} else {
+			Events.shapeSelected.dispatchEvent(
+				new CustomEvent("deselected", { detail: this })
+			);
+		}
+	}
+
+	get selected() {
+		return this._selected;
 	}
 
 	static generateId() {
@@ -35,11 +56,11 @@ class Shape {
 	}
 
 	rotateBy(angle) {
-      this.rotation +=angle;
-	  this.rotation %= 360;
+		this.rotation += angle;
+		this.rotation %= 360;
 	}
 
-	rotateCanvas(ctx){
+	rotateCanvas(ctx) {
 		if (this.center) {
 			ctx.translate(this.center.x, this.center.y);
 			ctx.rotate(-(this.rotation * Math.PI) / 180);
@@ -47,7 +68,7 @@ class Shape {
 		}
 	}
 
-	resetCanvasRotation(ctx){
+	resetCanvasRotation(ctx) {
 		if (this.center) {
 			ctx.translate(this.center.x, this.center.y);
 			ctx.rotate((this.rotation * Math.PI) / 180);
@@ -76,6 +97,7 @@ class Shape {
 		const points = this.getPoints();
 		this.center = Vector.midVector(points);
 		this.size = getSize(points);
+
 		for (const point of points) {
 			const newPoint = Vector.subtract(point, this.center);
 			point.x = newPoint.x;

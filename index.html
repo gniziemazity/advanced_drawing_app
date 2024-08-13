@@ -19,7 +19,27 @@
 				</div>
 			</div>
 		</section>
-
+		<div id="binding">
+			<h1>Data-Binding Test</h1>
+			<size-field data-bind="size">
+				<input data-bind="width" />
+				<label for="width">W</label>
+				<input data-bind="height" />
+				<label for="height">H</label>
+				<input type="checkbox" id="constrain" />
+				<label for="constrain">Constrain</label>
+			</size-field>
+			<rotation-field data-bind="rotation">
+				<input data-bind="rotation" />
+				<label for="rotation">°</label>
+			</rotation-field>
+			<center-field data-bind="center">
+				<input data-bind="x" id="center.x" />
+				<label for="center.x">X</label>
+				<input data-bind="y" id="center.y" />
+				<label for="center.y">Y</label>
+			</center-field>
+		</div>
 		<div id="canvasHolder">
 			<canvas id="myCanvas"></canvas>
 		</div>
@@ -29,9 +49,10 @@
 		<script src="utils/vector.js"></script>
 		<script src="utils/boundingBox.js"></script>
 		<script src="utils/events.js"></script>
+		<script src="ui/observable.js"></script>
+		<script src="ui/elements.js"></script>
 
 		<script src="display/viewport.js"></script>
-
 		<script src="shapes/shapeFactory.js"></script>
 		<script src="shapes/shape.js"></script>
 		<script src="shapes/oval.js"></script>
@@ -39,7 +60,6 @@
 		<script src="shapes/rect.js"></script>
 		<script src="shapes/path.js"></script>
 		<script src="shapes/myImage.js"></script>
-
 
 		<script src="tools/documentTools.js"></script>
 		<script src="tools/historyTools.js"></script>
@@ -62,6 +82,5 @@
 		<script src="utils/shortcuts.js"></script>
 		<script src="transformBox/gizmo.js"></script>
 		<script src="transformBox/handle.js"></script>
-
 	</body>
 </html>
