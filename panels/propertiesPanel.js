@@ -78,6 +78,52 @@ class PropertiesPanel {
 				id: "constrainDimensions",
 			})
 		);
+
+		transformSection.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "sendBackBtn",
+					onclick: "TransformTools.sendBack()",
+					title: "Send to Back",
+				},
+				"Send to Back"
+			)
+		);
+		transformSection.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "bringFrontBtn",
+					onclick: "TransformTools.bringFront()",
+					title: "Bring to Front",
+				},
+				"Bring to Front"
+			)
+		);
+		transformSection.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "sendBackwardBtn",
+					onclick: "TransformTools.sendBackward()",
+					title: "Send Backward",
+				},
+				"Send Backward"
+			)
+		);
+		transformSection.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "bringForwardBtn",
+					onclick: "TransformTools.bringForward()",
+					title: "Bring Forward",
+				},
+				"Bring Forward"
+			)
+		);
+
 		colorSection.appendChild(
 			createDOMElement("input", {
 				id: "fillColor",
@@ -137,7 +183,7 @@ class PropertiesPanel {
 				oninput: "PropertiesPanel.changeStrokeWidth(this.value, false)",
 				title: "Stroke Width",
 				type: "range",
-				value: "5",
+				value: "1",
 			})
 		);
 		textSection.appendChild(
