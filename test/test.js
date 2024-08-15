@@ -29,12 +29,32 @@ function clearHitTestCanvas(viewport) {
     );
 }
 
-function getRandomXcanvasPoint() {
-    return Math.round(Math.random() * viewport.canvas.width)
-}
+// this class exists to generate valid x and y coordinates
+// to draw shapes.
+// it prevents two points from having same x or y values
+// since such points will prevent shapes to be drawn due to
+// zero width or zero height 
+class RandomCoordinatesGenerator {
+    static previousX = 0
+    static previousY = 0
 
-function getRandomYcanvasPoint() {
-    return Math.round(Math.random() * viewport.canvas.height)
+    static getRandomXcanvasPoint() {
+        let newX = Math.round(Math.random() * viewport.canvas.width)
+        if (newX === RandomCoordinatesGenerator.previousX) {
+            return RandomCoordinatesGenerator.getRandomXcanvasPoint()
+        }
+        RandomCoordinatesGenerator.previousX = newX
+        return newX
+    }
+
+    static getRandomYcanvasPoint() {
+        let newY = Math.round(Math.random() * viewport.canvas.height)
+        if (newY === RandomCoordinatesGenerator.previousY) {
+            return RandomCoordinatesGenerator.getRandomYcanvasPoint()
+        }
+        RandomCoordinatesGenerator.previousY = newY
+        return newY
+    }
 }
 
 function getShapeAtPoint(x, y) {
@@ -62,7 +82,7 @@ function getShapeAtPoint(x, y) {
     dispatchMouseEventOnCanvas("pointerup", x, y)
     if (!shape) {
         console.log(id, shapes)
-        debugger
+        // debugger
         // noticed sometimes ctx.getImageData returns slightly different
         // rgb values different from shape.id by 1 e.g [30, 248, 7] and [29, 248, 6]
         // so i wrote the rgbDiffLessThanThreshHold function.
@@ -111,6 +131,7 @@ function simulateShapeDraw(shapeName, startX, startY, endX, endY) {
 function simulateShapeDelete(startX, startY, endX, endY) {
     setCurrentTool("Select")
     dispatchMouseEventOnCanvas("pointerdown", startX, startY)
+    dispatchMouseEventOnCanvas("pointermove", endX, endY)
     dispatchMouseEventOnCanvas("pointerup", endX, endY)
     EditingTools.delete()
 }
@@ -118,6 +139,7 @@ function simulateShapeDelete(startX, startY, endX, endY) {
 function simulateShapeCopyAndPaste(startX, startY, endX, endY) {
     setCurrentTool("Select")
     dispatchMouseEventOnCanvas("pointerdown", startX, startY)
+    dispatchMouseEventOnCanvas("pointermove", endX, endY)
     dispatchMouseEventOnCanvas("pointerup", endX, endY)
     EditingTools.duplicate()
 }
@@ -127,11 +149,11 @@ function TestAllShapesCanBeDrawn() {
         for (const shapeTool of ShapeTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
-                let startPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
-                let endPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+                let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+                let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
                 let mid = Vector.midVector([startPoint, endPoint])
-                let shape = getShapeAtPoint(Math.round(mid.x), Math.round(mid.y))
+                let shape = getShapeAtPoint(mid.x, mid.y)
                 if (shape?.constructor.name !== shapeTool.name) {
                     failed(TestAllShapesCanBeDrawn, "failed to draw " + shapeTool.name)
                 } else {
@@ -149,13 +171,13 @@ function TestAllShapesCanBeDeleted() {
         for (const shapeTool of ShapeTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
-                let startPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
-                let endPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+                let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+                let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
-                assert(shapes.length === 1, "shapes length should be 1 after draw")
+                assert(shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
                 let mid = Vector.midVector([startPoint, endPoint])
                 simulateShapeDelete(mid.x, mid.y, mid.x, mid.y)
-                assert(shapes.length === 0, "shapes length should be 0 after delete")
+                assert(shapes.length === 0, `failed to delete ${shapeTool.name}: shapes length should be 0 after delete, shape.length is: ${shapes.length}`)
                 success(TestAllShapesCanBeDeleted, `deleted ${shapeTool.name} successfully`)
             }
         }
@@ -169,13 +191,13 @@ function TestAllShapesCanBeCopyAndPasted() {
         for (const shapeTool of ShapeTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
-                let startPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
-                let endPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+                let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+                let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
-                assert(shapes.length === 1, "shapes length should be 1 after draw")
+                assert(shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
                 let mid = Vector.midVector([startPoint, endPoint])
                 simulateShapeCopyAndPaste(mid.x, mid.y, mid.x, mid.y)
-                assert(shapes.length === 2, "shapes length should be x2 after copy and paste")
+                assert(shapes.length === 2, `copy-pasting ${shapeTool.name}: shapes length should be x2 after copy and paste, shape.length is: ${shapes.length}`)
                 success(TestAllShapesCanBeCopyAndPasted, `copy pasted ${shapeTool.name} successfully`)
             }
         }
@@ -321,8 +343,8 @@ function displayNotTested() {
 function drawAllShapes() {
     for (const shapeTool of ShapeTools.tools) {
         if (!notDrawable.includes(shapeTool.name)) {
-            let startPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
-            let endPoint = new Vector(getRandomXcanvasPoint(), getRandomYcanvasPoint())
+            let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+            let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
             simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
         }
     }
