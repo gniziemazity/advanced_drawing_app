@@ -144,6 +144,13 @@ function simulateShapeCopyAndPaste(startX, startY, endX, endY) {
     EditingTools.duplicate()
 }
 
+function simulateRectangleSelect(startX, startY, endX, endY) {
+    setCurrentTool("Select")
+    dispatchMouseEventOnCanvas("pointerdown", startX, startY)
+    dispatchMouseEventOnCanvas("pointermove", endX, endY)
+    dispatchMouseEventOnCanvas("pointerup", endX, endY)
+}
+
 function TestAllShapesCanBeDrawn() {
     try {
         for (const shapeTool of ShapeTools.tools) {
@@ -203,6 +210,26 @@ function TestAllShapesCanBeCopyAndPasted() {
         }
     } catch (err) {
         failed(TestAllShapesCanBeCopyAndPasted, err.message)
+    }
+}
+
+function TestRectangleSelect() {
+    try {
+        for (const shapeTool of ShapeTools.tools) {
+            beforeEach()
+            if (!notDrawable.includes(shapeTool.name)) {
+                let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+                let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+                simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
+                assert(shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
+                simulateRectangleSelect(startPoint.x, startPoint.y, endPoint.x, endPoint.y)
+                let selectedShapes = shapes.filter(s => s.selected)
+                assert(selectedShapes.length === 1, `rectangle selecting ${shapeTool.name}: selectedShapes length should be 1 after drawing rect, selectedShapes.length is: ${selectedShapes.length}`)
+                success(TestRectangleSelect, `rectangle selected ${shapeTool.name} successfully`)
+            }
+        }
+    } catch (err) {
+        failed(TestRectangleSelect, err.message)
     }
 }
 
@@ -472,6 +499,7 @@ TestAllShapesCanBeDrawn()
 TestSave();
 TestAllShapesCanBeDeleted()
 TestAllShapesCanBeCopyAndPasted()
+TestRectangleSelect()
 async function runasyncTestsSynchroniously() {
     await TestExport()
     await TestLoadSavedJSON()
