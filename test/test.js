@@ -222,7 +222,12 @@ function TestRectangleSelect() {
                 let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
                 assert(shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
-                simulateRectangleSelect(startPoint.x, startPoint.y, endPoint.x, endPoint.y)
+                simulateRectangleSelect(
+                    0, 
+                    0, 
+                    viewport.canvas.width, 
+                    viewport.canvas.height
+                )
                 let selectedShapes = shapes.filter(s => s.selected)
                 assert(selectedShapes.length === 1, `rectangle selecting ${shapeTool.name}: selectedShapes length should be 1 after drawing rect, selectedShapes.length is: ${selectedShapes.length}`)
                 success(TestRectangleSelect, `rectangle selected ${shapeTool.name} successfully`)
