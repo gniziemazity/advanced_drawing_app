@@ -78,7 +78,7 @@ function getShapeAtPoint(x, y) {
     ).data;
 
     const id = (r << 16) | (g << 8) | b;
-    const shape = shapes.find((s) => s.id == id) || shapes.find((s) => rgbDiffLessThanThreshHold(s.id, id));
+    const shape = shapes.find((s) => s.id == id) || shapes.find((s) => rgbIsDiffLessThanThreshHold(s.id, id));
     dispatchMouseEventOnCanvas("pointerup", x, y)
     if (!shape) {
         console.log(id, shapes)
@@ -94,7 +94,7 @@ function getShapeAtPoint(x, y) {
 
 // maybe this function could solve the occassional anti-aliased
 // hit region click bug? where it does not pick the shape under click?
-function rgbDiffLessThanThreshHold(id1, id2, treshHold=10) {
+function rgbIsDiffLessThanThreshHold(id1, id2, treshHold=10) {
     return Math.abs(getHitRGBSum(id1) - getHitRGBSum(id2)) < treshHold
 }
 
@@ -123,29 +123,32 @@ function dispatchMouseEventOnCanvas(type, clientX, clientY) {
 
 function simulateShapeDraw(shapeName, startX, startY, endX, endY) {
     setCurrentTool(shapeName)
-    dispatchMouseEventOnCanvas("pointerdown", startX, startY)
-    dispatchMouseEventOnCanvas("pointermove", endX, endY)
-    dispatchMouseEventOnCanvas("pointerup", endX, endY)
+    simulatePointerDownPointerMovePointerUp(startX, startY, endX, endY)
 }
 
 function simulateShapeDelete(startX, startY, endX, endY) {
     setCurrentTool("Select")
-    dispatchMouseEventOnCanvas("pointerdown", startX, startY)
-    dispatchMouseEventOnCanvas("pointermove", endX, endY)
-    dispatchMouseEventOnCanvas("pointerup", endX, endY)
+    simulatePointerDownPointerMovePointerUp(startX, startY, endX, endY)
     EditingTools.delete()
 }
 
 function simulateShapeCopyAndPaste(startX, startY, endX, endY) {
     setCurrentTool("Select")
-    dispatchMouseEventOnCanvas("pointerdown", startX, startY)
-    dispatchMouseEventOnCanvas("pointermove", endX, endY)
-    dispatchMouseEventOnCanvas("pointerup", endX, endY)
+    simulatePointerDownPointerMovePointerUp(startX, startY, endX, endY)
     EditingTools.duplicate()
 }
 
 function simulateRectangleSelect(startX, startY, endX, endY) {
     setCurrentTool("Select")
+    simulatePointerDownPointerMovePointerUp(startX, startY, endX, endY)
+}
+
+function simulateShapeMove(startX, startY, endX, endY) {
+    setCurrentTool("Select")
+    simulatePointerDownPointerMovePointerUp(startX, startY, endX, endY)
+}
+
+function simulatePointerDownPointerMovePointerUp(startX, startY, endX, endY) {
     dispatchMouseEventOnCanvas("pointerdown", startX, startY)
     dispatchMouseEventOnCanvas("pointermove", endX, endY)
     dispatchMouseEventOnCanvas("pointerup", endX, endY)
@@ -238,6 +241,37 @@ function TestRectangleSelect() {
     }
 }
 
+function TestShapeMove() {
+    try {
+        for (const shapeTool of ShapeTools.tools) {
+            beforeEach()
+            if (!notDrawable.includes(shapeTool.name)) {
+                let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+                let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
+                simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
+                let mid = Vector.midVector([startPoint, endPoint])
+                mid.x = Math.round(mid.x)
+                mid.y = Math.round(mid.y)
+                let shape = getShapeAtPoint(mid.x, mid.y)
+                assert(shape !== null, `failed to draw ${shapeTool.name}: no shape at midpoint`)
+                let prevCenter = shape.center
+                simulateShapeMove(mid.x, mid.y, endPoint.x, endPoint.y)
+                let diff = Vector.subtract(endPoint, mid);
+				let mouseDelta = viewport.scale(diff);
+                let newCenter = Vector.add(prevCenter, mouseDelta)
+                assert(
+                    newCenter.x === shape.center.x
+                    && newCenter.y === shape.center.y,
+                     `moving ${shapeTool.name}: failed`
+                )
+                success(TestShapeMove, `moved ${shapeTool.name} from ${prevCenter.x},${prevCenter.y} to ${newCenter.x},${newCenter.y} successfully`)
+            }
+        }
+    } catch (err) {
+        failed(TestShapeMove, err.message)
+    }
+}
+
 function TestSave() {
     beforeEach()
     try {
@@ -248,7 +282,7 @@ function TestSave() {
         if (!savedFile) {
             failed(TestSave, "failed to save")
         } else {
-            success(TestSave, "saved shapes successfully")
+            success(TestSave, "saved All shapes successfully")
         }
     } catch (err) {
         failed(TestSave, err.message)
@@ -501,10 +535,11 @@ function logFileContent() {
 }
 
 TestAllShapesCanBeDrawn()
-TestSave();
 TestAllShapesCanBeDeleted()
 TestAllShapesCanBeCopyAndPasted()
 TestRectangleSelect()
+TestShapeMove()
+TestSave()
 async function runasyncTestsSynchroniously() {
     await TestExport()
     await TestLoadSavedJSON()
