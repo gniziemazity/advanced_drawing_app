@@ -1,54 +1,93 @@
-class Viewport {
+class Viewport extends EventTarget {
 	constructor(canvasHolderDiv, stageProperties, showHitRegions) {
-		this.canvas = canvasHolderDiv.querySelector("canvas");
-		this.hitTestCanvas = document.createElement("canvas");
-		this.hitTestCanvas.style.position = "absolute";
-		this.hitTestCanvas.style.right = "0px";
-		this.hitTestCanvas.style.zIndex = 1;
-      	this.hitTestCanvas.style.pointerEvents = "none";
-		canvasHolderDiv.appendChild(this.hitTestCanvas);
-
-		this.ctx = this.canvas.getContext("2d");
-		this.hitTestingCtx = this.hitTestCanvas.getContext("2d", {
-			willReadFrequently: true,
-		});
-
+      super();
+      
 		this.stageProperties = stageProperties;
 		this.stageProperties.left = -this.stageProperties.width / 2;
 		this.stageProperties.top = -this.stageProperties.height / 2;
 
-		this.showHitRegions = showHitRegions;
-		if (!showHitRegions) {
-			this.hitTestCanvas.style.display = "none";
-		}
-
-		this.canvas.width = showHitRegions
+		this.canvasWidth = showHitRegions
 			? window.innerWidth / 2
 			: window.innerWidth;
-		this.canvas.height = window.innerHeight;
-
-		this.hitTestCanvas.width = this.canvas.width;
-		this.hitTestCanvas.height = this.canvas.height;
+		this.canvasHeight = window.innerHeight;
 
 		this.zeroCenterOffset = new Vector(
-			this.canvas.width / 2,
-			this.canvas.height / 2
+			this.canvasWidth / 2,
+			this.canvasHeight / 2
 		);
+
 		this.offset = Vector.zero();
 		this.center = Vector.zero();
 		this.zoom = 1;
 		this.zoomStep = 0.05;
 
-		this.ctx.translate(this.zeroCenterOffset.x, this.zeroCenterOffset.y);
-		this.hitTestingCtx.translate(
-			this.zeroCenterOffset.x,
-			this.zeroCenterOffset.y
+		this.stageLayer = new Layer(
+			this.canvasWidth,
+			this.canvasHeight,
+			stageProperties,
+			Layer.TYPES.STAGE
 		);
+		canvasHolderDiv.appendChild(this.stageLayer.canvas);
 
-		this.#clearCanvas();
-		this.#drawStage();
+		this.mainLayer = new Layer(
+			this.canvasWidth,
+			this.canvasHeight,
+			stageProperties,
+			Layer.TYPES.NORMAL
+		);
+		canvasHolderDiv.appendChild(this.mainLayer.canvas);
+
+		this.overlayLayer = new Layer(
+			this.canvasWidth,
+			this.canvasHeight,
+			stageProperties,
+			Layer.TYPES.OVERLAY
+		);
+		canvasHolderDiv.appendChild(this.overlayLayer.canvas);
+
+		this.hitTestLayer = new Layer(
+			this.canvasWidth,
+			this.canvasHeight,
+			stageProperties,
+			Layer.TYPES.HIT_TEST
+		);
+		canvasHolderDiv.appendChild(this.hitTestLayer.canvas);
+
+		this.showHitRegions = showHitRegions;
+		if (!showHitRegions) {
+			this.hitTestLayer.canvas.style.display = "none";
+		}
+
+		this.shapes = [];
+		this.gizmos = [];
 
 		this.#addEventListeners();
+	}
+
+	addShapes(shapes, save = true) {
+		if (!Array.isArray(shapes)) {
+			shapes = [shapes];
+		}
+		this.shapes = this.shapes.concat(shapes);
+		viewport.dispatchEvent(
+			new CustomEvent("shapesAdded", { detail: { shapes, save } })
+		);
+	}
+
+	setShapes(newShapes, save = true) {
+		viewport.gizmos = newShapes
+			.filter((s) => s.selected)
+			.map((s) => new Gizmo(s));
+		this.shapes = [];
+		this.addShapes(newShapes, save);
+	}
+
+	getStageCanvas() {
+		return this.stageLayer.canvas;
+	}
+
+	getSelectedShapes() {
+		return this.shapes.filter((s) => s.selected);
 	}
 
 	scale(vector) {
@@ -62,82 +101,32 @@ class Viewport {
 			.subtract(this.offset);
 	}
 
-	drawShapes(shapes) {
-		gizmos = shapes.filter((s) => s.selected).map((s) => new Gizmo(s));
+	drawShapes(shapes = this.shapes) {
+		this.stageLayer.drawShapes([]);
+		this.mainLayer.drawShapes(shapes);
+		this.overlayLayer.drawGizmos(this.gizmos, true);
 
-		this.ctx.save();
-		this.hitTestingCtx.save();
-
-		this.#clearCanvas();
-		this.hitTestingCtx.clearRect(
-			-this.canvas.width / 2,
-			-this.canvas.height / 2,
-			this.canvas.width,
-			this.canvas.height
-		);
-
-		this.ctx.scale(viewport.zoom, viewport.zoom);
-		this.hitTestingCtx.scale(viewport.zoom, viewport.zoom);
-
-		this.ctx.translate(this.offset.x, this.offset.y);
-		this.hitTestingCtx.translate(this.offset.x, this.offset.y);
-
-		this.#drawStage();
-		for (const shape of shapes) {
-			shape.rotateCanvas(this.ctx);
-			shape.draw(this.ctx);
-			shape.resetCanvasRotation(this.ctx);
-		}
-
-		for (const gizmo of gizmos) {
-			gizmo.draw(this.ctx);
-		}
-
-		for (const shape of shapes) {
-			shape.rotateCanvas(this.hitTestingCtx);
-			shape.draw(this.hitTestingCtx, true);
-			shape.resetCanvasRotation(this.hitTestingCtx);
-		}
-
-		for (const gizmo of gizmos) {
-			gizmo.draw(this.hitTestingCtx, true);
-		}
-		this.ctx.restore();
-		this.hitTestingCtx.restore();
+		this.hitTestLayer.drawShapes(shapes);
+		this.hitTestLayer.drawGizmos(this.gizmos);
 	}
 
-	#clearCanvas() {
-		this.ctx.fillStyle = "#e0e0e0";
-		this.ctx.fillRect(
-			-this.canvas.width / 2,
-			-this.canvas.height / 2,
-			this.canvas.width,
-			this.canvas.height
-		);
-
-		this.ctx.fillStyle = "white";
-	}
-
-	#drawStage() {
-		this.ctx.save();
-
-		this.ctx.fillStyle = "white";
-		const { left, top, width, height } = this.stageProperties;
-		this.ctx.fillRect(left, top, width, height);
-
-		this.ctx.restore();
+	#handleShapeChanges({ detail }) {
+		this.drawShapes();
+		if (detail.save) {
+			HistoryTools.record(this.shapes);
+		}
 	}
 
 	#addEventListeners() {
-		this.canvas.addEventListener("wheel", (e) => {
+		this.getStageCanvas().addEventListener("wheel", (e) => {
 			e.preventDefault();
 			const dir = -Math.sign(e.deltaY);
 			this.zoom += dir * this.zoomStep;
 			this.zoom = Math.max(this.zoomStep, this.zoom);
-			viewport.drawShapes(shapes);
+			viewport.drawShapes();
 		});
 
-		this.canvas.addEventListener("pointerdown", (e) => {
+		this.getStageCanvas().addEventListener("pointerdown", (e) => {
 			if (e.button === 1) {
 				let dragStart = new Vector(e.offsetX, e.offsetY);
 				const moveCallback = (e) => {
@@ -146,15 +135,60 @@ class Viewport {
 					const scaledDiff = diff.scale(1 / this.zoom);
 					this.offset = Vector.add(this.offset, scaledDiff);
 					dragStart = dragEnd;
-					viewport.drawShapes(shapes);
+					viewport.drawShapes();
 				};
 				const upCallback = (e) => {
-					this.canvas.removeEventListener("pointermove", moveCallback);
-					this.canvas.removeEventListener("pointerup", upCallback);
+					this.getStageCanvas().removeEventListener(
+						"pointermove",
+						moveCallback
+					);
+					this.getStageCanvas().removeEventListener(
+						"pointerup",
+						upCallback
+					);
 				};
-				this.canvas.addEventListener("pointermove", moveCallback);
-				this.canvas.addEventListener("pointerup", upCallback);
+				this.getStageCanvas().addEventListener("pointermove", moveCallback);
+				this.getStageCanvas().addEventListener("pointerup", upCallback);
 			}
 		});
+
+		this.addEventListener(
+			"positionChanged",
+			this.#handleShapeChanges.bind(this)
+		);
+		this.addEventListener(
+			"sizeChanged",
+			this.#handleShapeChanges.bind(this)
+		);
+		this.addEventListener(
+			"rotationChanged",
+			this.#handleShapeChanges.bind(this)
+		);
+		this.addEventListener(
+			"optionsChanged",
+			this.#handleShapeChanges.bind(this)
+		);
+		this.addEventListener(
+			"shapesAdded",
+			this.#handleShapeChanges.bind(this)
+		);
+		this.addEventListener(
+			"shapesRemoved",
+			this.#handleShapeChanges.bind(this)
+		);
+		this.addEventListener(
+			"textChanged",
+			this.#handleShapeChanges.bind(this)
+		);
+
+		this.addEventListener("shapeSelected", (event) => {
+			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
+			this.#handleShapeChanges(event);
+		});
+		this.addEventListener("shapeUnselected", (event) => {
+			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
+			this.#handleShapeChanges(event);
+		});
+		this.addEventListener("gizmoChanged", () => this.drawShapes());
 	}
 }

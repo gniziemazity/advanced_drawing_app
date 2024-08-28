@@ -3,10 +3,10 @@ class SelectTool {
 		//downCallbackForSelect
 		if (e.button !== 0) return;
 
-		PropertiesPanel.reset();
+		//PropertiesPanel.reset();
 		const startPosition = new Vector(e.offsetX, e.offsetY);
 
-		const [r, g, b, a] = viewport.hitTestingCtx.getImageData(
+		const [r, g, b, a] = viewport.hitTestLayer.ctx.getImageData(
 			startPosition.x,
 			startPosition.y,
 			1,
@@ -14,33 +14,33 @@ class SelectTool {
 		).data;
 
 		const id = (r << 16) | (g << 8) | b;
-		const shape = shapes.find((s) => s.id == id);
-		const gizmo = gizmos.find((g) => g.hasHandle(id));
+		const gizmo = viewport.gizmos.find((g) => g.hasHandle(id));
+      console.log(r,g,b,a,id,gizmo);
 		if (gizmo) {
 			const handle = gizmo.hasHandle(id);
-			const selectedShapes = shapes.filter((s) => s.selected);
+			const selectedShapes = viewport.getSelectedShapes();
 			gizmo.addEventListeners(startPosition, handle, selectedShapes);
 			return;
 		}
+      
+		const shape = viewport.shapes.find((s) => s.id == id);
 
 		const isClickingSelectedShape = shape && shape.selected;
 
 		if (!isClickingSelectedShape) {
 			if (e.ctrlKey === false && e.shiftKey === false) {
-				shapes.forEach((s) => (s.selected = false));
+				viewport.shapes.forEach((s) => s.unselect(false));
 			}
 		}
 
 		if (shape) {
 			if (!isClickingSelectedShape) {
-				shape.selected = true;
+				shape.select();
 			}
-			const selectedShapes = shapes.filter((s) => s.selected);
+			const selectedShapes = viewport.getSelectedShapes();
 			const oldCenters = selectedShapes.map((s) => s.center);
 			let mouseDelta = null;
 			let isDragging = false;
-
-			PropertiesPanel.updateDisplay(selectedShapes);
 
 			const moveCallback = function (e) {
 				const mousePosition = new Vector(e.offsetX, e.offsetY);
@@ -48,32 +48,30 @@ class SelectTool {
 				mouseDelta = viewport.scale(diff);
 				isDragging = true;
 				selectedShapes.forEach((s, i) => {
-					s.setCenter(Vector.add(oldCenters[i], mouseDelta));
+					s.setCenter(Vector.add(oldCenters[i], mouseDelta), false);
 				});
-				viewport.drawShapes(shapes);
-				PropertiesPanel.updateDisplay(selectedShapes);
 			};
 
 			const upCallback = function (e) {
-				viewport.canvas.removeEventListener("pointermove", moveCallback);
-				viewport.canvas.removeEventListener("pointerup", upCallback);
+				viewport
+					.getStageCanvas()
+					.removeEventListener("pointermove", moveCallback);
+				viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 
 				if (isClickingSelectedShape && !isDragging) {
-					shape.selected = false;
-					viewport.drawShapes(shapes);
+					shape.unselect();
 				}
-				PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
 				if (isDragging && mouseDelta.magnitude() > 0) {
-					HistoryTools.record(shapes);
+					selectedShapes.forEach((s, i) => {
+						s.setCenter(Vector.add(oldCenters[i], mouseDelta));
+					});
 				}
 			};
-			viewport.canvas.addEventListener("pointermove", moveCallback);
-			viewport.canvas.addEventListener("pointerup", upCallback);
+			viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
+			viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 		} else {
 			SelectTool.selectShapesUnderRectangle(e);
 		}
-
-		viewport.drawShapes(shapes);
 	}
 
 	static selectShapesUnderRectangle(e) {
@@ -103,8 +101,8 @@ class SelectTool {
 		};
 
 		const upCallback = function (e) {
-			viewport.canvas.removeEventListener("pointermove", moveCallback);
-			viewport.canvas.removeEventListener("pointerup", upCallback);
+			viewport.getStageCanvas().removeEventListener("pointermove", moveCallback);
+			viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 			rect.removeEventListener("pointerup", upCallback);
 			rect.removeEventListener("pointermove", moveCallback);
 
@@ -116,7 +114,7 @@ class SelectTool {
 				viewport.getAdjustedPosition(bottomRight)
 			);
 
-			shapes.forEach((shape) => {
+			viewport.shapes.forEach((shape) => {
 				const shapeBox = BoundingBox.fromPoints(
 					shape.getPoints().map((p) => p.add(shape.center))
 				);
@@ -124,35 +122,37 @@ class SelectTool {
 				switch (RECTANGULAR_SELECTION_MODE) {
 					case "containment":
 						if (rectBox.contains(shapeBox)) {
-							shape.selected = true;
+							shape.select();
 						}
 						break;
 					case "intersection":
 						if (rectBox.intersects(shapeBox)) {
-							shape.selected = true;
+							shape.select();
 						}
 						break;
 				}
 			});
 
 			rect.remove();
-			PropertiesPanel.updateDisplay(shapes.filter((s) => s.selected));
-			viewport.drawShapes(shapes);
 		};
 
 		// adding eventlisteners to rect to allow rect redraw when
 		// pointer moves into it
-		viewport.canvas.addEventListener("pointermove", moveCallback);
-		viewport.canvas.addEventListener("pointerup", upCallback);
+		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
+		viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 		rect.addEventListener("pointerup", upCallback);
 		rect.addEventListener("pointermove", moveCallback);
 	}
 
 	static configureEventListeners() {
-		myCanvas.addEventListener("pointerdown", this.addPointerDownListener);
+		viewport
+			.getStageCanvas()
+			.addEventListener("pointerdown", this.addPointerDownListener);
 	}
 
 	static removeEventListeners() {
-		myCanvas.removeEventListener("pointerdown", this.addPointerDownListener);
+		viewport
+			.getStageCanvas()
+			.removeEventListener("pointerdown", this.addPointerDownListener);
 	}
 }

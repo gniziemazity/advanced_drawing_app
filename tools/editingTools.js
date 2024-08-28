@@ -1,11 +1,10 @@
 class EditingTools {
 	static selectAll() {
-		shapes.forEach((s) => (s.selected = true));
-		viewport.drawShapes(shapes);
+		viewport.shapes.forEach((s) => s.select());
 	}
 
 	static copy() {
-		const selectedShapes = shapes.filter((s) => s.selected);
+		const selectedShapes = viewport.getSelectedShapes();
 		if (selectedShapes.length > 0) {
 			const data = selectedShapes.map((s) => s.serialize(STAGE_PROPERTIES));
 			clipboard = JSON.stringify(data);
@@ -14,16 +13,13 @@ class EditingTools {
 
 	static paste() {
 		if (clipboard) {
-			shapes.forEach((s) => (s.selected = false));
+			viewport.shapes.forEach((s) => s.unselect());
 			const newShapes = ShapeFactory.loadShapes(
 				JSON.parse(clipboard),
 				viewport.stageProperties
 			);
 			newShapes.forEach((s) => (s.id = Shape.generateId()));
-			shapes.push(...newShapes);
-
-			viewport.drawShapes(shapes);
-			HistoryTools.record(shapes);
+			viewport.addShapes(newShapes);
 		}
 	}
 
@@ -32,17 +28,25 @@ class EditingTools {
 		EditingTools.paste();
 	}
 
+   // move to viewport functionality
+   // or layer..
 	static delete() {
-		let index = shapes.findIndex((s) => s.selected);
-		let shouldRecordHistory = index !== -1;
-		while (index != -1) {
-			shapes.splice(index, 1);
-			index = shapes.findIndex((s) => s.selected);
-		}
-		if (shouldRecordHistory) {
-			HistoryTools.record(shapes);
+		const selectedShapes = viewport.getSelectedShapes();
+		if (selectedShapes.length > 0) {
+			let index = viewport.shapes.findIndex((s) => s.selected);
+			while (index != -1) {
+				viewport.shapes.splice(index, 1);
+				index = viewport.shapes.findIndex((s) => s.selected);
+			}
+			for (let i = viewport.gizmos.length - 1; i >= 0; i--) {
+				if (selectedShapes.includes(viewport.gizmos[i].shape)) {
+					viewport.gizmos.splice(i, 1);
+				}
+			}
+			viewport.dispatchEvent(
+				new CustomEvent("shapesRemoved", { detail: {shapes:selectedShapes, save:true} })
+			);
 		}
 		PropertiesPanel.reset();
-		viewport.drawShapes(shapes);
 	}
 }

@@ -1,7 +1,7 @@
 class DocumentTools {
 	static save() {
 		const data = JSON.stringify(
-			shapes.map((s) => s.serialize(STAGE_PROPERTIES))
+			viewport.shapes.map((s) => s.serialize(STAGE_PROPERTIES))
 		);
 
 		const a = document.createElement("a");
@@ -23,9 +23,9 @@ class DocumentTools {
 			reader.onload = (e) => {
 				if (extension === "json") {
 					const data = JSON.parse(e.target.result);
-					shapes = ShapeFactory.loadShapes(data, viewport.stageProperties);
-					viewport.drawShapes(shapes);
-					HistoryTools.record(shapes);
+					viewport.setShapes(
+						ShapeFactory.loadShapes(data, viewport.stageProperties)
+					);
 				} else if (extension === "png") {
 					DocumentTools.loadImage(e);
 				}
@@ -50,29 +50,16 @@ class DocumentTools {
 					STAGE_PROPERTIES.top + STAGE_PROPERTIES.height / 2
 				)
 			);
-			shapes.push(myImage);
-			viewport.drawShapes(shapes);
-			HistoryTools.record(shapes);
+			viewport.addShapes(myImage);
 		};
 		img.src = e.target.result;
 	}
 
 	static do_export() {
-		const tmpCanvas = document.createElement("canvas");
-		tmpCanvas.width = STAGE_PROPERTIES.width;
-		tmpCanvas.height = STAGE_PROPERTIES.height;
-		const tmpCtx = tmpCanvas.getContext("2d");
-		tmpCtx.translate(-STAGE_PROPERTIES.left, -STAGE_PROPERTIES.top);
-		for (const shape of shapes) {
-			const isSelected = shape.selected;
-			shape.selected = false;
-			shape.draw(tmpCtx);
-			shape.selected = isSelected;
-		}
-		tmpCanvas.toBlob((blob) => {
+		viewport.mainLayer.canvas.toBlob((blob) => {
 			const a = document.createElement("a");
 			a.href = URL.createObjectURL(blob);
-			a.download = "screenshot.png";
+			a.download = "image.png";
 			a.click();
 		});
 	}

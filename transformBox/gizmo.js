@@ -1,122 +1,149 @@
 class Gizmo {
-	static shouldTrackFlip = false
-	static canFlip = {x: false, y:false}
+	static shouldTrackFlip = false;
+	static nextId = 0;
+	static canFlip = { x: false, y: false };
 	constructor(shape) {
-		this.shape = shape;
+		this.id = Gizmo.nextId++;
 
+		this.shape = shape;
 		this.center = this.shape.center;
-		this.box = BoundingBox.fromPoints(
-			this.shape.getPoints().map((p) => p.add(this.center))
-		);
 		this.rotation = shape.rotation;
 
-		// generate handle points after rotation at center of shape
-		const topLeft = this.box.topLeft.rotateByCenterPoint(
-			this.center,
-			this.rotation
-		);
-		const topRight = this.box.topRight.rotateByCenterPoint(
-			this.center,
-			this.rotation
-		);
-		const bottomLeft = this.box.bottomLeft.rotateByCenterPoint(
-			this.center,
-			this.rotation
-		);
-		const bottomRight = this.box.bottomRight.rotateByCenterPoint(
-			this.center,
-			this.rotation
-		);
-		const rotationPoint = Vector.midVector([
-			this.box.topLeft,
-			this.box.topRight,
-		])
-			.subtract(new Vector(0, 2 * Handle.size))
-			.rotateByCenterPoint(this.center, this.rotation);
+		this.#generate();
 
-		this.handles = [
-			new Handle(topLeft, Handle.TOP_LEFT, this.rotation),
-			new Handle(topRight, Handle.TOP_RIGHT, this.rotation),
-			new Handle(bottomLeft, Handle.BOTTOM_LEFT, this.rotation),
-			new Handle(bottomRight, Handle.BOTTOM_RIGHT, this.rotation),
-			new Handle(
-				Vector.midVector([topLeft, topRight]),
-				Handle.TOP,
-				this.rotation
-			),
-			new Handle(
-				Vector.midVector([bottomLeft, bottomRight]),
-				Handle.BOTTOM,
-				this.rotation
-			),
-			new Handle(
-				Vector.midVector([topLeft, bottomLeft]),
-				Handle.LEFT,
-				this.rotation
-			),
-			new Handle(
-				Vector.midVector([topRight, bottomRight]),
-				Handle.RIGHT,
-				this.rotation
-			),
-			// Add handle to create rotate functionality on all shapes
-			...(featureFlags.ROTATE_HANDLE
-				? [new Handle(rotationPoint, Handle.ROTATE, this.rotation)]
-				: []),
-		];
+		viewport.addEventListener(
+			"positionChanged",
+			this.updatePosition.bind(this)
+		);
+		viewport.addEventListener("sizeChanged", this.updateSize.bind(this));
+		viewport.addEventListener(
+			"rotationChanged",
+			this.updateRotation.bind(this)
+		);
+	}
+
+	updatePosition(e) {
+		if (e.detail.shape === this.shape) {
+			this.center = e.detail.position;
+			this.#update();
+			viewport.dispatchEvent(
+				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
+			);
+		}
+	}
+
+	updateSize(e) {
+		if (e.detail.shape === this.shape) {
+			this.#update();
+			viewport.dispatchEvent(
+				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
+			);
+		}
+	}
+
+	updateRotation(e) {
+		if (e.detail.shape === this.shape) {
+			this.rotation = e.detail.rotation;
+			this.#update();
+			viewport.dispatchEvent(
+				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
+			);
+		}
 	}
 
 	hasHandle(id) {
 		return this.handles.find((handle) => handle.id == id);
 	}
 
+	#generate() {
+		this.box = BoundingBox.fromPoints(
+			this.shape.getPoints().map((p) => p.add(this.center))
+		);
+		const { topLeft, topRight, bottomLeft, bottomRight } = this.box;
+		const rotationPoint = Vector.mid([topLeft, topRight]).subtract(
+			new Vector(0, 2 * Handle.size)
+		);
+
+		this.handles = [
+			new Handle(topLeft, Handle.TYPES.TOP_LEFT),
+			new Handle(topRight, Handle.TYPES.TOP_RIGHT),
+			new Handle(bottomLeft, Handle.TYPES.BOTTOM_LEFT),
+			new Handle(bottomRight, Handle.TYPES.BOTTOM_RIGHT),
+			new Handle(Vector.mid([topLeft, topRight]), Handle.TYPES.TOP),
+			new Handle(Vector.mid([bottomLeft, bottomRight]), Handle.TYPES.BOTTOM),
+			new Handle(Vector.mid([topLeft, bottomLeft]), Handle.TYPES.LEFT),
+			new Handle(Vector.mid([topRight, bottomRight]), Handle.TYPES.RIGHT),
+			new Handle(rotationPoint, Handle.TYPES.ROTATE),
+		];
+	}
+
+	#update() {
+		this.box = BoundingBox.fromPoints(
+			this.shape.getPoints().map((p) => p.add(this.center))
+		);
+		const { topLeft, topRight, bottomLeft, bottomRight } = this.box;
+		this.handles[0].center = topLeft;
+		this.handles[1].center = topRight;
+		this.handles[2].center = bottomLeft;
+		this.handles[3].center = bottomRight;
+		this.handles[4].center = Vector.mid([topLeft, topRight]);
+		this.handles[5].center = Vector.mid([bottomLeft, bottomRight]);
+		this.handles[6].center = Vector.mid([topLeft, bottomLeft]);
+		this.handles[7].center = Vector.mid([topRight, bottomRight]);
+		const rotationPoint = Vector.mid([topLeft, topRight]).subtract(
+			new Vector(0, 2 * Handle.size)
+		);
+		this.handles[8].center = rotationPoint;
+	}
+
 	addEventListeners(startPosition, handle, selectedShapes) {
 		const oldBoxes = selectedShapes.map((s) =>
 			BoundingBox.fromPoints(s.getPoints().map((p) => p.add(this.center)))
 		);
-		const oldRotations = selectedShapes.map(
-			(s) => (s.rotation * Math.PI) / 180
-		);
+		const oldRotations = selectedShapes.map((s) => s.rotation);
 		let mouseDelta = null;
-		let isDragging = false;
-		let prevRatio = null
+		let prevRatio = null;
+		const prevSize = { width: this.box.width, height: this.box.height };
 		const moveCallback = (e) => {
 			const mousePosition = new Vector(e.offsetX, e.offsetY);
 			const diff = Vector.subtract(mousePosition, startPosition);
+			const polar = diff.toPolar();
+			polar.dir -= this.rotation;
+			diff.toXY(polar);
+
 			mouseDelta = viewport.scale(diff);
-			isDragging = true;
-			Gizmo.shouldTrackFlip = true
+			Gizmo.shouldTrackFlip = true;
 
 			let ratio = new Vector(
-				mouseDelta.x / this.box.width,
-				mouseDelta.y / this.box.height
+				mouseDelta.x / prevSize.width,
+				mouseDelta.y / prevSize.height
 			)
 				.scale(2)
 				.add(new Vector(1, 1));
 
 			switch (handle.type) {
-				case Handle.RIGHT:
+				case Handle.TYPES.RIGHT:
 					ratio = new Vector(ratio.x, 1);
 					break;
-				case Handle.LEFT:
+				case Handle.TYPES.LEFT:
 					ratio = new Vector(2 - ratio.x, 1);
 					break;
-				case Handle.TOP:
+				case Handle.TYPES.TOP:
 					ratio = new Vector(1, 2 - ratio.y);
 					break;
-				case Handle.BOTTOM:
+				case Handle.TYPES.BOTTOM:
 					ratio = new Vector(1, ratio.y);
 					break;
-				case Handle.TOP_LEFT:
+				case Handle.TYPES.TOP_LEFT:
 					ratio = new Vector(2 - ratio.x, 2 - ratio.y);
 					break;
-				case Handle.TOP_RIGHT:
+				case Handle.TYPES.TOP_RIGHT:
 					ratio = new Vector(ratio.x, 2 - ratio.y);
 					break;
-				case Handle.BOTTOM_LEFT:
+				case Handle.TYPES.BOTTOM_LEFT:
 					ratio = new Vector(2 - ratio.x, ratio.y);
 					break;
-				case Handle.BOTTOM_RIGHT:
+				case Handle.TYPES.BOTTOM_RIGHT:
 					ratio = new Vector(ratio.x, ratio.y);
 					break;
 			}
@@ -126,10 +153,10 @@ class Gizmo {
 			if (
 				e.shiftKey &&
 				[
-					Handle.TOP_LEFT,
-					Handle.TOP_RIGHT,
-					Handle.BOTTOM_LEFT,
-					Handle.BOTTOM_RIGHT,
+					Handle.TYPES.TOP_LEFT,
+					Handle.TYPES.TOP_RIGHT,
+					Handle.TYPES.BOTTOM_LEFT,
+					Handle.TYPES.BOTTOM_RIGHT,
 				].includes(handle.type)
 			) {
 				const scaler = Math.max(Math.abs(ratio.x), Math.abs(ratio.y));
@@ -146,45 +173,46 @@ class Gizmo {
 				const oldRotation = oldRotations[i];
 
 				if (prevRatio !== null) {
-					Gizmo.setCanFlip(prevRatio.x, ratio.x, prevRatio.y, ratio.y)
+					Gizmo.setCanFlip(prevRatio.x, ratio.x, prevRatio.y, ratio.y);
 				}
 
-				if (handle.type === Handle.ROTATE) {
+				if (handle.type === Handle.TYPES.ROTATE) {
 					const fixedStart = viewport.getAdjustedPosition(startPosition);
 					const fixedMouse = viewport.getAdjustedPosition(mousePosition);
 
 					// vectors centered at the bounding box center
 					const v1 = Vector.subtract(fixedStart, oldBox.center);
 					const v2 = Vector.subtract(fixedMouse, oldBox.center);
-					const angle = getSignedAngleBetweenVectors(v1, v2);
+					const angle = getSignedAngleBetweenVectors(v2, v1);
 					const combinedAngle = oldRotation + angle;
-					shape.setRotation((combinedAngle * 180) / Math.PI);
+					shape.setRotation(combinedAngle, false);
 				} else {
 					shape.changeSize(oldBox.width, oldBox.height, ratio.x, ratio.y);
 				}
 			}
 
-			prevRatio = ratio
-			viewport.drawShapes(shapes);
-			PropertiesPanel.updateDisplay(selectedShapes);
+			prevRatio = ratio;
 		};
 
 		const upCallback = (e) => {
-			Gizmo.shouldTrackFlip = false
-			Gizmo.canFlip = {x: false, y: false}
-			viewport.canvas.removeEventListener("pointermove", moveCallback);
-			viewport.canvas.removeEventListener("pointerup", upCallback);
+			Gizmo.shouldTrackFlip = false;
+			Gizmo.canFlip = { x: false, y: false };
+			selectedShapes.forEach((s) => s.setSize(s.size.width, s.size.height));
+			viewport
+				.getStageCanvas()
+				.removeEventListener("pointermove", moveCallback);
+			viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 		};
-		viewport.canvas.addEventListener("pointermove", moveCallback);
-		viewport.canvas.addEventListener("pointerup", upCallback);
+		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
+		viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 	}
 
 	static setCanFlip(prevRatioX, ratioX, prevRatioY, ratioY) {
 		if (Math.sign(prevRatioX) !== Math.sign(ratioX)) {
-			Gizmo.canFlip.x = true
+			Gizmo.canFlip.x = true;
 		}
 		if (Math.sign(prevRatioY) !== Math.sign(ratioY)) {
-			Gizmo.canFlip.y = true
+			Gizmo.canFlip.y = true;
 		}
 	}
 
@@ -192,38 +220,39 @@ class Gizmo {
 		ctx.save();
 		ctx.beginPath();
 
-		if (this.center) {
-			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate(-(this.rotation * Math.PI) / 180);
-			ctx.translate(-this.center.x, -this.center.y);
-		}
-		ctx.rect(
-			this.box.topLeft.x,
-			this.box.topLeft.y,
-			this.box.width,
-			this.box.height
-		);
-		if (this.center) {
-			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate((this.rotation * Math.PI) / 180);
-			ctx.translate(-this.center.x, -this.center.y);
-		}
-		ctx.strokeStyle = "white";
-		ctx.lineWidth = 2 / viewport.zoom;
-		ctx.stroke();
-		ctx.strokeStyle = "black";
-		ctx.lineWidth = 1 / viewport.zoom;
-		ctx.stroke();
+		if (!hitRegion) {
+			ctx.rect(
+				this.box.topLeft.x,
+				this.box.topLeft.y,
+				this.box.width,
+				this.box.height
+			);
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 2 / viewport.zoom;
+			ctx.stroke();
+			ctx.strokeStyle = "black";
+			ctx.lineWidth /= 2;
+			ctx.stroke();
 
-		const size = Handle.size / viewport.zoom;
+			const centerRadius = (0.5 * Handle.size) / viewport.zoom;
+         const centerLength = 2 * Math.PI * centerRadius;
+         const dashCount = 7;
+         const dashLength = 0.25 * centerLength / dashCount;
+         const spaceLength = 0.75 * centerLength / dashCount;
 
-		ctx.beginPath();
-		ctx.lineWidth = 2 / viewport.zoom;
-		ctx.setLineDash([1, 1]);
-		ctx.arc(this.center.x, this.center.y, size / 2, 0, 2 * Math.PI);
-		ctx.stroke();
-		ctx.lineWidth = 1 / viewport.zoom;
-		ctx.setLineDash([]);
+         ctx.save();
+			ctx.beginPath();
+			ctx.lineWidth = 3 / viewport.zoom;
+			ctx.setLineDash([dashLength, spaceLength]);
+			ctx.arc(this.center.x, this.center.y, centerRadius, 0, 2 * Math.PI);
+         ctx.lineCap = "round"
+			ctx.strokeStyle = "white";
+			ctx.stroke();
+			ctx.lineWidth /= 2;
+			ctx.strokeStyle = "black";
+			ctx.stroke();
+         ctx.restore();
+		}
 
 		for (const handle of this.handles) {
 			handle.draw(ctx, hitRegion);

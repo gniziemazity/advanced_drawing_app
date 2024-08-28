@@ -36,6 +36,7 @@ class PropertiesPanel {
 			createInputWithLabel("X", {
 				type: "number",
 				onchange: "PropertiesPanel.changeX(this.value)",
+				oninput: "PropertiesPanel.changeX(this.value, false)",
 				id: "xInput",
 			})
 		);
@@ -43,6 +44,7 @@ class PropertiesPanel {
 			createInputWithLabel("Y", {
 				type: "number",
 				onchange: "PropertiesPanel.changeY(this.value)",
+				oninput: "PropertiesPanel.changeY(this.value, false)",
 				id: "yInput",
 			})
 		);
@@ -50,6 +52,7 @@ class PropertiesPanel {
 			createInputWithLabel("Width", {
 				type: "number",
 				onchange: "PropertiesPanel.changeWidth(this.value)",
+				oninput: "PropertiesPanel.changeWidth(this.value, false)",
 				id: "widthInput",
 			})
 		);
@@ -57,6 +60,7 @@ class PropertiesPanel {
 			createInputWithLabel("Height", {
 				type: "number",
 				onchange: "PropertiesPanel.changeHeight(this.value)",
+				oninput: "PropertiesPanel.changeHeight(this.value, false)",
 				id: "heightInput",
 			})
 		);
@@ -64,6 +68,7 @@ class PropertiesPanel {
 			createInputWithLabel("Rotation", {
 				type: "number",
 				onchange: "PropertiesPanel.setRotation(this.value)",
+				oninput: "PropertiesPanel.setRotation(this.value, false)",
 				id: "rotationInput",
 			})
 		);
@@ -77,7 +82,7 @@ class PropertiesPanel {
 			createDOMElement("input", {
 				id: "fillColor",
 				onchange: "PropertiesPanel.changeFillColor(this.value)",
-				oninput: "PropertiesPanel.previewFillColor(this.value)",
+				oninput: "PropertiesPanel.changeFillColor(this.value, false)",
 				title: "Fill Color",
 				type: "color",
 			})
@@ -102,7 +107,7 @@ class PropertiesPanel {
 			createDOMElement("input", {
 				id: "strokeColor",
 				onchange: "PropertiesPanel.changeStrokeColor(this.value)",
-				oninput: "PropertiesPanel.previewStrokeColor(this.value)",
+				oninput: "PropertiesPanel.changeStrokeColor(this.value, false)",
 				title: "Stroke Color",
 				type: "color",
 			})
@@ -126,10 +131,10 @@ class PropertiesPanel {
 		colorSection.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidth",
-				max: "100",
+				max: "30",
 				min: "1",
 				onchange: "PropertiesPanel.changeStrokeWidth(this.value)",
-				oninput: "PropertiesPanel.previewStrokeWidth(this.value)",
+				oninput: "PropertiesPanel.changeStrokeWidth(this.value, false)",
 				title: "Stroke Width",
 				type: "range",
 				value: "5",
@@ -139,161 +144,140 @@ class PropertiesPanel {
 			createDOMElement("input", {
 				id: "text",
 				oninput: "PropertiesPanel.changeText(this.value)",
-				title: "Stroke Width",
+				title: "Text",
 				type: "text",
 				value: "TEST",
 			})
 		);
 
 		PropertiesPanel.resetColors();
+
+		viewport.addEventListener(
+			"positionChanged",
+			PropertiesPanel.updateDisplay
+		);
+		viewport.addEventListener("sizeChanged", PropertiesPanel.updateDisplay);
+		viewport.addEventListener(
+			"rotationChanged",
+			PropertiesPanel.updateDisplay
+		);
+		viewport.addEventListener("shapeSelected", PropertiesPanel.updateDisplay);
+		viewport.addEventListener(
+			"shapeUnselected",
+			PropertiesPanel.updateDisplay
+		);
+		viewport.addEventListener("history", PropertiesPanel.updateDisplay);
 	}
 
-	static changeX(value) {
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => (s.center.x = Number(value) + STAGE_PROPERTIES.left));
-
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
+	static changeX(value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.forEach((s) =>
+				s.setCenter(
+					new Vector(Number(value) + STAGE_PROPERTIES.left, s.center.y),
+					save
+				)
+			);
 	}
 
-	static changeY(value) {
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => (s.center.y = Number(value) + STAGE_PROPERTIES.top));
-
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
+	static changeY(value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.forEach((s) =>
+				s.setCenter(
+					new Vector(s.center.x, Number(value) + STAGE_PROPERTIES.top),
+					save
+				)
+			);
 	}
 
-	static changeWidth(value) {
+	static changeWidth(value, save = true) {
 		const newWidth = Math.max(Number(value), 1);
 		let newHeight = 0;
 
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => {
-				const currentWidth = s.size.width;
-				const currentHeight = s.size.height;
-				newHeight = currentHeight;
-				if (constrainDimensions.checked) {
-					const aspectRatio = currentWidth / currentHeight;
-					const constrainedHeight = newWidth / aspectRatio;
-					newHeight = constrainedHeight;
-				}
-				s.setSize(newWidth, newHeight);
-			});
+		viewport.getSelectedShapes().forEach((s) => {
+			const currentWidth = s.size.width;
+			const currentHeight = s.size.height;
+			newHeight = currentHeight;
+			if (constrainDimensions.checked) {
+				const aspectRatio = currentWidth / currentHeight;
+				const constrainedHeight = newWidth / aspectRatio;
+				newHeight = constrainedHeight;
+			}
+			s.setSize(newWidth, newHeight, save);
+		});
 
 		setValue(widthInput, Math.round(newWidth));
 		if (getValue(heightInput) != "") {
 			setValue(heightInput, Math.round(newHeight));
 		}
-
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
 	}
 
-	static changeHeight(value) {
+	static changeHeight(value, save = true) {
 		const newHeight = Math.max(Number(value), 1);
 		let newWidth = 0;
 
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => {
-				const currentWidth = s.size.width;
-				const currentHeight = s.size.height;
-				newWidth = currentWidth;
-				if (constrainDimensions.checked) {
-					const aspectRatio = currentWidth / currentHeight;
-					const constrainedWidth = newHeight * aspectRatio;
-					newWidth = constrainedWidth;
-				}
-				s.setSize(newWidth, newHeight);
-			});
+		viewport.getSelectedShapes().forEach((s) => {
+			const currentWidth = s.size.width;
+			const currentHeight = s.size.height;
+			newWidth = currentWidth;
+			if (constrainDimensions.checked) {
+				const aspectRatio = currentWidth / currentHeight;
+				const constrainedWidth = newHeight * aspectRatio;
+				newWidth = constrainedWidth;
+			}
+			s.setSize(newWidth, newHeight, save);
+		});
 
 		setValue(heightInput, Math.round(newHeight));
 		if (getValue(widthInput) != "") {
 			setValue(widthInput, Math.round(newWidth));
 		}
-
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
 	}
 
-	static setRotation(value){
-		const newValue = value % 360;
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => {
-				s.setRotation(newValue);
-			});
-		setValue(rotationInput, newValue);
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
+	static setRotation(degrees, save = true) {
+		const radians = (degrees * Math.PI) / 180;
+		viewport.getSelectedShapes().forEach((s) => {
+			s.setRotation(radians, save);
+		});
+		setValue(rotationInput, degrees);
 	}
 
-	static previewFillColor(value) {
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => (s.options.fillColor = value));
-
-		viewport.drawShapes(shapes);
-	}
-
-	static changeFillColor(value) {
-		PropertiesPanel.previewFillColor(value);
-		HistoryTools.record(shapes);
+	static changeFillColor(value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.forEach((s) => s.setOptions({ fillColor: value }, save));
 	}
 
 	static changeFill(value) {
-		shapes.filter((s) => s.selected).forEach((s) => (s.options.fill = value));
-
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
+		viewport
+			.getSelectedShapes()
+			.forEach((s) => s.setOptions({ fill: value }));
 	}
 
-	static previewStrokeColor(value) {
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => (s.options.strokeColor = value));
-
-		viewport.drawShapes(shapes);
-	}
-
-	static changeStrokeColor(value) {
-		PropertiesPanel.previewStrokeColor(value);
-		HistoryTools.record(shapes);
+	static changeStrokeColor(value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.forEach((s) => s.setOptions({ strokeColor: value }, save));
 	}
 
 	static changeStroke(value) {
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => (s.options.stroke = value));
-
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
+		viewport
+			.getSelectedShapes()
+			.forEach((s) => s.setOptions({ stroke: value }));
 	}
 
-	static previewStrokeWidth(value) {
-		shapes
-			.filter((s) => s.selected)
-			.forEach((s) => (s.options.strokeWidth = Number(value)));
-
-		viewport.drawShapes(shapes);
-	}
-
-	static changeStrokeWidth(value) {
-		PropertiesPanel.previewStrokeWidth(value);
-		HistoryTools.record(shapes);
+	static changeStrokeWidth(value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.forEach((s) => s.setOptions({ strokeWidth: Number(value) }, save));
 	}
 
 	static changeText(value) {
-		shapes
-			.filter((s) => s.selected && s.text !== undefined)
+		viewport
+			.getSelectedShapes()
+			.filter((s) => s.text !== undefined)
 			.forEach((s) => s.setText(value));
-
-		HistoryTools.record(shapes);
-		viewport.drawShapes(shapes);
 	}
 
 	static resetColors() {
@@ -340,7 +324,8 @@ class PropertiesPanel {
 		};
 	}
 
-	static updateDisplay(selectedShapes) {
+	static updateDisplay() {
+		const selectedShapes = viewport.getSelectedShapes();
 		if (selectedShapes.length === 0) {
 			PropertiesPanel.reset();
 			return;
@@ -421,7 +406,7 @@ class PropertiesPanel {
 				? newProperties.strokeWidth
 				: "";
 			text.value = newProperties.text ? newProperties.text : "";
-			rotationInput.value = newProperties.rotationAngle ?? '';
+			rotationInput.value = formatAngle(newProperties.rotationAngle) ?? "";
 
 			const placeholderText = "Multiple Values";
 			xInput.placeholder = newProperties.x ? "" : placeholderText;
@@ -438,7 +423,9 @@ class PropertiesPanel {
 				? ""
 				: placeholderText;
 			text.placeholder = newProperties.text ? "" : placeholderText;
-			rotationInput.placeholder = newProperties.rotationAngle ? '' : placeholderText
+			rotationInput.placeholder = newProperties.rotationAngle
+				? ""
+				: placeholderText;
 		}
 	}
 }

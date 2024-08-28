@@ -9,10 +9,9 @@ class ToolsPanel {
 		this.addHistoryTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
 
-		this.#addShapeTools(holderDiv);
+		this.#addCanvasTools(holderDiv);
 
-		// Add event listener for tool selection
-		Events.toolSelected.addEventListener("toolSelected", (e) => {
+		viewport.addEventListener("toolSelected", (e) => {
 			this.#selectToolComponent(e.detail);
 		});
 	}
@@ -61,8 +60,8 @@ class ToolsPanel {
 			createDOMElement(
 				"button",
 				{
-					id: "copyBtn",
-					title: "Copy",
+					id: "duplicateBtn",
+					title: "Duplicate",
 					class: "tool-button",
 					onclick: "EditingTools.duplicate()",
 				},
@@ -122,21 +121,21 @@ class ToolsPanel {
 		);
 	}
 
-	#addShapeTools(holderDiv) {
-		for (let tool of ShapeTools.tools) {
+	#addCanvasTools(holderDiv) {
+		for (let tool of CanvasTools.tools) {
 			if (!tool.showButton) continue;
 
 			holderDiv.appendChild(
 				createInputWithLabel(tool.name, {
 					type: "radio",
 					id: tool.name.toLowerCase() + "Radio",
-					name: "shapeTools",
-					onchange: `ShapeTools.selectTool("${tool.name}")`,
+					name: "CanvasTools",
+					onchange: `CanvasTools.selectTool("${tool.name}")`,
 				})
 			);
 		}
 
-		const selectedTool = ShapeTools.selectTool("Path");
+		const selectedTool = CanvasTools.selectTool("Path");
 
 		// Check the radio button for the selected tool
 		if (selectedTool) {

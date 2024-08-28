@@ -36,7 +36,11 @@ function createDOMElement(type, attributes, text) {
 function createInputWithLabel(labelText, attributes) {
 	const element = document.createElement("div");
 	element.appendChild(
-		createDOMElement("label", { for: attributes["id"] || labelText.toLowerCase() }, `${labelText}: `)
+		createDOMElement(
+			"label",
+			{ for: attributes["id"] || labelText.toLowerCase() },
+			labelText
+		)
 	);
 	element.appendChild(
 		createDOMElement("input", {
@@ -86,4 +90,8 @@ function getAngleBetweenVectors(A, B) {
 
 function getSignedAngleBetweenVectors(A, B) {
 	return Math.atan2(A.y, A.x) - Math.atan2(B.y, B.x);
+}
+
+function formatAngle(angle) {
+	return (angle * 180) / Math.PI;
 }

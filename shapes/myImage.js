@@ -32,7 +32,7 @@ class MyImage extends Shape {
          id: this.id,
          options: JSON.parse(JSON.stringify(this.options)),
          center: this.center,
-         size: this.size,
+			size: JSON.parse(JSON.stringify(this.size)),
          base64: this.base64,
          selected: this.selected,
          rotation: this.rotation,
@@ -48,7 +48,7 @@ class MyImage extends Shape {
       ];
    }
 
-   setWidth(width) {
+   _setWidth(width) {
       if (Gizmo.canFlip.x) {
          Gizmo.canFlip.x = false
          width = Math.abs(width) * Math.sign(this.size.width) * -1
@@ -58,7 +58,7 @@ class MyImage extends Shape {
       this.size.width = width
    }
 
-   setHeight(height) {
+   _setHeight(height) {
       if (Gizmo.canFlip.y) {
          Gizmo.canFlip.y = false
          height = Math.abs(height) * Math.sign(this.size.height) * -1

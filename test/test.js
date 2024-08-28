@@ -1,8 +1,8 @@
 const notDrawable = ["Image", "Select", "Text"]
 
 function beforeEach() {
-    shapes = [];
-    gizmos = [];
+    viewport.shapes = [];
+    viewport.gizmos = [];
     currentShape = null;
     clipboard = null;
     clearViewPort(viewport)
@@ -10,23 +10,11 @@ function beforeEach() {
 }
 
 function clearViewPort(viewport) {
-    viewport.ctx.fillStyle = "white";
-    viewport.ctx.fillRect(
-        -viewport.canvas.width / 2,
-        -viewport.canvas.height / 2,
-        viewport.canvas.width,
-        viewport.canvas.height
-    );
+    viewport.mainLayer.clearCanvas()
 }
 
 function clearHitTestCanvas(viewport) {
-    viewport.hitTestingCtx.fillStyle = "#fff";
-    viewport.hitTestingCtx.fillRect(
-        -viewport.canvas.width / 2,
-        -viewport.canvas.height / 2,
-        viewport.canvas.width,
-        viewport.canvas.height
-    );
+   viewport.hitTestLayer.clearCanvas()
 }
 
 // this class exists to generate valid x and y coordinates
@@ -39,7 +27,7 @@ class RandomCoordinatesGenerator {
     static previousY = 0
 
     static getRandomXcanvasPoint() {
-        let newX = Math.round(Math.random() * viewport.canvas.width)
+        let newX = Math.round(Math.random() * viewport.getStageCanvas().width)
         if (newX === RandomCoordinatesGenerator.previousX) {
             return RandomCoordinatesGenerator.getRandomXcanvasPoint()
         }
@@ -48,7 +36,7 @@ class RandomCoordinatesGenerator {
     }
 
     static getRandomYcanvasPoint() {
-        let newY = Math.round(Math.random() * viewport.canvas.height)
+        let newY = Math.round(Math.random() * viewport.getStageCanvas().height)
         if (newY === RandomCoordinatesGenerator.previousY) {
             return RandomCoordinatesGenerator.getRandomYcanvasPoint()
         }
@@ -63,13 +51,13 @@ function getShapeAtPoint(x, y) {
 
     // deselect already selected shape based on original selectTool.pointerdown event
     // and redraw
-    shapes.forEach((s) => s.selected = false)
-    gizmos = []
-    viewport.drawShapes(shapes)
+    viewport.shapes.forEach((s) => s.unselect());
+    viewport.gizmos = []
+    viewport.drawShapes()
 
     const startPosition = new Vector(e.offsetX, e.offsetY);
 
-    const [r, g, b, a] = viewport.hitTestingCtx.getImageData(
+    const [r, g, b, a] = viewport.hitTestLayer.ctx.getImageData(
         startPosition.x,
         startPosition.y,
         2,
@@ -78,10 +66,10 @@ function getShapeAtPoint(x, y) {
     ).data;
 
     const id = (r << 16) | (g << 8) | b;
-    const shape = shapes.find((s) => s.id == id) || shapes.find((s) => rgbIsDiffLessThanThreshHold(s.id, id));
+    const shape = viewport.shapes.find((s) => s.id == id) || viewport.shapes.find((s) => rgbIsDiffLessThanThreshHold(s.id, id));
     dispatchMouseEventOnCanvas("pointerup", x, y)
     if (!shape) {
-        console.log(id, shapes)
+        console.log(id, viewport.shapes)
         // debugger
         // noticed sometimes ctx.getImageData returns slightly different
         // rgb values different from shape.id by 1 e.g [30, 248, 7] and [29, 248, 6]
@@ -106,7 +94,7 @@ function getHitRGBSum(id) {
 }
 
 function setCurrentTool(tool) {
-    ShapeTools.selectTool(tool)
+    CanvasTools.selectTool(tool)
 }
 
 function dispatchMouseEventOnCanvas(type, clientX, clientY) {
@@ -117,7 +105,7 @@ function dispatchMouseEventOnCanvas(type, clientX, clientY) {
         cancelable: true
     });
     
-    myCanvas.dispatchEvent(event);
+    viewport.getStageCanvas().dispatchEvent(event);
     return event
 }
 
@@ -156,13 +144,13 @@ function simulatePointerDownPointerMovePointerUp(startX, startY, endX, endY) {
 
 function TestAllShapesCanBeDrawn() {
     try {
-        for (const shapeTool of ShapeTools.tools) {
+        for (const shapeTool of CanvasTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
                 let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
-                let mid = Vector.midVector([startPoint, endPoint])
+                let mid = Vector.mid([startPoint, endPoint])
                 let shape = getShapeAtPoint(mid.x, mid.y)
                 if (shape?.constructor.name !== shapeTool.name) {
                     failed(TestAllShapesCanBeDrawn, "failed to draw " + shapeTool.name)
@@ -178,16 +166,16 @@ function TestAllShapesCanBeDrawn() {
 
 function TestAllShapesCanBeDeleted() {
     try {
-        for (const shapeTool of ShapeTools.tools) {
+        for (const shapeTool of CanvasTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
                 let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
-                assert(shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
-                let mid = Vector.midVector([startPoint, endPoint])
+                assert(viewport.shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
+                let mid = Vector.mid([startPoint, endPoint])
                 simulateShapeDelete(mid.x, mid.y, mid.x, mid.y)
-                assert(shapes.length === 0, `failed to delete ${shapeTool.name}: shapes length should be 0 after delete, shape.length is: ${shapes.length}`)
+                assert(viewport.shapes.length === 0, `failed to delete ${shapeTool.name}: shapes length should be 0 after delete, shape.length is: ${viewport.shapes.length}`)
                 success(TestAllShapesCanBeDeleted, `deleted ${shapeTool.name} successfully`)
             }
         }
@@ -198,16 +186,16 @@ function TestAllShapesCanBeDeleted() {
 
 function TestAllShapesCanBeCopyAndPasted() {
     try {
-        for (const shapeTool of ShapeTools.tools) {
+        for (const shapeTool of CanvasTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
                 let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
-                assert(shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
-                let mid = Vector.midVector([startPoint, endPoint])
+                assert(viewport.shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
+                let mid = Vector.mid([startPoint, endPoint])
                 simulateShapeCopyAndPaste(mid.x, mid.y, mid.x, mid.y)
-                assert(shapes.length === 2, `copy-pasting ${shapeTool.name}: shapes length should be x2 after copy and paste, shape.length is: ${shapes.length}`)
+                assert(viewport.shapes.length === 2, `copy-pasting ${shapeTool.name}: shapes length should be x2 after copy and paste, shape.length is: ${viewport.shapes.length}`)
                 success(TestAllShapesCanBeCopyAndPasted, `copy pasted ${shapeTool.name} successfully`)
             }
         }
@@ -218,20 +206,20 @@ function TestAllShapesCanBeCopyAndPasted() {
 
 function TestRectangleSelect() {
     try {
-        for (const shapeTool of ShapeTools.tools) {
+        for (const shapeTool of CanvasTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
                 let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
-                assert(shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
+                assert(viewport.shapes.length === 1, `failed to draw ${shapeTool.name}: shapes length should be 1 after draw`)
                 simulateRectangleSelect(
                     0, 
                     0, 
-                    viewport.canvas.width, 
-                    viewport.canvas.height
+                    viewport.getStageCanvas().width, 
+                    viewport.getStageCanvas().height
                 )
-                let selectedShapes = shapes.filter(s => s.selected)
+                let selectedShapes = viewport.getSelectedShapes()
                 assert(selectedShapes.length === 1, `rectangle selecting ${shapeTool.name}: selectedShapes length should be 1 after drawing rect, selectedShapes.length is: ${selectedShapes.length}`)
                 success(TestRectangleSelect, `rectangle selected ${shapeTool.name} successfully`)
             }
@@ -243,13 +231,13 @@ function TestRectangleSelect() {
 
 function TestShapeMove() {
     try {
-        for (const shapeTool of ShapeTools.tools) {
+        for (const shapeTool of CanvasTools.tools) {
             beforeEach()
             if (!notDrawable.includes(shapeTool.name)) {
                 let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
                 simulateShapeDraw(shapeTool.name, startPoint.x, startPoint.y, endPoint.x, endPoint.y)
-                let mid = Vector.midVector([startPoint, endPoint])
+                let mid = Vector.mid([startPoint, endPoint])
                 mid.x = Math.round(mid.x)
                 mid.y = Math.round(mid.y)
                 let shape = getShapeAtPoint(mid.x, mid.y)
@@ -275,9 +263,9 @@ function TestShapeMove() {
 function TestSave() {
     beforeEach()
     try {
-        assert(shapes.length === 0, "shapes should be empty")
+        assert(viewport.shapes.length === 0, "shapes should be empty")
         drawAllShapes()
-        assert(shapes.length > 0, "shapes should not be empty after drawAllShapes")
+        assert(viewport.shapes.length > 0, "shapes should not be empty after drawAllShapes")
         let savedFile = mimicDocumentToolsDotSave()
         if (!savedFile) {
             failed(TestSave, "failed to save")
@@ -292,9 +280,9 @@ function TestSave() {
 async function TestExport() {
     beforeEach()
     try {
-        assert(shapes.length === 0, "shapes should be empty")
+        assert(viewport.shapes.length === 0, "shapes should be empty")
         drawAllShapes()
-        assert(shapes.length > 0, "shapes should not be empty after drawAllShapes")
+        assert(viewport.shapes.length > 0, "shapes should not be empty after drawAllShapes")
         let blob = await mimicDocumentToolsDotExport()
         if (!blob) {
             failed(TestExport, "failed to export canvas to blob")
@@ -309,11 +297,11 @@ async function TestExport() {
 async function TestLoadSavedJSON() {
     beforeEach()
     try {
-        assert(shapes.length === 0, "shapes should be empty")
+        assert(viewport.shapes.length === 0, "shapes should be empty")
         drawAllShapes()
-        assert(shapes.length > 0, "shapes should not be empty after drawAllShapes")
+        assert(viewport.shapes.length > 0, "shapes should not be empty after drawAllShapes")
         let blob = mimicDocumentToolsDotSave()
-        let shapesLengthBeforeLoad = shapes.length
+        let shapesLengthBeforeLoad = viewport.shapes.length
         assert(shapesLengthBeforeLoad > 0, "shapes should not be empty after drawAllShapes")
         let loadedShapes = await mimicDocumentToolsDotLoad(blob, "json")
         if (shapesLengthBeforeLoad !== loadedShapes.length) {
@@ -329,11 +317,11 @@ async function TestLoadSavedJSON() {
 async function TestLoadExportedPNG() {
     beforeEach()
     try {
-        assert(shapes.length === 0, "shapes should be empty")
+        assert(viewport.shapes.length === 0, "shapes should be empty")
         drawAllShapes()
-        assert(shapes.length > 0, "shapes should not be empty after drawAllShapes")
+        assert(viewport.shapes.length > 0, "shapes should not be empty after drawAllShapes")
         let blob = await mimicDocumentToolsDotExport()
-        let shapesLengthBeforeLoad = shapes.length
+        let shapesLengthBeforeLoad = viewport.shapes.length
         assert(shapesLengthBeforeLoad > 0, "shapes should not be empty after drawAllShapes")
         let loadedShapes = await mimicDocumentToolsDotLoad(blob, "png")
         // loaded png is added to already existing shapes
@@ -351,7 +339,7 @@ async function TestLoadingPreviousDrawings() {
     try {
         for (let drawing of previosDrawings) {
             beforeEach()
-            assert(shapes.length === 0, "shapes should be empty")
+            assert(viewport.shapes.length === 0, "shapes should be empty")
             let blob = drawing.type === "json"? jsonToBlob(drawing.content) : dataURLToBlob(drawing.content)
             let loadedShapes = await mimicDocumentToolsDotLoad(blob, drawing.type)
             if (loadedShapes.length === 0) {
@@ -407,7 +395,7 @@ function displayNotTested() {
 }
 
 function drawAllShapes() {
-    for (const shapeTool of ShapeTools.tools) {
+    for (const shapeTool of CanvasTools.tools) {
         if (!notDrawable.includes(shapeTool.name)) {
             let startPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
             let endPoint = new Vector(RandomCoordinatesGenerator.getRandomXcanvasPoint(), RandomCoordinatesGenerator.getRandomYcanvasPoint())
@@ -418,7 +406,7 @@ function drawAllShapes() {
 
 function mimicDocumentToolsDotSave() {
     const data = JSON.stringify(
-        shapes.map((s) => s.serialize(STAGE_PROPERTIES))
+      viewport.shapes.map((s) => s.serialize())
     );
 
     const file = new Blob([data], { type: "application/json" });
@@ -432,11 +420,11 @@ function mimicDocumentToolsDotExport() {
     tmpCanvas.height = STAGE_PROPERTIES.height;
     const tmpCtx = tmpCanvas.getContext("2d");
     tmpCtx.translate(-STAGE_PROPERTIES.left, -STAGE_PROPERTIES.top);
-    for (const shape of shapes) {
+    for (const shape of viewport.shapes) {
         const isSelected = shape.selected;
-        shape.selected = false;
+        shape.unselect();
         shape.draw(tmpCtx);
-        shape.selected = isSelected;
+        shape.select();
     }
 
     return new Promise((resolve) => {
@@ -463,10 +451,9 @@ async function loadBlob(blob, type) {
         reader.onload = (e) => {
             if (type === "json") {
                 const data = JSON.parse(e.target.result);
-                shapes = ShapeFactory.loadShapes(data, viewport.stageProperties);
-                viewport.drawShapes(shapes);
-                HistoryTools.record(shapes);
-                resolve(shapes)
+                viewport.setShapes(ShapeFactory.loadShapes(data, viewport.stageProperties));
+                viewport.drawShapes();
+                resolve(viewport.shapes)
             } else if (type === "png") {
                 // DocumentTools.loadImage duplicate
                 const img = new Image();
@@ -478,10 +465,9 @@ async function loadBlob(blob, type) {
                             STAGE_PROPERTIES.top + STAGE_PROPERTIES.height / 2
                         )
                     );
-                    shapes.push(myImage);
-                    viewport.drawShapes(shapes);
-                    HistoryTools.record(shapes);
-                    resolve(shapes)
+                    viewport.addShapes(myImage);
+                    viewport.drawShapes();
+                    resolve(viewport.shapes)
                 };
                 img.src = e.target.result;
             }

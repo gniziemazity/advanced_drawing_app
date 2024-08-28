@@ -2,9 +2,9 @@ class Shape {
 	constructor(options) {
 		// never deliberately called
 		this.id = Shape.generateId();
-		this.options = options;
 		this.center = null;
 		this.size = null;
+		this.options = options;
 		this.rotation = 0;
 		this.selected = false;
 	}
@@ -17,64 +17,78 @@ class Shape {
 		throw new Error("serialize method must be implemented");
 	}
 
-	setCenter(center) {
+	select(save = true) {
+		this.selected = true;
+		viewport.dispatchEvent(
+			new CustomEvent("shapeSelected", {
+				detail: { shape: this, save },
+			})
+		);
+	}
+
+	unselect(save = true) {
+		this.selected = false;
+		viewport.dispatchEvent(
+			new CustomEvent("shapeUnselected", {
+				detail: { shape: this, save },
+			})
+		);
+	}
+
+	setCenter(center, save = true) {
 		this.center = center;
+		viewport.dispatchEvent(
+			new CustomEvent("positionChanged", {
+				detail: { shape: this, position: center, save },
+			})
+		);
 	}
 
-	setWidth(width) {
+	setSize(width, height, save = true) {
+		this._setWidth(width);
+		this._setHeight(height);
+		viewport.dispatchEvent(
+			new CustomEvent("sizeChanged", {
+				detail: { shape: this, size: { width, height }, save },
+			})
+		);
+	}
+
+	_setWidth(width) {
 		throw new Error("setWidth method must be implemented");
 	}
 
-	setHeight(height) {
+	_setHeight(height) {
 		throw new Error("setWidth method must be implemented");
 	}
 
-	setRotation(angle) {
+	setRotation(angle, save = true) {
 		this.rotation = angle;
-		this.rotation %= 360;
+		viewport.dispatchEvent(
+			new CustomEvent("rotationChanged", {
+				detail: { shape: this, rotation: angle, save },
+			})
+		);
 	}
 
-	rotateBy(angle) {
-      this.rotation +=angle;
-	  this.rotation %= 360;
-	}
-
-	rotateCanvas(ctx){
-		if (this.center) {
-			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate(-(this.rotation * Math.PI) / 180);
-			ctx.translate(-this.center.x, -this.center.y);
+	setOptions(options, save = true) {
+		for (const key in options) {
+			if (this.options.hasOwnProperty(key)) {
+				this.options[key] = options[key];
+			}
 		}
-	}
-
-	resetCanvasRotation(ctx){
-		if (this.center) {
-			ctx.translate(this.center.x, this.center.y);
-			ctx.rotate((this.rotation * Math.PI) / 180);
-			ctx.translate(-this.center.x, -this.center.y);
-		}
-	}
-
-	setSize(width, height) {
-		this.setWidth(width);
-		this.setHeight(height);
-	}
-
-	changeWidth(prevWidth, ratio) {
-		this.setWidth(prevWidth * ratio);
-	}
-
-	changeHeight(prevHeight, ratio) {
-		this.setHeight(prevHeight * ratio);
+		viewport.dispatchEvent(
+			new CustomEvent("optionsChanged", { detail: { shape: this, save } })
+		);
 	}
 
 	changeSize(prevWidth, prevHeight, ratioWidth, ratioHeight) {
-		this.setSize(prevWidth * ratioWidth, prevHeight * ratioHeight);
+		this.setSize(prevWidth * ratioWidth, prevHeight * ratioHeight, false);
 	}
 
 	recenter() {
 		const points = this.getPoints();
-		this.center = Vector.midVector(points);
+		this.center = Vector.mid(points);
 		this.size = getSize(points);
 		for (const point of points) {
 			const newPoint = Vector.subtract(point, this.center);
@@ -138,33 +152,5 @@ class Shape {
 
 	draw(ctx) {
 		throw new Error("draw method must be implemented");
-	}
-}
-
-function secondCornerMoveCallback(e, startPosition, currentShape) {
-	const mousePosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
-	let secondCornerPosition = mousePosition;
-	if (e.shiftKey) {
-		const deltaX = startPosition.x - mousePosition.x;
-		const deltaY = startPosition.y - mousePosition.y;
-		const minDelta = Math.min(Math.abs(deltaX), Math.abs(deltaY));
-		secondCornerPosition = new Vector(
-			startPosition.x - Math.sign(deltaX) * minDelta,
-			startPosition.y - Math.sign(deltaY) * minDelta
-		);
-	}
-	currentShape.setCorner2(secondCornerPosition);
-
-	viewport.drawShapes([...shapes, currentShape]);
-}
-
-function secondCornerUpCallback(e, currentShape, moveCallback, upCallback) {
-	viewport.canvas.removeEventListener("pointermove", moveCallback);
-	viewport.canvas.removeEventListener("pointerup", upCallback);
-
-	currentShape.recenter();
-	if (currentShape.size.width > 0 && currentShape.size.height > 0) {
-		shapes.push(currentShape);
-		HistoryTools.record(shapes);
 	}
 }
