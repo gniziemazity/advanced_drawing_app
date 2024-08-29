@@ -452,17 +452,17 @@ class PropertiesPanel {
 		let newProperties = PropertiesPanel.getNewProperties(selectedShapes)
 
 		for (let key in newProperties) {
-			let panelProperty = newProperties[key]
-			if (Number(panelProperty.value)) {
-				panelProperty.value = Math.round(panelProperty.value)
+			let newProperty = newProperties[key]
+			if (Number(newProperty.value)) {
+				newProperty.value = Math.round(newProperty.value)
 			}
 
 			if (key === "fill" || key === "stroke") {
-				panelFields[key].checked = panelProperty.value || false
+				panelFields[key].checked = newProperty.value || false
 			} else {
-				panelFields[key].value = panelProperty.value === null ? "" : panelProperty.value
+				panelFields[key].value = newProperty.value === null ? "" : newProperty.value
 			}
-			panelFields[key].placeholder = key === "text" ? "Enter Text" : panelProperty.value || placeholderText
+			panelFields[key].placeholder = key === "text" ? "Enter Text" : newProperty.value || placeholderText
 		}
 	}
 
