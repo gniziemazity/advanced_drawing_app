@@ -61,7 +61,7 @@ class PropertiesPanel {
 		transformSection.appendChild(
 			createInputWithLabel("Width", {
 				type: "number",
-				// onchange: "PropertiesPanel.changeWidth(this.value)",
+				onchange: "PropertiesPanel.changeWidth(this.value)",
 				oninput: "PropertiesPanel.changeWidth(this.value, false)",
 				id: "widthInput",
 			})
