@@ -50,22 +50,15 @@ class Path extends Shape {
 		const box = BoundingBox.fromPoints(this.points);
 		let flip = 1;
 
-		if (Gizmo.shouldTrackFlip) {
-			if (Gizmo.canFlip.x) {
-				Gizmo.canFlip.x = false;
-				flip = Math.sign(newWidth) !== Math.sign(this.size.width) ? -1 : 1;
-			}
-		} else {
-			flip = Math.sign(newWidth) !== Math.sign(this.size.width) ? -1 : 1;
-		}
-
+		flip = Math.sign(newWidth) !== Math.sign(this.size.width) ? -1 : 1;
 		const eps = 0.0001;
 		if (box.width == 0) {
 			console.error("Size 0 problem!");
 		}
-		const width = box.width == 0 ? eps : box.width;
+		let width = box.width == 0 ? eps : box.width;
+
 		const ratio = (flip * Math.abs(newWidth)) / width;
-		console.log(newWidth, "<---")
+		
 		for (const point of this.points) {
 			point.x *= ratio;
 		}
@@ -76,15 +69,7 @@ class Path extends Shape {
 		const box = BoundingBox.fromPoints(this.points);
 		let flip = 1;
 
-		if (Gizmo.shouldTrackFlip) {
-			if (Gizmo.canFlip.y) {
-				Gizmo.canFlip.y = false;
-				flip =
-					Math.sign(newHeight) !== Math.sign(this.size.height) ? -1 : 1;
-			}
-		} else {
-			flip = Math.sign(newHeight) !== Math.sign(this.size.height) ? -1 : 1;
-		}
+		flip = Math.sign(newHeight) !== Math.sign(this.size.height) ? -1 : 1;
 
 		const eps = 0.0001;
 		if (box.height == 0) {

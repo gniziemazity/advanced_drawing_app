@@ -48,22 +48,10 @@ class MyImage extends Shape {
 	}
 
 	_setWidth(width) {
-		if (Gizmo.canFlip.x) {
-			Gizmo.canFlip.x = false;
-			width = Math.abs(width) * Math.sign(this.size.width) * -1;
-		} else {
-			width = Math.abs(width) * Math.sign(this.size.width);
-		}
 		this.size.width = width;
 	}
 
 	_setHeight(height) {
-		if (Gizmo.canFlip.y) {
-			Gizmo.canFlip.y = false;
-			height = Math.abs(height) * Math.sign(this.size.height) * -1;
-		} else {
-			height = Math.abs(height) * Math.sign(this.size.height);
-		}
 		this.size.height = height;
 	}
 

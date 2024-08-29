@@ -61,7 +61,7 @@ class PropertiesPanel {
 		transformSection.appendChild(
 			createInputWithLabel("Width", {
 				type: "number",
-				onchange: "PropertiesPanel.changeWidth(this.value)",
+				// onchange: "PropertiesPanel.changeWidth(this.value)",
 				oninput: "PropertiesPanel.changeWidth(this.value, false)",
 				id: "widthInput",
 			})
@@ -296,13 +296,13 @@ class PropertiesPanel {
 	}
 
 	static changeWidth(value, save = true) {
-		let newWidth = Math.max(Number(value), 1);
+		let newWidth = value;
 		let newHeight = 0;
 
 		viewport.getSelectedShapes().forEach((s) => {
 			const currentWidth = s.size.width;
 			if (value == 0) {
-				newWidth *= Math.sign(currentWidth) * -1
+				newWidth = Math.sign(currentWidth) * -1
 			}
 			const currentHeight = s.size.height;
 			newHeight = currentHeight;
@@ -321,14 +321,14 @@ class PropertiesPanel {
 	}
 
 	static changeHeight(value, save = true) {
-		let newHeight = Math.max(Number(value), 1);
+		let newHeight = value;
 		let newWidth = 0;
 
 		viewport.getSelectedShapes().forEach((s) => {
 			const currentWidth = s.size.width;
 			const currentHeight = s.size.height;
 			if (value == 0) {
-				newHeight *= Math.sign(currentHeight) * -1
+				newHeight = Math.sign(currentHeight) * -1
 			}
 			newWidth = currentWidth;
 			if (constrainDimensions.checked) {
