@@ -1,7 +1,7 @@
 class Viewport extends EventTarget {
-	constructor(canvasHolderDiv, stageProperties, showHitRegions) {
-      super();
-      
+	constructor(container, stageProperties, showHitRegions) {
+		super();
+
 		this.stageProperties = stageProperties;
 		this.stageProperties.left = -this.stageProperties.width / 2;
 		this.stageProperties.top = -this.stageProperties.height / 2;
@@ -27,7 +27,7 @@ class Viewport extends EventTarget {
 			stageProperties,
 			Layer.TYPES.STAGE
 		);
-		canvasHolderDiv.appendChild(this.stageLayer.canvas);
+		container.appendChild(this.stageLayer.canvas);
 
 		this.mainLayer = new Layer(
 			this.canvasWidth,
@@ -35,7 +35,7 @@ class Viewport extends EventTarget {
 			stageProperties,
 			Layer.TYPES.NORMAL
 		);
-		canvasHolderDiv.appendChild(this.mainLayer.canvas);
+		container.appendChild(this.mainLayer.canvas);
 
 		this.overlayLayer = new Layer(
 			this.canvasWidth,
@@ -43,7 +43,7 @@ class Viewport extends EventTarget {
 			stageProperties,
 			Layer.TYPES.OVERLAY
 		);
-		canvasHolderDiv.appendChild(this.overlayLayer.canvas);
+		container.appendChild(this.overlayLayer.canvas);
 
 		this.hitTestLayer = new Layer(
 			this.canvasWidth,
@@ -51,11 +51,8 @@ class Viewport extends EventTarget {
 			stageProperties,
 			Layer.TYPES.HIT_TEST
 		);
-		canvasHolderDiv.appendChild(this.hitTestLayer.canvas);
-
-		this.showHitRegions = showHitRegions;
-		if (!showHitRegions) {
-			this.hitTestLayer.canvas.style.display = "none";
+		if (showHitRegions) {
+			container.appendChild(this.hitTestLayer.canvas);
 		}
 
 		this.shapes = [];
@@ -82,15 +79,38 @@ class Viewport extends EventTarget {
 		this.addShapes(newShapes, save);
 	}
 
-	getStageCanvas() {
-		return this.stageLayer.canvas;
+	deleteShapes(shapes) {
+		if (shapes.length > 0) {
+			let index = viewport.shapes.findIndex((s) => s.selected);
+			while (index != -1) {
+				viewport.shapes.splice(index, 1);
+				index = viewport.shapes.findIndex((s) => s.selected);
+			}
+			for (let i = viewport.gizmos.length - 1; i >= 0; i--) {
+				if (shapes.includes(viewport.gizmos[i].shape)) {
+					viewport.gizmos.splice(i, 1);
+				}
+			}
+			viewport.dispatchEvent(
+				new CustomEvent("shapesRemoved", { detail: { shapes, save: true } })
+			);
+		}
 	}
 
 	getSelectedShapes() {
 		return this.shapes.filter((s) => s.selected);
 	}
 
-	scale(vector) {
+   selectShapes(shapes) {
+      this.shapes.forEach((s) => s.unselect(false));
+      shapes.forEach((s) => s.select(false));
+   }
+
+	getStageCanvas() {
+		return this.stageLayer.canvas;
+	}
+
+	getAdjustedScale(vector) {
 		return vector.scale(1 / this.zoom);
 	}
 
@@ -102,92 +122,71 @@ class Viewport extends EventTarget {
 	}
 
 	drawShapes(shapes = this.shapes) {
-		this.stageLayer.drawShapes([]);
-		this.mainLayer.drawShapes(shapes);
-		this.overlayLayer.drawGizmos(this.gizmos, true);
+		this.stageLayer.drawItems([]);
+		this.mainLayer.drawItems(shapes);
+		this.overlayLayer.drawItems(this.gizmos);
 
-		this.hitTestLayer.drawShapes(shapes);
-		this.hitTestLayer.drawGizmos(this.gizmos);
+		this.hitTestLayer.drawItems(shapes);
+		this.hitTestLayer.drawItems(this.gizmos, false);
 	}
 
-	#handleShapeChanges({ detail }) {
+	#handleChanges({ detail }) {
 		this.drawShapes();
 		if (detail.save) {
 			HistoryTools.record(this.shapes);
 		}
 	}
 
-	#addEventListeners() {
-		this.getStageCanvas().addEventListener("wheel", (e) => {
-			e.preventDefault();
-			const dir = -Math.sign(e.deltaY);
-			this.zoom += dir * this.zoomStep;
-			this.zoom = Math.max(this.zoomStep, this.zoom);
+	#handleZoom(event) {
+		event.preventDefault();
+		const dir = -Math.sign(event.deltaY);
+		this.zoom += dir * this.zoomStep;
+		this.zoom = Math.max(this.zoomStep, this.zoom);
+		viewport.drawShapes();
+	}
+
+	#handleDrag({ offsetX, offsetY }) {
+		let dragStart = new Vector(offsetX, offsetY);
+		const moveCallback = (e) => {
+			const dragEnd = new Vector(e.offsetX, e.offsetY);
+			const diff = Vector.subtract(dragEnd, dragStart);
+			const scaledDiff = diff.scale(1 / this.zoom);
+			this.offset = Vector.add(this.offset, scaledDiff);
+			dragStart = dragEnd;
 			viewport.drawShapes();
+		};
+		const stage = this.getStageCanvas();
+		const upCallback = (e) => {
+			stage.removeEventListener("pointermove", moveCallback);
+			stage.removeEventListener("pointerup", upCallback);
+		};
+		stage.addEventListener("pointermove", moveCallback);
+		stage.addEventListener("pointerup", upCallback);
+	}
+
+	#addEventListeners() {
+		const stage = this.getStageCanvas();
+		stage.addEventListener("wheel", this.#handleZoom.bind(this));
+
+		stage.addEventListener("pointerdown", (e) => {
+			e.button == 1 && this.#handleDrag(e);
 		});
 
-		this.getStageCanvas().addEventListener("pointerdown", (e) => {
-			if (e.button === 1) {
-				let dragStart = new Vector(e.offsetX, e.offsetY);
-				const moveCallback = (e) => {
-					const dragEnd = new Vector(e.offsetX, e.offsetY);
-					const diff = Vector.subtract(dragEnd, dragStart);
-					const scaledDiff = diff.scale(1 / this.zoom);
-					this.offset = Vector.add(this.offset, scaledDiff);
-					dragStart = dragEnd;
-					viewport.drawShapes();
-				};
-				const upCallback = (e) => {
-					this.getStageCanvas().removeEventListener(
-						"pointermove",
-						moveCallback
-					);
-					this.getStageCanvas().removeEventListener(
-						"pointerup",
-						upCallback
-					);
-				};
-				this.getStageCanvas().addEventListener("pointermove", moveCallback);
-				this.getStageCanvas().addEventListener("pointerup", upCallback);
-			}
-		});
-
-		this.addEventListener(
-			"positionChanged",
-			this.#handleShapeChanges.bind(this)
-		);
-		this.addEventListener(
-			"sizeChanged",
-			this.#handleShapeChanges.bind(this)
-		);
-		this.addEventListener(
-			"rotationChanged",
-			this.#handleShapeChanges.bind(this)
-		);
-		this.addEventListener(
-			"optionsChanged",
-			this.#handleShapeChanges.bind(this)
-		);
-		this.addEventListener(
-			"shapesAdded",
-			this.#handleShapeChanges.bind(this)
-		);
-		this.addEventListener(
-			"shapesRemoved",
-			this.#handleShapeChanges.bind(this)
-		);
-		this.addEventListener(
-			"textChanged",
-			this.#handleShapeChanges.bind(this)
-		);
+		this.addEventListener("positionChanged", this.#handleChanges.bind(this));
+		this.addEventListener("sizeChanged", this.#handleChanges.bind(this));
+		this.addEventListener("rotationChanged", this.#handleChanges.bind(this));
+		this.addEventListener("optionsChanged", this.#handleChanges.bind(this));
+		this.addEventListener("shapesAdded", this.#handleChanges.bind(this));
+		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
+		this.addEventListener("textChanged", this.#handleChanges.bind(this));
 
 		this.addEventListener("shapeSelected", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
-			this.#handleShapeChanges(event);
+			this.#handleChanges(event);
 		});
 		this.addEventListener("shapeUnselected", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
-			this.#handleShapeChanges(event);
+			this.#handleChanges(event);
 		});
 		this.addEventListener("gizmoChanged", () => this.drawShapes());
 	}

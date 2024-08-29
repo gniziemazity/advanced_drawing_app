@@ -16,47 +16,6 @@ class Vector {
 		return new Vector(data.x, data.y);
 	}
 
-	add(v) {
-		return new Vector(this.x + v.x, this.y + v.y);
-	}
-
-	subtract(v) {
-		return new Vector(this.x - v.x, this.y - v.y);
-	}
-
-	magnitude() {
-		return Math.sqrt(this.x * this.x + this.y * this.y);
-	}
-
-	scale(scalar) {
-		return new Vector(this.x * scalar, this.y * scalar);
-	}
-
-	min(v) {
-		return new Vector(Math.min(this.x, v.x), Math.min(this.y, v.y));
-	}
-
-	max(v) {
-		return new Vector(Math.max(this.x, v.x), Math.max(this.y, v.y));
-	}
-
-	dot(v) {
-		return this.x * v.x + this.y * v.y;
-	}
-
-	direction() {
-		return Math.atan2(this.y, this.x);
-	}
-
-	toPolar() {
-		return { dir: this.direction(), mag: this.magnitude() };
-	}
-
-	toXY({ dir, mag }) {
-		this.x = mag * Math.cos(dir);
-      this.y = mag * Math.sin(dir);
-	}
-
 	static mid(vectors) {
 		const minX = Math.min(...vectors.map((p) => p.x));
 		const minY = Math.min(...vectors.map((p) => p.y));
@@ -109,13 +68,44 @@ class Vector {
 		return bottomRight;
 	}
 
-	rotateByCenterPoint(center, rotation) {
-		const cos = Math.cos(rotation);
-		const sin = Math.sin(rotation);
+	add(v) {
+		return new Vector(this.x + v.x, this.y + v.y);
+	}
 
-		return new Vector(
-			cos * (this.x - center.x) - sin * (this.y - center.y) + center.x,
-			sin * (this.x - center.x) + cos * (this.y - center.y) + center.y
-		);
+	subtract(v) {
+		return new Vector(this.x - v.x, this.y - v.y);
+	}
+
+	magnitude() {
+		return Math.sqrt(this.x * this.x + this.y * this.y);
+	}
+
+	scale(scalar) {
+		return new Vector(this.x * scalar, this.y * scalar);
+	}
+
+	min(v) {
+		return new Vector(Math.min(this.x, v.x), Math.min(this.y, v.y));
+	}
+
+	max(v) {
+		return new Vector(Math.max(this.x, v.x), Math.max(this.y, v.y));
+	}
+
+	dot(v) {
+		return this.x * v.x + this.y * v.y;
+	}
+
+	direction() {
+		return Math.atan2(this.y, this.x);
+	}
+
+	toPolar() {
+		return { dir: this.direction(), mag: this.magnitude() };
+	}
+
+	toXY({ dir, mag }) {
+		this.x = mag * Math.cos(dir);
+		this.y = mag * Math.sin(dir);
 	}
 }

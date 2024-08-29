@@ -11,8 +11,8 @@ class OvalTool extends CornerGeneratedShapeTool {
 
 		const moveCallback = (e) => {
 			const { center, size } = this.moveCallback(e, startPosition);
-         
-         const prevId = oval ? oval.id : null;
+
+			const prevId = oval ? oval.id : null;
 			oval = new Oval(center, size, PropertiesPanel.getValues());
 			if (prevId) {
 				oval.id = prevId;
@@ -20,8 +20,8 @@ class OvalTool extends CornerGeneratedShapeTool {
 
 			viewport.drawShapes([...viewport.shapes, oval]);
 		};
-		const upCallback = (e) => {
-			this.upCallback(e, oval, moveCallback, upCallback);
+		const upCallback = () => {
+			this.upCallback(oval, moveCallback, upCallback);
 		};
 		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
 		viewport.getStageCanvas().addEventListener("pointerup", upCallback);

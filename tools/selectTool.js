@@ -1,9 +1,7 @@
 class SelectTool {
 	static addPointerDownListener(e) {
-		//downCallbackForSelect
 		if (e.button !== 0) return;
 
-		//PropertiesPanel.reset();
 		const startPosition = new Vector(e.offsetX, e.offsetY);
 
 		const [r, g, b, a] = viewport.hitTestLayer.ctx.getImageData(
@@ -15,7 +13,6 @@ class SelectTool {
 
 		const id = (r << 16) | (g << 8) | b;
 		const gizmo = viewport.gizmos.find((g) => g.hasHandle(id));
-      console.log(r,g,b,a,id,gizmo);
 		if (gizmo) {
 			const handle = gizmo.hasHandle(id);
 			const selectedShapes = viewport.getSelectedShapes();
@@ -45,7 +42,7 @@ class SelectTool {
 			const moveCallback = function (e) {
 				const mousePosition = new Vector(e.offsetX, e.offsetY);
 				const diff = Vector.subtract(mousePosition, startPosition);
-				mouseDelta = viewport.scale(diff);
+				mouseDelta = viewport.getAdjustedScale(diff);
 				isDragging = true;
 				selectedShapes.forEach((s, i) => {
 					s.setCenter(Vector.add(oldCenters[i], mouseDelta), false);

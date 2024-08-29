@@ -5,25 +5,26 @@ class PathTool extends ShapeTool {
 
 	addPointerDownListener(e) {
 		if (e.button !== 0) return;
+
 		const startPosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
-		currentShape = new Path(startPosition, PropertiesPanel.getValues());
+		const path = new Path(startPosition, PropertiesPanel.getValues());
 
 		const moveCallback = function (e) {
 			const mousePosition = viewport.getAdjustedPosition(
 				Vector.fromOffsets(e)
 			);
-			currentShape.addPoint(mousePosition);
+			path.addPoint(mousePosition);
 
-			viewport.drawShapes([...viewport.shapes, currentShape]);
+			viewport.drawShapes([...viewport.shapes, path]);
 		};
 
 		const upCallback = function (e) {
 			viewport.getStageCanvas().removeEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 
-			currentShape.recenter();
-			if (currentShape.size.width > 0 && currentShape.size.height > 0) {
-				viewport.addShapes(currentShape);
+			path.recenter();
+			if (path.size.width > 0 && path.size.height > 0) {
+				viewport.addShapes(path);
 			}
 		};
 		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);

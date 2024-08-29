@@ -1,6 +1,5 @@
 class Shape {
 	constructor(options) {
-		// never deliberately called
 		this.id = Shape.generateId();
 		this.center = null;
 		this.size = null;
@@ -10,7 +9,15 @@ class Shape {
 	}
 
 	static generateId() {
+      // revise at some point
 		return Math.floor(16777216 * Math.random());
+	}
+
+	static getHitRGB(id) {
+		const red = (id & 0xff0000) >> 16;
+		const green = (id & 0x00ff00) >> 8;
+		const blue = id & 0x0000ff;
+		return `rgb(${red},${green},${blue})`;
 	}
 
 	serialize() {
@@ -44,6 +51,14 @@ class Shape {
 		);
 	}
 
+	_setWidth(width) {
+		throw new Error("setWidth method must be implemented");
+	}
+
+	_setHeight(height) {
+		throw new Error("setWidth method must be implemented");
+	}
+
 	setSize(width, height, save = true) {
 		this._setWidth(width);
 		this._setHeight(height);
@@ -52,14 +67,6 @@ class Shape {
 				detail: { shape: this, size: { width, height }, save },
 			})
 		);
-	}
-
-	_setWidth(width) {
-		throw new Error("setWidth method must be implemented");
-	}
-
-	_setHeight(height) {
-		throw new Error("setWidth method must be implemented");
 	}
 
 	setRotation(angle, save = true) {
@@ -82,27 +89,16 @@ class Shape {
 		);
 	}
 
-	changeSize(prevWidth, prevHeight, ratioWidth, ratioHeight) {
-		this.setSize(prevWidth * ratioWidth, prevHeight * ratioHeight, false);
-	}
-
 	recenter() {
 		const points = this.getPoints();
 		this.center = Vector.mid(points);
-		this.size = getSize(points);
+		this.size = BoundingBox.fromPoints(points);
 		for (const point of points) {
 			const newPoint = Vector.subtract(point, this.center);
 			point.x = newPoint.x;
 			point.y = newPoint.y;
 		}
 		this.setPoints(points);
-	}
-
-	static getHitRGB(id) {
-		const red = (id & 0xff0000) >> 16;
-		const green = (id & 0x00ff00) >> 8;
-		const blue = id & 0x0000ff;
-		return `rgb(${red},${green},${blue})`;
 	}
 
 	applyHitRegionStyles(ctx, dilation = 10) {
@@ -144,10 +140,6 @@ class Shape {
 
 	setPoints(points) {
 		throw new Error("setPoints method must be implemented");
-	}
-
-	drawHitRegion(ctx) {
-		throw new Error("draw method must be implemented");
 	}
 
 	draw(ctx) {

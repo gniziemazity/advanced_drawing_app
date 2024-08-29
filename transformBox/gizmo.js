@@ -111,7 +111,7 @@ class Gizmo {
 			polar.dir -= this.rotation;
 			diff.toXY(polar);
 
-			mouseDelta = viewport.scale(diff);
+			mouseDelta = viewport.getAdjustedScale(diff);
 			Gizmo.shouldTrackFlip = true;
 
 			let ratio = new Vector(
@@ -187,7 +187,7 @@ class Gizmo {
 					const combinedAngle = oldRotation + angle;
 					shape.setRotation(combinedAngle, false);
 				} else {
-					shape.changeSize(oldBox.width, oldBox.height, ratio.x, ratio.y);
+					shape.setSize(oldBox.width * ratio.x, oldBox.height * ratio.y);
 				}
 			}
 
@@ -235,23 +235,23 @@ class Gizmo {
 			ctx.stroke();
 
 			const centerRadius = (0.5 * Handle.size) / viewport.zoom;
-         const centerLength = 2 * Math.PI * centerRadius;
-         const dashCount = 7;
-         const dashLength = 0.25 * centerLength / dashCount;
-         const spaceLength = 0.75 * centerLength / dashCount;
+			const centerLength = 2 * Math.PI * centerRadius;
+			const dashCount = 7;
+			const dashLength = (0.25 * centerLength) / dashCount;
+			const spaceLength = (0.75 * centerLength) / dashCount;
 
-         ctx.save();
+			ctx.save();
 			ctx.beginPath();
 			ctx.lineWidth = 3 / viewport.zoom;
 			ctx.setLineDash([dashLength, spaceLength]);
 			ctx.arc(this.center.x, this.center.y, centerRadius, 0, 2 * Math.PI);
-         ctx.lineCap = "round"
+			ctx.lineCap = "round";
 			ctx.strokeStyle = "white";
 			ctx.stroke();
 			ctx.lineWidth /= 2;
 			ctx.strokeStyle = "black";
 			ctx.stroke();
-         ctx.restore();
+			ctx.restore();
 		}
 
 		for (const handle of this.handles) {

@@ -17,11 +17,11 @@ class RectTool extends CornerGeneratedShapeTool {
 			if (prevId) {
 				rect.id = prevId;
 			}
-         
+
 			viewport.drawShapes([...viewport.shapes, rect]);
 		};
-		const upCallback = (e) => {
-			this.upCallback(e, rect, moveCallback, upCallback);
+		const upCallback = () => {
+			this.upCallback(rect, moveCallback, upCallback);
 		};
 		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
 		viewport.getStageCanvas().addEventListener("pointerup", upCallback);

@@ -37,21 +37,12 @@ class Rect extends Shape {
 	}
 
 	getPoints() {
-		if (this.size) {
-			return [
-				new Vector(-this.size.width / 2, -this.size.height / 2),
-				new Vector(-this.size.width / 2, this.size.height / 2),
-				new Vector(this.size.width / 2, this.size.height / 2),
-				new Vector(this.size.width / 2, -this.size.height / 2),
-			];
-		} else {
-			return [this.corner1, this.corner2];
-		}
-	}
-
-	setPoints(points) {
-		//this.corner1 = points[0];
-		//this.corner2 = points[1];
+		return [
+			new Vector(-this.size.width / 2, -this.size.height / 2),
+			new Vector(-this.size.width / 2, this.size.height / 2),
+			new Vector(this.size.width / 2, this.size.height / 2),
+			new Vector(this.size.width / 2, -this.size.height / 2),
+		];
 	}
 
 	_setWidth(width) {
@@ -64,22 +55,12 @@ class Rect extends Shape {
 
 	draw(ctx, hitRegion = false) {
 		const center = this.center ? this.center : { x: 0, y: 0 };
-		let left, top, width, height;
-		if (this.size) {
-			left = center.x - this.size.width / 2;
-			top = center.y - this.size.height / 2;
-			width = this.size.width;
-			height = this.size.height;
-		} else {
-			const minX = Math.min(this.corner1.x, this.corner2.x);
-			const minY = Math.min(this.corner1.y, this.corner2.y);
-			width = Math.abs(this.corner1.x - this.corner2.x);
-			height = Math.abs(this.corner1.y - this.corner2.y);
-			left = minX + center.x;
-			top = minY + center.y;
-		}
+
+		const left = center.x - this.size.width / 2;
+		const top = center.y - this.size.height / 2;
+
 		ctx.beginPath();
-		ctx.rect(left, top, width, height);
+		ctx.rect(left, top, this.size.width, this.size.height);
 
 		if (hitRegion) {
 			this.applyHitRegionStyles(ctx);

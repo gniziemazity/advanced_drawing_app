@@ -3,17 +3,19 @@ class CornerGeneratedShapeTool extends ShapeTool {
 		super();
 	}
 
-	getCenterAndSize(corner1, corner2) {
+	#getCenterAndSize(corner1, corner2) {
 		const points = [corner1, corner2];
 		const center = Vector.mid(points);
-		const size = getSize(points);
+		const size = BoundingBox.fromPoints(points);
 		return { center, size };
 	}
 
-	moveCallback(e, firstCorner) {
-		const mousePosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
+	moveCallback(event, firstCorner) {
+		const mousePosition = viewport.getAdjustedPosition(
+			Vector.fromOffsets(event)
+		);
 		let secondCorner = mousePosition;
-		if (e.shiftKey) {
+		if (event.shiftKey) {
 			const deltaX = firstCorner.x - mousePosition.x;
 			const deltaY = firstCorner.y - mousePosition.y;
 			const minDelta = Math.min(Math.abs(deltaX), Math.abs(deltaY));
@@ -22,16 +24,18 @@ class CornerGeneratedShapeTool extends ShapeTool {
 				firstCorner.y - Math.sign(deltaY) * minDelta
 			);
 		}
-      
-		return this.getCenterAndSize(firstCorner, secondCorner);
+
+		return this.#getCenterAndSize(firstCorner, secondCorner);
 	}
 
-	upCallback(e, currentShape, moveCallback, upCallback) {
-		viewport.getStageCanvas().removeEventListener("pointermove", moveCallback);
+	upCallback(shape, moveCallback, upCallback) {
+		viewport
+			.getStageCanvas()
+			.removeEventListener("pointermove", moveCallback);
 		viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 
-		if (currentShape.size.width > 0 && currentShape.size.height > 0) {
-			viewport.addShapes(currentShape);
+		if (shape.size.width > 0 && shape.size.height > 0) {
+			viewport.addShapes(shape);
 		}
 	}
 }

@@ -136,11 +136,7 @@ class ToolsPanel {
 		}
 
 		const selectedTool = CanvasTools.selectTool("Path");
-
-		// Check the radio button for the selected tool
-		if (selectedTool) {
-			this.#selectToolComponent(selectedTool);
-		}
+		this.#selectToolComponent(selectedTool);
 	}
 
 	#selectToolComponent(tool) {

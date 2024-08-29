@@ -7,15 +7,17 @@ class Path extends Shape {
 	static load(data) {
 		const path = new Path();
 		path.id = data.id;
-      
+
 		path.center = Vector.load(data.center);
 		path.size = data.size;
 		path.options = JSON.parse(JSON.stringify(data.options));
 
 		path.points = data.points.map((p) => Vector.load(p));
+
 		path.rotation = data.rotation ?? 0;
+
 		path.selected = data.selected;
-      
+
 		return path;
 	}
 
@@ -44,54 +46,55 @@ class Path extends Shape {
 		this.points = points;
 	}
 
-	_setWidth(width) {
-		const size = getSize(this.points);
+	_setWidth(newWidth) {
+		const box = BoundingBox.fromPoints(this.points);
 		let flip = 1;
 
 		if (Gizmo.shouldTrackFlip) {
 			if (Gizmo.canFlip.x) {
 				Gizmo.canFlip.x = false;
-				flip = Math.sign(width) !== Math.sign(this.size.width) ? -1 : 1;
+				flip = Math.sign(newWidth) !== Math.sign(this.size.width) ? -1 : 1;
 			}
 		} else {
-			flip = Math.sign(width) !== Math.sign(this.size.width) ? -1 : 1;
+			flip = Math.sign(newWidth) !== Math.sign(this.size.width) ? -1 : 1;
 		}
 
 		const eps = 0.0001;
-		if (size.width == 0) {
+		if (box.width == 0) {
 			console.error("Size 0 problem!");
 		}
-		const _width = size.width == 0 ? eps : size.width;
-		const ratio = (flip * Math.abs(width)) / _width;
+		const width = box.width == 0 ? eps : box.width;
+		const ratio = (flip * Math.abs(newWidth)) / width;
 		for (const point of this.points) {
 			point.x *= ratio;
 		}
-		this.size.width = width;
+		this.size.width = newWidth;
 	}
 
-	_setHeight(height) {
-		const size = getSize(this.points);
+	_setHeight(newHeight) {
+		const box = BoundingBox.fromPoints(this.points);
 		let flip = 1;
 
 		if (Gizmo.shouldTrackFlip) {
 			if (Gizmo.canFlip.y) {
 				Gizmo.canFlip.y = false;
-				flip = Math.sign(height) !== Math.sign(this.size.height) ? -1 : 1;
+				flip =
+					Math.sign(newHeight) !== Math.sign(this.size.height) ? -1 : 1;
 			}
 		} else {
-			flip = Math.sign(height) !== Math.sign(this.size.height) ? -1 : 1;
+			flip = Math.sign(newHeight) !== Math.sign(this.size.height) ? -1 : 1;
 		}
 
 		const eps = 0.0001;
-		if (size.height == 0) {
+		if (box.height == 0) {
 			console.error("Size 0 problem!");
 		}
-		const _height = size.height == 0 ? eps : size.height;
-		const ratio = (flip * Math.abs(height)) / _height;
+		const height = box.height == 0 ? eps : box.height;
+		const ratio = (flip * Math.abs(newHeight)) / height;
 		for (const point of this.points) {
 			point.y *= ratio;
 		}
-		this.size.height = height;
+		this.size.height = newHeight;
 	}
 
 	draw(ctx, hitRegion = false) {

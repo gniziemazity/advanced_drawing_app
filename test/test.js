@@ -3,8 +3,7 @@ const notDrawable = ["Image", "Select", "Text"]
 function beforeEach() {
     viewport.shapes = [];
     viewport.gizmos = [];
-    currentShape = null;
-    clipboard = null;
+    EditingTools.clipboard = null;
     clearViewPort(viewport)
     clearHitTestCanvas(viewport)
 }
@@ -245,7 +244,7 @@ function TestShapeMove() {
                 let prevCenter = shape.center
                 simulateShapeMove(mid.x, mid.y, endPoint.x, endPoint.y)
                 let diff = Vector.subtract(endPoint, mid);
-				let mouseDelta = viewport.scale(diff);
+				    let mouseDelta = viewport.getAdjustedScale(diff);
                 let newCenter = Vector.add(prevCenter, mouseDelta)
                 assert(
                     newCenter.x === shape.center.x

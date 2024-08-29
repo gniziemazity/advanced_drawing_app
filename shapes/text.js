@@ -9,6 +9,8 @@ class Text extends Shape {
 			font: "60px Arial",
 			textAlign: "center",
 			textBaseline: "middle",
+			lineJoin: "round",
+			lineCap: "round",
 			dilation: 10, //for hit test
 		};
 
@@ -40,10 +42,6 @@ class Text extends Shape {
 		};
 	}
 
-	setCorner2(corner2) {
-		this.corner2 = corner2;
-	}
-
 	getPoints() {
 		return [
 			new Vector(-this.size.width / 2, -this.size.height / 2),
@@ -51,11 +49,6 @@ class Text extends Shape {
 			new Vector(this.size.width / 2, this.size.height / 2),
 			new Vector(this.size.width / 2, -this.size.height / 2),
 		];
-	}
-
-	setPoints(points) {
-		//this.corner1 = points[0];
-		//this.corner2 = points[1];
 	}
 
 	_setWidth(width) {
@@ -107,7 +100,6 @@ class Text extends Shape {
 			ctx.lineWidth = this.options.strokeWidth + this.properties.dilation;
 			ctx.fillText(this.text, left + width / 2, top + height / 2);
 			ctx.strokeText(this.text, left + width / 2, top + height / 2);
-
 			ctx.restore();
 		} else {
 			ctx.beginPath();
