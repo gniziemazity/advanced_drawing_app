@@ -6,7 +6,7 @@ class ToolsPanel {
 		this.#addEditingTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
 
-		this.addHistoryTools(holderDiv);
+		this.#addHistoryTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
 
 		this.#addCanvasTools(holderDiv);
@@ -94,7 +94,7 @@ class ToolsPanel {
 		);
 	}
 
-	addHistoryTools(holderDiv) {
+	#addHistoryTools(holderDiv) {
 		holderDiv.appendChild(
 			createDOMElement(
 				"button",

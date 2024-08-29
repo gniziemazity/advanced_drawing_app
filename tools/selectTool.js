@@ -19,7 +19,7 @@ class SelectTool {
 			gizmo.addEventListeners(startPosition, handle, selectedShapes);
 			return;
 		}
-      
+
 		const shape = viewport.shapes.find((s) => s.id == id);
 
 		const isClickingSelectedShape = shape && shape.selected;
@@ -53,7 +53,9 @@ class SelectTool {
 				viewport
 					.getStageCanvas()
 					.removeEventListener("pointermove", moveCallback);
-				viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
+				viewport
+					.getStageCanvas()
+					.removeEventListener("pointerup", upCallback);
 
 				if (isClickingSelectedShape && !isDragging) {
 					shape.unselect();
@@ -64,7 +66,9 @@ class SelectTool {
 					});
 				}
 			};
-			viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
+			viewport
+				.getStageCanvas()
+				.addEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 		} else {
 			SelectTool.selectShapesUnderRectangle(e);
@@ -98,7 +102,9 @@ class SelectTool {
 		};
 
 		const upCallback = function (e) {
-			viewport.getStageCanvas().removeEventListener("pointermove", moveCallback);
+			viewport
+				.getStageCanvas()
+				.removeEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 			rect.removeEventListener("pointerup", upCallback);
 			rect.removeEventListener("pointermove", moveCallback);
@@ -119,16 +125,21 @@ class SelectTool {
 				switch (RECTANGULAR_SELECTION_MODE) {
 					case "containment":
 						if (rectBox.contains(shapeBox)) {
-							shape.select();
+							shape.select(false);
 						}
 						break;
 					case "intersection":
 						if (rectBox.intersects(shapeBox)) {
-							shape.select();
+							shape.select(false);
 						}
 						break;
 				}
 			});
+			// for better history management, select the last shape again, saving the state
+			const selectedShapes = viewport.getSelectedShapes();
+			if (selectedShapes.length > 0) {
+				selectedShapes[0].select();
+			}
 
 			rect.remove();
 		};

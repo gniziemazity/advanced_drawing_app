@@ -183,7 +183,7 @@ class Gizmo {
 					// vectors centered at the bounding box center
 					const v1 = Vector.subtract(fixedStart, oldBox.center);
 					const v2 = Vector.subtract(fixedMouse, oldBox.center);
-					const angle = getSignedAngleBetweenVectors(v2, v1);
+					const angle = Vector.getSignedAngle(v2, v1);
 					const combinedAngle = oldRotation + angle;
 					shape.setRotation(combinedAngle, false);
 				} else {
@@ -236,7 +236,7 @@ class Gizmo {
 
 			const centerRadius = (0.5 * Handle.size) / viewport.zoom;
 			const centerLength = 2 * Math.PI * centerRadius;
-			const dashCount = 7;
+			const dashCount = 3;
 			const dashLength = (0.25 * centerLength) / dashCount;
 			const spaceLength = (0.75 * centerLength) / dashCount;
 

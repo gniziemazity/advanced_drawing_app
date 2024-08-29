@@ -1,0 +1,23 @@
+FOR YOU:
+Tool Buttons
+Find Reason for the ‘slowness’
+Add More tests
+Inheritance for Layer Types
+Refactor Properties Panel  (updateDisplay)
+Better Text Tool
+Refactor selectTool.js
+Refactor gizmo.js 
+Fix width between [1 - infinity) issue
+
+
+FOR LATER:
+Bezier Math, Booleans ?? Stable Media Diffusion Gallery
+Shadows Matrix Box
+Save History Catakuri
+Pen Support / PDF : Joys (Discord)
+Review Shape ID & Selection system
+Custom Color Picker
+Eraser Tool Firefox_TN
+Control Drag for Duplicate Jonathan Gouwe
+Use navigator clipboard Michael Golden
+Icons for buttons mshryane

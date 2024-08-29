@@ -68,6 +68,10 @@ class Vector {
 		return bottomRight;
 	}
 
+	static getSignedAngle(v1, v2) {
+		return Math.atan2(v1.y, v1.x) - Math.atan2(v2.y, v2.x);
+	}
+
 	add(v) {
 		return new Vector(this.x + v.x, this.y + v.y);
 	}
