@@ -76,29 +76,32 @@ class SelectTool {
 	}
 
 	static selectShapesUnderRectangle(e) {
-		const startPosition = new Vector(e.clientX, e.clientY);
+		const startPosition = viewport.getAdjustedPosition(
+			Vector.fromOffsets(e)
+		)
 
-		let rect = document.createElement("div");
-		rect.style.position = "fixed";
-		rect.style.backgroundColor = "transparent";
-		rect.style.border = "2px dotted black";
-		rect.style.pointerEvents = "none";
-		const htmlBody = document.querySelector("body");
-		htmlBody.appendChild(rect);
-
-		let topLeft = Vector.zero();
-		let bottomRight = Vector.zero();
+		let selecetionRectangle = null
 
 		const moveCallback = function (e) {
-			const mousePosition = new Vector(e.clientX, e.clientY);
-			topLeft = Vector.min(startPosition, mousePosition);
-			bottomRight = Vector.max(startPosition, mousePosition);
-			const offset = bottomRight.subtract(topLeft);
+			const mousePosition = viewport.getAdjustedPosition(
+				Vector.fromOffsets(e)
+			)
 
-			rect.style.left = `${topLeft.x}px`;
-			rect.style.top = `${topLeft.y}px`;
-			rect.style.width = `${offset.x}px`;
-			rect.style.height = `${offset.y}px`;
+			const points = [startPosition, mousePosition];
+			const center = Vector.mid(points);
+			const size = BoundingBox.fromPoints(points)
+
+			let rectProperTies = {
+				fillColor: "black",
+				strokeColor: "black",
+				stroke: true,
+				strokeWidth: 1,
+				lineCap: "round",
+			}
+
+			selecetionRectangle = new Rect(center, size, rectProperTies)
+
+			viewport.overlayLayer.drawItems([selecetionRectangle], true) 
 		};
 
 		const upCallback = function (e) {
@@ -106,50 +109,40 @@ class SelectTool {
 				.getStageCanvas()
 				.removeEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
-			rect.removeEventListener("pointerup", upCallback);
-			rect.removeEventListener("pointermove", moveCallback);
 
-			// HORRIBLE FIX! But this component will be reimplemented later
-			topLeft.y -= 32;
-			bottomRight.y -= 32;
-			const rectBox = new BoundingBox(
-				viewport.getAdjustedPosition(topLeft),
-				viewport.getAdjustedPosition(bottomRight)
-			);
+			viewport.overlayLayer.drawItems([], true)
 
-			viewport.getShapes().forEach((shape) => {
-				const shapeBox = BoundingBox.fromPoints(
-					shape.getPoints().map((p) => p.add(shape.center))
-				);
+			if (selecetionRectangle) {
+				const rectBox = BoundingBox.fromPoints(selecetionRectangle.getPoints().map((p) => p.add(selecetionRectangle.center)))
 
-				switch (RECTANGULAR_SELECTION_MODE) {
-					case "containment":
-						if (rectBox.contains(shapeBox)) {
-							shape.select(false);
-						}
-						break;
-					case "intersection":
-						if (rectBox.intersects(shapeBox)) {
-							shape.select(false);
-						}
-						break;
-				}
-			});
+				viewport.getShapes().forEach((shape) => {
+					const shapeBox = BoundingBox.fromPoints(
+						shape.getPoints().map((p) => p.add(shape.center))
+					);
+	
+					switch (RECTANGULAR_SELECTION_MODE) {
+						case "containment":
+							if (rectBox.contains(shapeBox)) {
+								shape.select(false);
+							}
+							break;
+						case "intersection":
+							if (rectBox.intersects(shapeBox)) {
+								shape.select(false);
+							}
+							break;
+					}
+				});
+			}
 			// for better history management, select the last shape again, saving the state
 			const selectedShapes = viewport.getSelectedShapes();
 			if (selectedShapes.length > 0) {
 				selectedShapes[0].select();
 			}
-
-			rect.remove();
 		};
 
-		// adding eventlisteners to rect to allow rect redraw when
-		// pointer moves into it
 		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
 		viewport.getStageCanvas().addEventListener("pointerup", upCallback);
-		rect.addEventListener("pointerup", upCallback);
-		rect.addEventListener("pointermove", moveCallback);
 	}
 
 	static configureEventListeners() {
