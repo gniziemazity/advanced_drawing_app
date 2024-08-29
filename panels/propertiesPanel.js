@@ -84,7 +84,7 @@ class PropertiesPanel {
 				"button",
 				{
 					id: "sendBackBtn",
-					onclick: "TransformTools.sendBack()",
+					onclick: "TransformTools.sendToBack()",
 					title: "Send to Back",
 				},
 				"Send to Back"
@@ -95,7 +95,7 @@ class PropertiesPanel {
 				"button",
 				{
 					id: "bringFrontBtn",
-					onclick: "TransformTools.bringFront()",
+					onclick: "TransformTools.bringToFront()",
 					title: "Bring to Front",
 				},
 				"Bring to Front"
@@ -183,7 +183,7 @@ class PropertiesPanel {
 				oninput: "PropertiesPanel.changeStrokeWidth(this.value, false)",
 				title: "Stroke Width",
 				type: "range",
-				value: "1",
+				value: "5",
 			})
 		);
 		textSection.appendChild(

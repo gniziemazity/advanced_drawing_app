@@ -53,23 +53,4 @@ function formatAngle(angle) {
 	return (angle * 180) / Math.PI;
 }
 
-/**
- * Move an item in the list to a new position.
- * @param {Array} list - List of items to update
- * @param {number} fromIndex - Current index of the item in the list
- * @param {number} toIndex - Index of the item to move to in the list
- */
-function moveItem(list, fromIndex, toIndex) {
-	if (
-		fromIndex < 0 ||
-		fromIndex >= list.length ||
-		toIndex < 0 ||
-		toIndex >= list.length
-	) {
-		throw new Error("Index out of bounds!");
-	}
 
-	const [item] = list.splice(fromIndex, 1);
-
-	list.splice(toIndex, 0, item);
-}

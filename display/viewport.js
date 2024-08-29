@@ -97,8 +97,78 @@ class Viewport extends EventTarget {
 		}
 	}
 
+	#swapShapes(index1, index2) {
+		const temp = this.shapes[index1];
+		this.shapes[index1] = this.shapes[index2];
+		this.shapes[index2] = temp;
+	}
+   
 	getSelectedShapes() {
 		return this.shapes.filter((s) => s.selected);
+	}
+
+	getUnselectedShapes() {
+		return this.shapes.filter((s) => !s.selected);
+	}
+
+	#getSelectedShapeIndices() {
+		const indices = [];
+		this.shapes.forEach((s, i) => {
+			if (s.selected) {
+				indices.push(i);
+			}
+		});
+		return indices;
+	}
+
+	sendToBack() {
+		const selShapes = this.getSelectedShapes();
+		const unSelShapes = this.getUnselectedShapes();
+		this.shapes = selShapes.concat(unSelShapes);
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
+	}
+
+	sendBackward() {
+		const indices = this.#getSelectedShapeIndices();
+
+		for (const index of indices) {
+			const newIndex = index - 1;
+			if (newIndex >= 0 && !this.shapes[newIndex].selected) {
+				this.#swapShapes(index, newIndex);
+			}
+		}
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
+	}
+
+	bringToFront() {
+		const selShapes = this.getSelectedShapes();
+		const unSelShapes = this.getUnselectedShapes();
+		this.shapes = unSelShapes.concat(selShapes);
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
+	}
+
+	bringForward() {
+		const indices = this.#getSelectedShapeIndices();
+
+		for (const index of indices) {
+			const newIndex = index + 1;
+			if (newIndex <this.shapes.length && !this.shapes[newIndex].selected) {
+				this.#swapShapes(index, newIndex);
+			}
+		}
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
 	}
 
 	selectShapes(shapes) {
@@ -179,6 +249,7 @@ class Viewport extends EventTarget {
 		this.addEventListener("shapesAdded", this.#handleChanges.bind(this));
 		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
 		this.addEventListener("textChanged", this.#handleChanges.bind(this));
+		this.addEventListener("shapesReordered", this.#handleChanges.bind(this));
 
 		this.addEventListener("shapeSelected", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
@@ -189,9 +260,5 @@ class Viewport extends EventTarget {
 			this.#handleChanges(event);
 		});
 		this.addEventListener("gizmoChanged", () => this.drawShapes());
-	}
-
-	static getSelectedIndex() {
-		return viewport.shapes.findIndex((s) => s.selected);
 	}
 }
