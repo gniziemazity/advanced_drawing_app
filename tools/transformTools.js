@@ -1,17 +1,17 @@
 class TransformTools {
 	static sendToBack() {
-      viewport.sendToBack();
+      viewport.selectedLayer.sendToBack();
 	}
 
 	static bringToFront() {
-		viewport.bringToFront();
+		viewport.selectedLayer.bringToFront();
 	}
 
 	static sendBackward() {
-      viewport.sendBackward();
+      viewport.selectedLayer.sendBackward();
 	}
 
 	static bringForward() {
-		viewport.bringForward();
+		viewport.selectedLayer.bringForward();
 	}
 }

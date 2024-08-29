@@ -24,7 +24,7 @@ class Layer {
 
 		if (type != Layer.TYPES.STAGE) {
 			this.canvas.style.position = "absolute";
-         this.canvas.style.top = "0";
+			this.canvas.style.top = "0";
 			this.canvas.style.pointerEvents = "none";
 		}
 
@@ -38,8 +38,10 @@ class Layer {
 				this.canvas.style.left = "0";
 				break;
 
+			//TO-DO: Fix the layout somehow
 			case Layer.TYPES.STAGE:
-				this.canvas.style.backgroundColor = "var(--bg-canvas)";
+				this.canvas.style.position = "relative";
+				this.canvas.style.marginTop = "-20px";
 				break;
 		}
 
@@ -52,8 +54,147 @@ class Layer {
 		this.zoom = 1;
 		this.zoomStep = 0.05;
 
+		this.shapes = [];
+
 		this.clearCanvas();
 		this.type == Layer.TYPES.STAGE && this.#drawStage();
+	}
+
+	static load(data, canvasWidth, canvasHeight) {
+		const layer = new Layer(
+			canvasWidth,
+			canvasHeight,
+			data.stageProperties,
+			data.type
+		);
+		layer.shapes = ShapeFactory.loadShapes(
+			data.shapes,
+			viewport.stageProperties
+		);
+		return layer;
+	}
+
+	serialize() {
+		return {
+			type: this.type,
+			stageProperties: this.stageProperties,
+			shapes: this.shapes.map((s) => s.serialize()),
+		};
+	}
+
+	addShapes(shapes, save = true) {
+		if (!Array.isArray(shapes)) {
+			shapes = [shapes];
+		}
+		this.shapes = this.shapes.concat(shapes);
+		viewport.dispatchEvent(
+			new CustomEvent("shapesAdded", { detail: { shapes, save } })
+		);
+	}
+
+	setShapes(newShapes, save = true) {
+		viewport.gizmos = newShapes
+			.filter((s) => s.selected)
+			.map((s) => new Gizmo(s));
+		this.shapes = [];
+		this.addShapes(newShapes, save);
+	}
+
+	deleteShapes(shapes) {
+		if (shapes.length > 0) {
+			let index = this.shapes.findIndex((s) => s.selected);
+			while (index != -1) {
+				this.shapes.splice(index, 1);
+				index = this.shapes.findIndex((s) => s.selected);
+			}
+			for (let i = viewport.gizmos.length - 1; i >= 0; i--) {
+				if (shapes.includes(viewport.gizmos[i].shape)) {
+					viewport.gizmos.splice(i, 1);
+				}
+			}
+			viewport.dispatchEvent(
+				new CustomEvent("shapesRemoved", { detail: { shapes, save: true } })
+			);
+		}
+	}
+
+	#swapShapes(index1, index2) {
+		const temp = this.shapes[index1];
+		this.shapes[index1] = this.shapes[index2];
+		this.shapes[index2] = temp;
+	}
+
+	getSelectedShapes() {
+		return this.shapes.filter((s) => s.selected);
+	}
+
+	getUnselectedShapes() {
+		return this.shapes.filter((s) => !s.selected);
+	}
+
+	#getSelectedShapeIndices() {
+		const indices = [];
+		this.shapes.forEach((s, i) => {
+			if (s.selected) {
+				indices.push(i);
+			}
+		});
+		return indices;
+	}
+
+	sendToBack() {
+		const selShapes = this.getSelectedShapes();
+		const unSelShapes = this.getUnselectedShapes();
+		this.shapes = selShapes.concat(unSelShapes);
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
+	}
+
+	sendBackward() {
+		const indices = this.#getSelectedShapeIndices();
+
+		for (const index of indices) {
+			const newIndex = index - 1;
+			if (newIndex >= 0 && !this.shapes[newIndex].selected) {
+				this.#swapShapes(index, newIndex);
+			}
+		}
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
+	}
+
+	bringToFront() {
+		const selShapes = this.getSelectedShapes();
+		const unSelShapes = this.getUnselectedShapes();
+		this.shapes = unSelShapes.concat(selShapes);
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
+	}
+
+	bringForward() {
+		const indices = this.#getSelectedShapeIndices().reverse();
+
+		for (const index of indices) {
+			const newIndex = index + 1;
+			if (newIndex < this.shapes.length && !this.shapes[newIndex].selected) {
+				this.#swapShapes(index, newIndex);
+			}
+		}
+
+		viewport.dispatchEvent(
+			new CustomEvent("shapesReordered", { detail: { save: true } })
+		);
+	}
+
+	selectShapes(shapes) {
+		this.shapes.forEach((s) => s.unselect(false));
+		shapes.forEach((s) => s.select(false));
 	}
 
 	clearCanvas() {

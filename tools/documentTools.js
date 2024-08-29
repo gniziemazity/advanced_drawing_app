@@ -1,8 +1,6 @@
 class DocumentTools {
 	static save() {
-		const data = JSON.stringify(
-			viewport.shapes.map((s) => s.serialize(STAGE_PROPERTIES))
-		);
+		const data = JSON.stringify(viewport.layers.map((l) => l.serialize()));
 
 		const a = document.createElement("a");
 		const file = new Blob([data], { type: "application/json" });
@@ -23,9 +21,7 @@ class DocumentTools {
 			reader.onload = (e) => {
 				if (extension === "json") {
 					const data = JSON.parse(e.target.result);
-					viewport.setShapes(
-						ShapeFactory.loadShapes(data, viewport.stageProperties)
-					);
+					viewport.setLayers(data);
 				} else if (extension === "png") {
 					DocumentTools.loadImage(e);
 				}
@@ -56,7 +52,14 @@ class DocumentTools {
 	}
 
 	static do_export() {
-		viewport.mainLayer.canvas.toBlob((blob) => {
+      const tmpCanvas = document.createElement("canvas");
+      tmpCanvas.width = viewport.canvasWidth;
+      tmpCanvas.height = viewport.canvasHeight;
+      const tmpCtx = tmpCanvas.getContext("2d");
+      for(const layer of viewport.layers) {
+         tmpCtx.drawImage(layer.canvas, 0, 0);
+      }
+		tmpCanvas.toBlob((blob) => {
 			const a = document.createElement("a");
 			a.href = URL.createObjectURL(blob);
 			a.download = "image.png";

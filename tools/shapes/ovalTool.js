@@ -18,7 +18,7 @@ class OvalTool extends CornerGeneratedShapeTool {
 				oval.id = prevId;
 			}
 
-			viewport.drawShapes([...viewport.shapes, oval]);
+			viewport.drawShapes([oval]);
 		};
 		const upCallback = () => {
 			this.upCallback(oval, moveCallback, upCallback);

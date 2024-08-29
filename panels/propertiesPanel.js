@@ -15,22 +15,32 @@ class PropertiesPanel {
 		this.holderDiv.appendChild(panelHeaderDiv);
 		this.holderDiv.appendChild(panelBodyDiv);
 
+		const colorSection = createDOMElement("div", {
+			class: "panel-section three_col_grid",
+			["data-title"]: "Color",
+		});
+		const textSection = createDOMElement("div", {
+			class: "panel-section three_col_grid",
+			["data-title"]: "Text",
+		});
 		const transformSection = createDOMElement("div", {
 			class: "panel-section",
 			["data-title"]: "Transform",
 		});
-		const colorSection = createDOMElement("div", {
-			class: "panel-section grid",
-			["data-title"]: "Color",
+		const arrangeSection = createDOMElement("div", {
+			class: "panel-section four_col_grid",
+			["data-title"]: "Arrange",
 		});
-		const textSection = createDOMElement("div", {
-			class: "panel-section grid",
-			["data-title"]: "Text",
+		this.layerSection = createDOMElement("div", {
+			class: "panel-section two_col_grid",
+			["data-title"]: "Layers",
 		});
 
 		panelBodyDiv.appendChild(transformSection);
 		panelBodyDiv.appendChild(colorSection);
 		panelBodyDiv.appendChild(textSection);
+		panelBodyDiv.appendChild(arrangeSection);
+		panelBodyDiv.appendChild(this.layerSection);
 
 		transformSection.appendChild(
 			createInputWithLabel("X", {
@@ -79,7 +89,7 @@ class PropertiesPanel {
 			})
 		);
 
-		transformSection.appendChild(
+		arrangeSection.appendChild(
 			createDOMElement(
 				"button",
 				{
@@ -87,10 +97,10 @@ class PropertiesPanel {
 					onclick: "TransformTools.sendToBack()",
 					title: "Send to Back",
 				},
-				"Send to Back"
+				"Back"
 			)
 		);
-		transformSection.appendChild(
+		arrangeSection.appendChild(
 			createDOMElement(
 				"button",
 				{
@@ -98,10 +108,10 @@ class PropertiesPanel {
 					onclick: "TransformTools.bringToFront()",
 					title: "Bring to Front",
 				},
-				"Bring to Front"
+				"Front"
 			)
 		);
-		transformSection.appendChild(
+		arrangeSection.appendChild(
 			createDOMElement(
 				"button",
 				{
@@ -109,10 +119,10 @@ class PropertiesPanel {
 					onclick: "TransformTools.sendBackward()",
 					title: "Send Backward",
 				},
-				"Send Backward"
+				"Bwd"
 			)
 		);
-		transformSection.appendChild(
+		arrangeSection.appendChild(
 			createDOMElement(
 				"button",
 				{
@@ -120,9 +130,11 @@ class PropertiesPanel {
 					onclick: "TransformTools.bringForward()",
 					title: "Bring Forward",
 				},
-				"Bring Forward"
+				"Fwd"
 			)
 		);
+
+		this.populateLayers(1);
 
 		colorSection.appendChild(
 			createDOMElement("input", {
@@ -213,6 +225,52 @@ class PropertiesPanel {
 			PropertiesPanel.updateDisplay
 		);
 		viewport.addEventListener("history", PropertiesPanel.updateDisplay);
+		viewport.addEventListener("layersChanged", (e) => {
+			this.populateLayers(e.detail.count);
+		});
+	}
+
+	populateLayers(count) {
+		this.layerSection.innerHTML = "";
+		this.layerSection.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "addLayerBtn",
+					onclick: "LayerTools.addLayer()",
+					title: "Add Layer",
+				},
+				"➕"
+			)
+		);
+		this.layerSection.appendChild(createDOMElement("div", {}, ""));
+
+		for (let i = 1; i <= count; i++) {
+         const props = {
+            type: "radio",
+            id: "layer_" + i + "_radio",
+            name: "layerRadio",
+            onchange: `LayerTools.selectLayer(${i-1})`
+         }
+         if(viewport.selectedLayer == viewport.layers[i-1]){
+            props.checked=true;
+         }
+			this.layerSection.appendChild(
+				createInputWithLabel("layer " + i, props)
+			);
+
+			this.layerSection.appendChild(
+				createDOMElement(
+					"button",
+					{
+						id: "layer_" + i + "_removeBtn",
+						onclick: "LayerTools.removeLayer(" + (i - 1) + ")",
+						title: "Remove Layer",
+					},
+					"🗑️"
+				)
+			);
+		}
 	}
 
 	static changeX(value, save = true) {

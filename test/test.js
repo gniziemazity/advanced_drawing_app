@@ -9,7 +9,7 @@ function beforeEach() {
 }
 
 function clearViewPort(viewport) {
-    viewport.mainLayer.clearCanvas()
+    viewport.selectedLayer.clearCanvas()
 }
 
 function clearHitTestCanvas(viewport) {

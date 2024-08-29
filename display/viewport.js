@@ -2,6 +2,8 @@ class Viewport extends EventTarget {
 	constructor(container, stageProperties, showHitRegions) {
 		super();
 
+		this.container = container;
+
 		this.stageProperties = stageProperties;
 		this.stageProperties.left = -this.stageProperties.width / 2;
 		this.stageProperties.top = -this.stageProperties.height / 2;
@@ -29,13 +31,16 @@ class Viewport extends EventTarget {
 		);
 		container.appendChild(this.stageLayer.canvas);
 
-		this.mainLayer = new Layer(
+		this.layerContainer = document.createElement("div");
+		container.appendChild(this.layerContainer);
+		this.selectedLayer = new Layer(
 			this.canvasWidth,
 			this.canvasHeight,
 			stageProperties,
 			Layer.TYPES.NORMAL
 		);
-		container.appendChild(this.mainLayer.canvas);
+		this.layerContainer.appendChild(this.selectedLayer.canvas);
+		this.layers = [this.selectedLayer];
 
 		this.overlayLayer = new Layer(
 			this.canvasWidth,
@@ -55,125 +60,37 @@ class Viewport extends EventTarget {
 			container.appendChild(this.hitTestLayer.canvas);
 		}
 
-		this.shapes = [];
 		this.gizmos = [];
 
 		this.#addEventListeners();
 	}
 
 	addShapes(shapes, save = true) {
-		if (!Array.isArray(shapes)) {
-			shapes = [shapes];
-		}
-		this.shapes = this.shapes.concat(shapes);
-		viewport.dispatchEvent(
-			new CustomEvent("shapesAdded", { detail: { shapes, save } })
-		);
+		this.selectedLayer.addShapes(shapes, save);
 	}
 
 	setShapes(newShapes, save = true) {
-		viewport.gizmos = newShapes
-			.filter((s) => s.selected)
-			.map((s) => new Gizmo(s));
-		this.shapes = [];
-		this.addShapes(newShapes, save);
+		this.selectedLayer.setShapes(newShapes, save);
 	}
 
 	deleteShapes(shapes) {
-		if (shapes.length > 0) {
-			let index = viewport.shapes.findIndex((s) => s.selected);
-			while (index != -1) {
-				viewport.shapes.splice(index, 1);
-				index = viewport.shapes.findIndex((s) => s.selected);
-			}
-			for (let i = viewport.gizmos.length - 1; i >= 0; i--) {
-				if (shapes.includes(viewport.gizmos[i].shape)) {
-					viewport.gizmos.splice(i, 1);
-				}
-			}
-			viewport.dispatchEvent(
-				new CustomEvent("shapesRemoved", { detail: { shapes, save: true } })
-			);
-		}
+		this.selectedLayer.deleteShapes(shapes);
 	}
 
-	#swapShapes(index1, index2) {
-		const temp = this.shapes[index1];
-		this.shapes[index1] = this.shapes[index2];
-		this.shapes[index2] = temp;
+	getShapes() {
+		return this.selectedLayer.shapes;
 	}
-   
+
 	getSelectedShapes() {
-		return this.shapes.filter((s) => s.selected);
+		return this.selectedLayer.getSelectedShapes();
 	}
 
 	getUnselectedShapes() {
-		return this.shapes.filter((s) => !s.selected);
-	}
-
-	#getSelectedShapeIndices() {
-		const indices = [];
-		this.shapes.forEach((s, i) => {
-			if (s.selected) {
-				indices.push(i);
-			}
-		});
-		return indices;
-	}
-
-	sendToBack() {
-		const selShapes = this.getSelectedShapes();
-		const unSelShapes = this.getUnselectedShapes();
-		this.shapes = selShapes.concat(unSelShapes);
-
-		viewport.dispatchEvent(
-			new CustomEvent("shapesReordered", { detail: { save: true } })
-		);
-	}
-
-	sendBackward() {
-		const indices = this.#getSelectedShapeIndices();
-
-		for (const index of indices) {
-			const newIndex = index - 1;
-			if (newIndex >= 0 && !this.shapes[newIndex].selected) {
-				this.#swapShapes(index, newIndex);
-			}
-		}
-
-		viewport.dispatchEvent(
-			new CustomEvent("shapesReordered", { detail: { save: true } })
-		);
-	}
-
-	bringToFront() {
-		const selShapes = this.getSelectedShapes();
-		const unSelShapes = this.getUnselectedShapes();
-		this.shapes = unSelShapes.concat(selShapes);
-
-		viewport.dispatchEvent(
-			new CustomEvent("shapesReordered", { detail: { save: true } })
-		);
-	}
-
-	bringForward() {
-		const indices = this.#getSelectedShapeIndices();
-
-		for (const index of indices) {
-			const newIndex = index + 1;
-			if (newIndex <this.shapes.length && !this.shapes[newIndex].selected) {
-				this.#swapShapes(index, newIndex);
-			}
-		}
-
-		viewport.dispatchEvent(
-			new CustomEvent("shapesReordered", { detail: { save: true } })
-		);
+		return this.selectedLayer.getUnselectedShapes();
 	}
 
 	selectShapes(shapes) {
-		this.shapes.forEach((s) => s.unselect(false));
-		shapes.forEach((s) => s.select(false));
+		this.selectedLayer.selectShapes(shapes);
 	}
 
 	getStageCanvas() {
@@ -191,19 +108,80 @@ class Viewport extends EventTarget {
 			.subtract(this.offset);
 	}
 
-	drawShapes(shapes = this.shapes) {
+	drawShapes(shapes = []) {
 		this.stageLayer.drawItems([]);
-		this.mainLayer.drawItems(shapes);
+		this.layers.forEach((l) => l.drawItems(l.shapes.concat(shapes)));
 		this.overlayLayer.drawItems(this.gizmos);
 
-		this.hitTestLayer.drawItems(shapes);
+		this.hitTestLayer.drawItems(this.selectedLayer.shapes.concat(shapes));
 		this.hitTestLayer.drawItems(this.gizmos, false);
+	}
+
+	addLayer(type = Layer.TYPES.NORMAL) {
+		const newLayer = new Layer(
+			this.canvasWidth,
+			this.canvasHeight,
+			this.stageProperties,
+			type
+		);
+		this.layers.push(newLayer);
+		this.layerContainer.appendChild(newLayer.canvas);
+		this.dispatchEvent(
+			new CustomEvent("layersChanged", {
+				detail: { layer: newLayer, count: this.layers.length },
+			})
+		);
+	}
+
+	setLayers(layers, save = true) {
+		this.layers = layers.map((l) =>
+			Layer.load(l, this.canvasWidth, this.canvasHeight)
+		);
+		this.layerContainer.innerHTML = "";
+		this.layers.forEach((l) => {
+			this.layerContainer.appendChild(l.canvas);
+			viewport.selectedLayer = l;
+			viewport.drawShapes();
+		});
+
+		this.dispatchEvent(
+			new CustomEvent("layersChanged", {
+				detail: { layers: layers, count: this.layers.length, save },
+			})
+		);
+	}
+
+	selectLayerByIndex(index) {
+		this.selectedLayer = this.layers[index];
+		this.dispatchEvent(
+			new CustomEvent("layersChanged", {
+				detail: { layer: this.selectedLayer, count: this.layers.length },
+			})
+		);
+	}
+
+	removeLayerByIndex(index) {
+		let changeSelectedLayer = false;
+		if (this.layers[index] == this.selectedLayer) {
+			changeSelectedLayer = true;
+		}
+		const removedLayer = this.layers[index];
+		this.layerContainer.removeChild(removedLayer.canvas);
+		this.layers.splice(index, 1);
+		if (changeSelectedLayer) {
+			this.selectedLayer = this.layers[0];
+		}
+		this.dispatchEvent(
+			new CustomEvent("layersChanged", {
+				detail: { layer: removedLayer, count: this.layers.length },
+			})
+		);
 	}
 
 	#handleChanges({ detail }) {
 		this.drawShapes();
 		if (detail.save) {
-			HistoryTools.record(this.shapes);
+			HistoryTools.record(this.layers);
 		}
 	}
 
@@ -250,6 +228,15 @@ class Viewport extends EventTarget {
 		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
 		this.addEventListener("textChanged", this.#handleChanges.bind(this));
 		this.addEventListener("shapesReordered", this.#handleChanges.bind(this));
+		this.addEventListener("layersChanged", (event) => {
+			this.gizmos = [];
+         this.layers.forEach((l) => {
+            l.shapes.forEach((s) => {
+               s.unselect(false);
+            });
+         });
+			this.#handleChanges(event);
+		});
 
 		this.addEventListener("shapeSelected", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));

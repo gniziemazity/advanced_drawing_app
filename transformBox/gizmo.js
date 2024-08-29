@@ -187,7 +187,11 @@ class Gizmo {
 					const combinedAngle = oldRotation + angle;
 					shape.setRotation(combinedAngle, false);
 				} else {
-					shape.setSize(oldBox.width * ratio.x, oldBox.height * ratio.y);
+					shape.setSize(
+						oldBox.width * ratio.x,
+						oldBox.height * ratio.y,
+						false
+					);
 				}
 			}
 

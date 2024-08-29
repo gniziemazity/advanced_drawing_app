@@ -15,7 +15,7 @@ class PathTool extends ShapeTool {
 			);
 			path.addPoint(mousePosition);
 
-			viewport.drawShapes([...viewport.shapes, path]);
+			viewport.drawShapes([path]);
 		};
 
 		const upCallback = function (e) {

@@ -2,7 +2,7 @@ class EditingTools {
 	static clipboard = null;
 
 	static selectAll() {
-		viewport.selectShapes(viewport.shapes)
+		viewport.selectShapes(viewport.selectedLayer.shapes)
 	}
 
 	static copy() {
@@ -15,7 +15,7 @@ class EditingTools {
 
 	static paste() {
 		if (EditingTools.clipboard) {
-			viewport.shapes.forEach((s) => s.unselect());
+			viewport.getShapes().forEach((s) => s.unselect());
 			const newShapes = ShapeFactory.loadShapes(
 				JSON.parse(EditingTools.clipboard),
 				viewport.stageProperties

@@ -177,12 +177,28 @@ textarea {
 	display: flex;
 }
 
-.panel-section.grid {
+.panel-section.two_col_grid {
+	padding-left: calc(var(--gap));
+	padding-top: calc(1rem + var(--gap) * 2);
+
+	display: grid;
+	grid-template-columns: repeat(2, 0.5fr);
+}
+
+.panel-section.three_col_grid {
 	padding-left: calc(var(--gap));
 	padding-top: calc(1rem + var(--gap) * 2);
 
 	display: grid;
 	grid-template-columns: repeat(3, 0.5fr);
+}
+
+.panel-section.four_col_grid {
+	padding-left: calc(var(--gap));
+	padding-top: calc(1rem + var(--gap) * 2);
+
+	display: grid;
+	grid-template-columns: repeat(4, 0.5fr);
 }
 
 .panel-section > div > label {

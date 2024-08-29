@@ -20,13 +20,13 @@ class SelectTool {
 			return;
 		}
 
-		const shape = viewport.shapes.find((s) => s.id == id);
+		const shape = viewport.getShapes().find((s) => s.id == id);
 
 		const isClickingSelectedShape = shape && shape.selected;
 
 		if (!isClickingSelectedShape) {
 			if (e.ctrlKey === false && e.shiftKey === false) {
-				viewport.shapes.forEach((s) => s.unselect(false));
+				viewport.getShapes().forEach((s) => s.unselect(false));
 			}
 		}
 
@@ -117,7 +117,7 @@ class SelectTool {
 				viewport.getAdjustedPosition(bottomRight)
 			);
 
-			viewport.shapes.forEach((shape) => {
+			viewport.getShapes().forEach((shape) => {
 				const shapeBox = BoundingBox.fromPoints(
 					shape.getPoints().map((p) => p.add(shape.center))
 				);

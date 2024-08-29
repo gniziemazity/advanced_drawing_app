@@ -5,15 +5,11 @@ class HistoryTools {
 	static redo() {
 		if (HistoryTools.redoStack.length > 0) {
 			const data = HistoryTools.redoStack.pop();
-			const newShapes = ShapeFactory.loadShapes(
-				data,
-				viewport.stageProperties
-			);
-			viewport.setShapes(newShapes, false);
+         viewport.setLayers(data, false);
 			HistoryTools.undoStack.push(data);
 		}
 		viewport.dispatchEvent(
-			new CustomEvent("history", { detail: { shapes: viewport.shapes } })
+			new CustomEvent("history", { detail: { layers: viewport.layers } })
 		);
 	}
 
@@ -21,21 +17,23 @@ class HistoryTools {
 		if (!HistoryTools.undoStack.length) return; // prevent pushing undefined into redoStack
 		HistoryTools.redoStack.push(HistoryTools.undoStack.pop());
 		if (HistoryTools.undoStack.length > 0) {
-			const newShapes = ShapeFactory.loadShapes(
-				HistoryTools.undoStack[HistoryTools.undoStack.length - 1],
-				viewport.stageProperties
-			);
-			viewport.setShapes(newShapes, false);
+         const newLayers = HistoryTools.undoStack[HistoryTools.undoStack.length - 1];
+			viewport.setLayers(newLayers, false);
 		} else {
-			viewport.setShapes([], false);
+			viewport.setLayers([new Layer(
+            viewport.canvasWidth,
+            viewport.canvasHeight,
+            viewport.stageProperties,
+            Layer.TYPES.NORMAL
+         )], false);
 		}
 		viewport.dispatchEvent(
-			new CustomEvent("history", { detail: { shapes: viewport.shapes } })
+			new CustomEvent("history", { detail: { layers: viewport.layers } })
 		);
 	}
 
-	static record(shapes) {
-		const newState = shapes.map((s) => s.serialize());
+	static record(layers) {
+		const newState = layers.map((l) => l.serialize());
 		if (HistoryTools.undoStack.length > 0) {
 			const lastItem =
 				HistoryTools.undoStack[HistoryTools.undoStack.length - 1];

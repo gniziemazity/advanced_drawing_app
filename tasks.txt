@@ -8,6 +8,7 @@ Better Text Tool
 Refactor selectTool.js
 Refactor gizmo.js 
 Fix width between [1 - infinity) issue
+Layout fix from layer.js
 
 
 FOR LATER:
