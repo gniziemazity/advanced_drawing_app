@@ -65,6 +65,7 @@ class Path extends Shape {
 		}
 		const width = box.width == 0 ? eps : box.width;
 		const ratio = (flip * Math.abs(newWidth)) / width;
+		console.log(newWidth, "<---")
 		for (const point of this.points) {
 			point.x *= ratio;
 		}

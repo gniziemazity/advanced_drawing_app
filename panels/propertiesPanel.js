@@ -296,11 +296,14 @@ class PropertiesPanel {
 	}
 
 	static changeWidth(value, save = true) {
-		const newWidth = Math.max(Number(value), 1);
+		let newWidth = Math.max(Number(value), 1);
 		let newHeight = 0;
 
 		viewport.getSelectedShapes().forEach((s) => {
 			const currentWidth = s.size.width;
+			if (value == 0) {
+				newWidth *= Math.sign(currentWidth) * -1
+			}
 			const currentHeight = s.size.height;
 			newHeight = currentHeight;
 			if (constrainDimensions.checked) {
@@ -318,12 +321,15 @@ class PropertiesPanel {
 	}
 
 	static changeHeight(value, save = true) {
-		const newHeight = Math.max(Number(value), 1);
+		let newHeight = Math.max(Number(value), 1);
 		let newWidth = 0;
 
 		viewport.getSelectedShapes().forEach((s) => {
 			const currentWidth = s.size.width;
 			const currentHeight = s.size.height;
+			if (value == 0) {
+				newHeight *= Math.sign(currentHeight) * -1
+			}
 			newWidth = currentWidth;
 			if (constrainDimensions.checked) {
 				const aspectRatio = currentWidth / currentHeight;
