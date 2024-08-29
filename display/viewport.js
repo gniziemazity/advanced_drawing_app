@@ -101,10 +101,10 @@ class Viewport extends EventTarget {
 		return this.shapes.filter((s) => s.selected);
 	}
 
-   selectShapes(shapes) {
-      this.shapes.forEach((s) => s.unselect(false));
-      shapes.forEach((s) => s.select(false));
-   }
+	selectShapes(shapes) {
+		this.shapes.forEach((s) => s.unselect(false));
+		shapes.forEach((s) => s.select(false));
+	}
 
 	getStageCanvas() {
 		return this.stageLayer.canvas;
@@ -189,5 +189,9 @@ class Viewport extends EventTarget {
 			this.#handleChanges(event);
 		});
 		this.addEventListener("gizmoChanged", () => this.drawShapes());
+	}
+
+	static getSelectedIndex() {
+		return viewport.shapes.findIndex((s) => s.selected);
 	}
 }
