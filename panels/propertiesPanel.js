@@ -204,7 +204,8 @@ class PropertiesPanel {
 				oninput: "PropertiesPanel.changeText(this.value)",
 				title: "Text",
 				type: "text",
-				value: "TEST",
+				value: "",
+				placeholder: "Enter Text"
 			})
 		);
 
@@ -441,101 +442,68 @@ class PropertiesPanel {
 			return;
 		}
 
+		const panelFields = {
+			xInput, yInput, widthInput, heightInput, fillColor, fill, 
+			strokeColor, stroke, strokeWidth, text, rotationInput
+		}
+
+		const placeholderText = "Multiple Values";
+
+		let newProperties = PropertiesPanel.getNewProperties(selectedShapes)
+
+		for (let key in newProperties) {
+			let panelProperty = newProperties[key]
+			if (Number(panelProperty.value)) {
+				panelProperty.value = Math.round(panelProperty.value)
+			}
+
+			if (key === "fill" || key === "stroke") {
+				panelFields[key].checked = panelProperty.value || false
+			} else {
+				panelFields[key].value = panelProperty.value === null ? "" : panelProperty.value
+			}
+			panelFields[key].placeholder = key === "text" ? "Enter Text" : panelProperty.value || placeholderText
+		}
+	}
+
+	static getNewProperties(selectedShapes) {
+		let getX = (shape) => shape.center.x - STAGE_PROPERTIES.left
+		let getY = (shape) => shape.center.y - STAGE_PROPERTIES.top
+		let getWidth = (shape) => shape.size.width
+		let getHeight = (shape) => shape.size.height
+		let getFillColor = (shape) => shape.options.fillColor
+		let getFill = (shape) => shape.options.fill
+		let getStrokeColor = (shape) => shape.options.strokeColor
+		let getStroke = (shape) => shape.options.stroke
+		let getStrokeWidth = (shape) => shape.options.strokeWidth
+		let getText = (shape) => shape.text || null
+		let getRotation = (shape) => shape.rotation
+
 		let newProperties = null;
 		for (const shape of selectedShapes) {
 			if (newProperties === null) {
 				newProperties = {
-					x: shape.center.x - STAGE_PROPERTIES.left,
-					y: shape.center.y - STAGE_PROPERTIES.top,
-					width: shape.size.width,
-					height: shape.size.height,
-					fillColor: shape.options.fillColor,
-					fill: shape.options.fill,
-					strokeColor: shape.options.strokeColor,
-					stroke: shape.options.stroke,
-					strokeWidth: shape.options.strokeWidth,
-					text: shape.text,
-					rotationAngle: shape.rotation,
+					xInput: { value: getX(shape), extractor: getX },
+					yInput: { value: getY(shape), extractor: getY },
+					widthInput: { value: getWidth(shape), extractor: getWidth },
+					heightInput: { value: getHeight(shape), extractor: getHeight },
+					fillColor: { value: getFillColor(shape), extractor: getFillColor },
+					fill: { value: getFill(shape), extractor: getFill },
+					strokeColor: { value: getStrokeColor(shape), extractor: getStrokeColor },
+					stroke: { value: getStroke(shape), extractor: getStroke },
+					strokeWidth: { value: getStrokeWidth(shape), extractor: getStrokeWidth },
+					text: { value: getText(shape), extractor: getText },
+					rotationInput: { value: getRotation(shape), extractor: getRotation }
 				};
 			} else {
-				if (newProperties.x !== shape.center.x - STAGE_PROPERTIES.left) {
-					newProperties.x = null;
-				}
-				if (newProperties.y !== shape.center.y - STAGE_PROPERTIES.top) {
-					newProperties.y = null;
-				}
-				if (newProperties.width !== shape.size.width) {
-					newProperties.width = null;
-				}
-				if (newProperties.height !== shape.size.height) {
-					newProperties.height = null;
-				}
-				if (newProperties.fillColor !== shape.options.fillColor) {
-					newProperties.fillColor = null;
-				}
-				if (newProperties.fill !== shape.options.fill) {
-					newProperties.fill = null;
-				}
-				if (newProperties.strokeColor !== shape.options.strokeColor) {
-					newProperties.strokeColor = null;
-				}
-				if (newProperties.stroke !== shape.options.stroke) {
-					newProperties.stroke = null;
-				}
-				if (newProperties.strokeWidth !== shape.options.strokeWidth) {
-					newProperties.strokeWidth = null;
-				}
-				if (newProperties.text !== shape.text) {
-					newProperties.text = null;
-				}
-				if (newProperties.rotationAngle !== shape.rotation) {
-					newProperties.rotationAngle = null;
-				}
+				for (let key in newProperties) {
+					let newPanelProperty = newProperties[key]
+					if (newPanelProperty.value !== newPanelProperty.extractor(shape)) {
+						newPanelProperty.value = null
+					}
+				}		
 			}
 		}
-		if (newProperties === null) {
-			return;
-		} else {
-			xInput.value = newProperties.x ? Math.round(newProperties.x) : "";
-			yInput.value = newProperties.y ? Math.round(newProperties.y) : "";
-			widthInput.value = newProperties.width
-				? Math.round(newProperties.width)
-				: "";
-			heightInput.value = newProperties.height
-				? Math.round(newProperties.height)
-				: "";
-			fillColor.value = newProperties.fillColor
-				? newProperties.fillColor
-				: "";
-			fill.checked = newProperties.fill ? newProperties.fill : false;
-			strokeColor.value = newProperties.strokeColor
-				? newProperties.strokeColor
-				: "";
-			stroke.checked = newProperties.stroke ? newProperties.stroke : false;
-			strokeWidth.value = newProperties.strokeWidth
-				? newProperties.strokeWidth
-				: "";
-			text.value = newProperties.text ? newProperties.text : "";
-			rotationInput.value = formatAngle(newProperties.rotationAngle) ?? "";
-
-			const placeholderText = "Multiple Values";
-			xInput.placeholder = newProperties.x ? "" : placeholderText;
-			yInput.placeholder = newProperties.y ? "" : placeholderText;
-			widthInput.placeholder = newProperties.width ? "" : placeholderText;
-			heightInput.placeholder = newProperties.height ? "" : placeholderText;
-			fillColor.placeholder = newProperties.fillColor ? "" : placeholderText;
-			fill.placeholder = newProperties.fill ? "" : placeholderText;
-			strokeColor.placeholder = newProperties.strokeColor
-				? ""
-				: placeholderText;
-			stroke.placeholder = newProperties.stroke ? "" : placeholderText;
-			strokeWidth.placeholder = newProperties.strokeWidth
-				? ""
-				: placeholderText;
-			text.placeholder = newProperties.text ? "" : placeholderText;
-			rotationInput.placeholder = newProperties.rotationAngle
-				? ""
-				: placeholderText;
-		}
+		return newProperties
 	}
 }
