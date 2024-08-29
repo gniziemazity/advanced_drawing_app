@@ -2,7 +2,7 @@ const notDrawable = ["Image", "Select", "Text"]
 
 function beforeEach() {
     viewport.selectedLayer.shapes = [];
-    viewport.selectedLayer.gizmos = [];
+    viewport.gizmos = [];
     EditingTools.clipboard = null;
     clearViewPort(viewport)
     clearHitTestCanvas(viewport)
@@ -51,7 +51,7 @@ function getShapeAtPoint(x, y) {
     // deselect already selected shape based on original selectTool.pointerdown event
     // and redraw
     viewport.selectedLayer.shapes.forEach((s) => s.unselect());
-    viewport.selectedLayer.gizmos = []
+    viewport.gizmos = []
     viewport.drawShapes()
 
     const startPosition = new Vector(e.offsetX, e.offsetY);
