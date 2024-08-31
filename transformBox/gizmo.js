@@ -8,45 +8,21 @@ class Gizmo {
 		this.rotation = shape.rotation;
 
 		this.#generate();
-
-		viewport.addEventListener(
-			"positionChanged",
-			this.updatePosition.bind(this)
-		);
-		viewport.addEventListener("sizeChanged", this.updateSize.bind(this));
-		viewport.addEventListener(
-			"rotationChanged",
-			this.updateRotation.bind(this)
-		);
+		shape.gizmo = this
 	}
 
 	updatePosition(e) {
-		if (e.detail.shape === this.shape) {
-			this.center = e.detail.position;
-			this.#update();
-			viewport.dispatchEvent(
-				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
-			);
-		}
+		this.center = this.shape.center
+		this.#update();
 	}
 
 	updateSize(e) {
-		if (e.detail.shape === this.shape) {
-			this.#update();
-			viewport.dispatchEvent(
-				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
-			);
-		}
+		this.#update();
 	}
 
 	updateRotation(e) {
-		if (e.detail.shape === this.shape) {
-			this.rotation = e.detail.rotation;
-			this.#update();
-			viewport.dispatchEvent(
-				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
-			);
-		}
+		this.rotation = this.shape.rotation;
+		this.#update();
 	}
 
 	hasHandle(id) {
