@@ -20,7 +20,7 @@ const shortcuts = [
 ];
 
 document.addEventListener("keydown", (e) => {
-	if (e.target instanceof HTMLInputElement) {
+	if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
 		return;
 	}
 

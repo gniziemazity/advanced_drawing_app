@@ -226,7 +226,6 @@ class Viewport extends EventTarget {
 		this.addEventListener("optionsChanged", this.#handleChanges.bind(this));
 		this.addEventListener("shapesAdded", this.#handleChanges.bind(this));
 		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
-		this.addEventListener("textChanged", this.#handleChanges.bind(this));
 		this.addEventListener("shapesReordered", this.#handleChanges.bind(this));
 		this.addEventListener("layersChanged", (event) => {
 			this.gizmos = [];
@@ -239,6 +238,10 @@ class Viewport extends EventTarget {
 		});
 
 		this.addEventListener("shapeSelected", (event) => {
+			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
+			this.#handleChanges(event);
+		});
+		this.addEventListener("textChanged", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
 			this.#handleChanges(event);
 		});

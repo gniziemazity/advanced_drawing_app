@@ -20,7 +20,7 @@ class PropertiesPanel {
 			["data-title"]: "Color",
 		});
 		const textSection = createDOMElement("div", {
-			class: "panel-section three_col_grid",
+			class: "panel-section",
 			["data-title"]: "Text",
 		});
 		const transformSection = createDOMElement("div", {
@@ -199,17 +199,35 @@ class PropertiesPanel {
 			})
 		);
 		textSection.appendChild(
-			createDOMElement("input", {
+			createDOMElement("textarea", {
 				id: "text",
 				oninput: "PropertiesPanel.changeText(this.value)",
 				title: "Text",
-				type: "text",
 				value: "",
-				placeholder: "Enter Text"
+				placeholder: "Enter Text",
+				style: "width: 100%;"
+			})
+		);
+		textSection.appendChild(
+			createInputWithLabel("font-size", {
+				type: "number",
+				oninput: "PropertiesPanel.changeFontSize(this.value, false)",
+				id: "fontSize",
 			})
 		);
 
-		PropertiesPanel.resetColors();
+		for (let alignment of ["Left", "Center", "Right"]) {
+			textSection.appendChild(
+				createInputWithLabel(alignment, {
+					type: "radio",
+					onchange: `PropertiesPanel.changeTextAlignment("${alignment}", false)`,
+					id: "textAlign"+alignment,
+					name: "textAlign",
+				})
+			);
+		}
+
+		PropertiesPanel.reset();
 
 		viewport.addEventListener(
 			"positionChanged",
@@ -384,11 +402,25 @@ class PropertiesPanel {
 			.forEach((s) => s.setOptions({ strokeWidth: Number(value) }, save));
 	}
 
-	static changeText(value) {
+	static changeText(value, save = true) {
 		viewport
 			.getSelectedShapes()
 			.filter((s) => s.text !== undefined)
-			.forEach((s) => s.setText(value));
+			.forEach((s) => s.setText(value, value));
+	}
+
+	static changeFontSize(value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.filter((s) => s.text !== undefined)
+			.forEach((s) => s.setFontSize(value, save));
+	}
+
+	static changeTextAlignment(value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.filter((s) => s.text !== undefined)
+			.forEach((s) => s.setAligngment(value, save));
 	}
 
 	static resetColors() {
@@ -421,6 +453,8 @@ class PropertiesPanel {
 		widthInput.placeholder = "";
 		heightInput.placeholder = "";
 		rotationInput.placeholder = "";
+		document.getElementById(`textAlignCenter`).checked = true
+		PropertiesPanel.resetColors();
 	}
 
 	static getValues() {
@@ -435,6 +469,13 @@ class PropertiesPanel {
 		};
 	}
 
+	// To add a PanelProperty field that will update when updateDisplay is
+	// called. we have to do 3 things:
+	// - update the variable panelFields with the new panel property field
+	// - in PropertiesPanel.getNewProperties function: write a simple get<FieldValue> function 
+	// 	 that takes in a shape argument
+	// - in PropertiesPanel.getNewProperties function: update the variable newProperties
+	//   with the field to update and an extract function that uses your get<FieldValue>
 	static updateDisplay() {
 		const selectedShapes = viewport.getSelectedShapes();
 		if (selectedShapes.length === 0) {
@@ -444,7 +485,8 @@ class PropertiesPanel {
 
 		const panelFields = {
 			xInput, yInput, widthInput, heightInput, fillColor, fill, 
-			strokeColor, stroke, strokeWidth, text, rotationInput
+			strokeColor, stroke, strokeWidth, text, rotationInput, 
+			fontSize, textAlignLeft, textAlignCenter, textAlignRight
 		}
 
 		const placeholderText = "Multiple Values";
@@ -457,12 +499,21 @@ class PropertiesPanel {
 				newProperty.value = Math.round(newProperty.value)
 			}
 
-			if (key === "fill" || key === "stroke") {
-				panelFields[key].checked = newProperty.value || false
-			} else {
-				panelFields[key].value = newProperty.value === null ? "" : newProperty.value
+			switch (key) {
+				case "fill", "stroke":
+					panelFields[key].checked = newProperty.value || false
+					break
+				case "textAlingnment":
+					document.getElementById(`textAlignCenter`).checked = true
+					let value = newProperty.value
+					if (value) {
+						document.getElementById(`textAlign${value}`).checked = true
+					} 
+					break
+				default:
+					panelFields[key].value = newProperty.value === null ? "" : newProperty.value
+					panelFields[key].placeholder = key === "text" ? "Enter Text" : newProperty.value || placeholderText
 			}
-			panelFields[key].placeholder = key === "text" ? "Enter Text" : newProperty.value || placeholderText
 		}
 	}
 
@@ -478,6 +529,8 @@ class PropertiesPanel {
 		let getStrokeWidth = (shape) => shape.options.strokeWidth
 		let getText = (shape) => shape.text || null
 		let getRotation = (shape) => shape.rotation
+		let getFontSize = (shape) => shape.text !== undefined ? shape.getFontSize() : ""
+		let getTextAlignMent = (shape) => shape.text !== undefined ? shape.getAlignment() : ""
 
 		let newProperties = null;
 		for (const shape of selectedShapes) {
@@ -493,7 +546,9 @@ class PropertiesPanel {
 					stroke: { value: getStroke(shape), extractor: getStroke },
 					strokeWidth: { value: getStrokeWidth(shape), extractor: getStrokeWidth },
 					text: { value: getText(shape), extractor: getText },
-					rotationInput: { value: getRotation(shape), extractor: getRotation }
+					rotationInput: { value: getRotation(shape), extractor: getRotation },
+					fontSize: { value: getFontSize(shape), extractor: getFontSize },
+					textAlingnment: { value: getTextAlignMent(shape), extractor: getTextAlignMent },
 				};
 			} else {
 				for (let key in newProperties) {
