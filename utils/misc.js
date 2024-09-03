@@ -56,7 +56,7 @@ function formatAngle(angle) {
 function makeSpace(length) {
 	let str = ""
 	for (let i = 0; i < length; i++) {
-		str += " "
+		str += String.fromCharCode(8201) // append thin space
 	}
 	return str
 }

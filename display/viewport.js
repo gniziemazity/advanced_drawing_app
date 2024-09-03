@@ -241,6 +241,34 @@ class Viewport extends EventTarget {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
 			this.#handleChanges(event);
 		});
+
+		this.addEventListener("TextSelected", (event) => {
+			const { shape, clickedPoint } = event.detail
+			let adjustedPoint = this.getAdjustedPosition(clickedPoint)
+
+			let shapeWidth = shape.size.width
+			let shapeHeight = shape.size.height
+			let top = shape.center.y - (shapeHeight / 2)
+
+			let lines = shape.parseText()
+		
+			let ratioOnYaxis = Math.abs((adjustedPoint.y - top) / shapeHeight)
+			let lineIndex = Math.floor(ratioOnYaxis * lines.length)
+		
+			let line = lines[lineIndex]
+			let left = shape.center.x - (shape.getTextWidthOnCanvas(line) / 2)
+			
+			let ratioOnXaxis = Math.abs((adjustedPoint.x - left) / shape.getTextWidthOnCanvas(line))	
+			
+			let indexToInsertCursor = Math.floor(ratioOnXaxis * line.length)
+			console.table({
+				lineIndex,
+				indexToInsertCursor, 
+				char: line[indexToInsertCursor], 
+				ratioOnXaxis
+			})
+		});
+
 		this.addEventListener("textChanged", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
 			this.#handleChanges(event);

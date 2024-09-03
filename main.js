@@ -1,4 +1,4 @@
-const SHOW_HIT_REGIONS = false;
+const SHOW_HIT_REGIONS = true;
 const RECTANGULAR_SELECTION_MODE = "intersection"; // or "containment"
 
 const STAGE_PROPERTIES = {

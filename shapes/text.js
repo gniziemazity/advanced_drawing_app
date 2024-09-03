@@ -8,11 +8,14 @@ class Text extends Shape {
 			fontSize: 60,
 			font: "60px Arial",
 			textAlign: "center",
+			_textAlign: "Center",
 			textBaseline: "middle",
 			lineJoin: "round",
 			lineCap: "round",
 			dilation: 20, //for hit test
 		};
+
+		this.thinWhiteSpace = String.fromCharCode(8201)  // helps in aligning text finely
 
 		this.setText("Enter Text Here", false);
 	}
@@ -159,7 +162,7 @@ class Text extends Shape {
 	getPaddingSize(line, longestLine) {
 		let longWidth = this.getTextWidthOnCanvas(longestLine)
 		let shortWidth = this.getTextWidthOnCanvas(line)
-		let widthOfSpace = this.getTextWidthOnCanvas(" ")
+		let widthOfSpace = this.getTextWidthOnCanvas(this.thinWhiteSpace)
 		let paddingSize = (longWidth - shortWidth) / widthOfSpace
 		return Math.round(paddingSize)
 	}
