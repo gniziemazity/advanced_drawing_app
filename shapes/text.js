@@ -14,6 +14,8 @@ class Text extends Shape {
 			dilation: 20, //for hit test
 		};
 
+		this.thinWhiteSpace = String.fromCharCode(8202) // allows finer text alignment
+
 		this.setText("Enter Text Here", false);
 	}
 
@@ -159,7 +161,7 @@ class Text extends Shape {
 	getPaddingSize(line, longestLine) {
 		let longWidth = this.getTextWidthOnCanvas(longestLine)
 		let shortWidth = this.getTextWidthOnCanvas(line)
-		let widthOfSpace = this.getTextWidthOnCanvas(" ")
+		let widthOfSpace = this.getTextWidthOnCanvas(this.thinWhiteSpace)
 		let paddingSize = (longWidth - shortWidth) / widthOfSpace
 		return Math.round(paddingSize)
 	}
