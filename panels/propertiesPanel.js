@@ -228,6 +228,7 @@ class PropertiesPanel {
 		}
 
 		PropertiesPanel.reset();
+		PropertiesPanel.resetColors();
 
 		viewport.addEventListener(
 			"positionChanged",
@@ -454,7 +455,6 @@ class PropertiesPanel {
 		heightInput.placeholder = "";
 		rotationInput.placeholder = "";
 		document.getElementById(`textAlignCenter`).checked = true
-		PropertiesPanel.resetColors();
 	}
 
 	static getValues() {
