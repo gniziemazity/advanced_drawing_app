@@ -6,7 +6,7 @@ class Text extends Shape {
 		//unify later with other shapes
 		this.properties = {
 			fontSize: 60,
-			font: "60px Arial",
+			font: "60px serif",
 			textAlign: "center",
 			_textAlign: "Center",
 			textBaseline: "middle",
@@ -15,7 +15,7 @@ class Text extends Shape {
 			dilation: 20, //for hit test
 		};
 
-		this.thinWhiteSpace = String.fromCharCode(8201)  // helps in aligning text finely
+		this.thinWhiteSpace = String.fromCharCode(8202)  // helps in aligning text finely
 
 		this.setText("Enter Text Here", false);
 	}
@@ -167,11 +167,29 @@ class Text extends Shape {
 		return Math.round(paddingSize)
 	}
 
+	getIndexOfTextAtPoint(point, line) {
+		let index = 0
+		let left = this.center.x - (this.getTextWidthOnCanvas(line) / 2)
+		
+		while (index < line.length) {
+			left += this.getTextWidthOnCanvas(line[index])
+			if (left >= point.x) break
+			index++
+		}
+
+		// buggy - test TeTeTeTeTerbc
+		return index
+	}
+
 	getTextWidthOnCanvas(text) {
+		return this.getTextMeasure(text).width
+	}
+
+	getTextMeasure(text) {
 		const tmpCanvas = document.createElement("canvas");
 		const tmpCtx = tmpCanvas.getContext("2d");
 		this.setProperties(tmpCtx);
-		return tmpCtx.measureText(text).width
+		return tmpCtx.measureText(text)
 	}
 
 	draw(ctx, hitRegion = false) {
@@ -192,7 +210,6 @@ class Text extends Shape {
 		if (hitRegion) {
 			let row = 0
 			for (let line of lines) {
-				ctx.font = `${fontSize}px Arial`
 				ctx.beginPath();
 				const rgb = Shape.getHitRGB(this.id);
 				ctx.fillStyle = rgb;
@@ -205,7 +222,6 @@ class Text extends Shape {
 		} else {
 			let row = 0
 			for (let line of lines) {
-				ctx.font = `${fontSize}px Arial`
 				ctx.beginPath();
 				if (this.options.fill) {
 					ctx.fillStyle = this.options.fillColor;

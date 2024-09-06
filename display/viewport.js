@@ -246,7 +246,6 @@ class Viewport extends EventTarget {
 			const { shape, clickedPoint } = event.detail
 			let adjustedPoint = this.getAdjustedPosition(clickedPoint)
 
-			let shapeWidth = shape.size.width
 			let shapeHeight = shape.size.height
 			let top = shape.center.y - (shapeHeight / 2)
 
@@ -256,16 +255,13 @@ class Viewport extends EventTarget {
 			let lineIndex = Math.floor(ratioOnYaxis * lines.length)
 		
 			let line = lines[lineIndex]
-			let left = shape.center.x - (shape.getTextWidthOnCanvas(line) / 2)
-			
-			let ratioOnXaxis = Math.abs((adjustedPoint.x - left) / shape.getTextWidthOnCanvas(line))	
-			
-			let indexToInsertCursor = Math.floor(ratioOnXaxis * line.length)
+
+			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line)
+
 			console.table({
 				lineIndex,
-				indexToInsertCursor, 
-				char: line[indexToInsertCursor], 
-				ratioOnXaxis
+				char: line[index], 
+				index
 			})
 		});
 
