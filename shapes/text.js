@@ -172,12 +172,11 @@ class Text extends Shape {
 		let left = this.center.x - (this.getTextWidthOnCanvas(line) / 2)
 		
 		while (index < line.length) {
-			left += this.getTextWidthOnCanvas(line[index])
-			if (left >= point.x) break
+			let offset = left + this.getTextWidthOnCanvas(line.slice(0, index + 1))
+			if (offset >= point.x) break
 			index++
 		}
 
-		// buggy - test TeTeTeTeTerbc
 		return index
 	}
 
