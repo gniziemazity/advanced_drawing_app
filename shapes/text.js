@@ -191,7 +191,6 @@ class Text extends Shape {
 		if (hitRegion) {
 			let row = 0
 			for (let line of lines) {
-				ctx.font = `${fontSize}px Arial`
 				ctx.beginPath();
 				const rgb = Shape.getHitRGB(this.id);
 				ctx.fillStyle = rgb;
@@ -204,7 +203,6 @@ class Text extends Shape {
 		} else {
 			let row = 0
 			for (let line of lines) {
-				ctx.font = `${fontSize}px Arial`
 				ctx.beginPath();
 				if (this.options.fill) {
 					ctx.fillStyle = this.options.fillColor;
