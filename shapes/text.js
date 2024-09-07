@@ -6,7 +6,7 @@ class Text extends Shape {
 		//unify later with other shapes
 		this.properties = {
 			fontSize: 60,
-			font: "60px serif",
+			font: "60px Arial",
 			textAlign: "center",
 			_textAlign: "Center",
 			textBaseline: "middle",

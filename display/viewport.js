@@ -234,6 +234,7 @@ class Viewport extends EventTarget {
                s.unselect(false);
             });
          });
+		 	Cursor.stopEditMode()
 			this.#handleChanges(event);
 		});
 
@@ -243,6 +244,12 @@ class Viewport extends EventTarget {
 		});
 
 		this.addEventListener("TextSelected", (event) => {
+			let selectedShapes = this.getSelectedShapes()
+
+			if (selectedShapes.length > 1) {
+				Cursor.stopEditMode()
+			}
+
 			const { shape, clickedPoint } = event.detail
 			let adjustedPoint = this.getAdjustedPosition(clickedPoint)
 
@@ -258,11 +265,8 @@ class Viewport extends EventTarget {
 
 			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line)
 
-			console.table({
-				lineIndex,
-				char: line[index], 
-				index
-			})
+			Cursor.enterEditMode(shape, index, lineIndex)
+
 		});
 
 		this.addEventListener("textChanged", (event) => {
@@ -271,6 +275,7 @@ class Viewport extends EventTarget {
 		});
 		this.addEventListener("shapeUnselected", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
+			Cursor.stopEditMode()
 			this.#handleChanges(event);
 		});
 		this.addEventListener("gizmoChanged", () => this.drawShapes());
