@@ -248,6 +248,7 @@ class Viewport extends EventTarget {
 
 			if (selectedShapes.length > 1) {
 				Cursor.stopEditMode()
+				return
 			}
 
 			const { shape, clickedPoint } = event.detail

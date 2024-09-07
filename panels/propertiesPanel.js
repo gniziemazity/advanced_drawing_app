@@ -244,6 +244,7 @@ class PropertiesPanel {
 			"shapeUnselected",
 			PropertiesPanel.updateDisplay
 		);
+		viewport.addEventListener("textChanged", PropertiesPanel.updateDisplay)
 		viewport.addEventListener("history", PropertiesPanel.updateDisplay);
 		viewport.addEventListener("layersChanged", (e) => {
 			this.populateLayers(e.detail.count);

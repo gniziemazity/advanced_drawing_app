@@ -9,6 +9,7 @@ class Text extends Shape {
 			font: "60px Arial",
 			textAlign: "center",
 			_textAlign: "Center",
+			xOffsets: {},
 			textBaseline: "middle",
 			lineJoin: "round",
 			lineCap: "round",
@@ -122,24 +123,22 @@ class Text extends Shape {
 	parseText() {
 		let lines = this.text.split("\n")
 		let longestLineWidth = 0
-		let longestLine = lines[0]
 		for (let line of lines) {
 			if (this.getTextWidthOnCanvas(line) > longestLineWidth) {
 				longestLineWidth = this.getTextWidthOnCanvas(line)
-				longestLine = line
 			}
 		}
 		if (this.properties._textAlign) {
 			switch (this.properties._textAlign) {
 				case "Center":
+					this.properties.xOffsets = {}
 					break
 				case "Left":
 					for (let i = 0; i < lines.length; i++) {
 						let line = lines[i]
 						if (this.getTextWidthOnCanvas(line) < longestLineWidth) {
-							let paddingSize = this.getPaddingSize(line, longestLine)
-							line = line + makeSpace(paddingSize)
-							lines[i] = line
+							let offsetSize = longestLineWidth - this.getTextWidthOnCanvas(line)
+							this.properties.xOffsets[i] = -offsetSize / 2
 						}
 					}
 					break
@@ -147,9 +146,8 @@ class Text extends Shape {
 					for (let i = 0; i < lines.length; i++) {
 						let line = lines[i]
 						if (this.getTextWidthOnCanvas(line) < longestLineWidth) {
-							let paddingSize = this.getPaddingSize(line, longestLine)
-							line = makeSpace(paddingSize) + line
-							lines[i] = line
+							let offsetSize = longestLineWidth - this.getTextWidthOnCanvas(line)
+							this.properties.xOffsets[i] = offsetSize / 2
 						}
 					}
 					break
@@ -193,11 +191,9 @@ class Text extends Shape {
 
 	draw(ctx, hitRegion = false) {
 		const center = this.center ? this.center : { x: 0, y: 0 };
-		let left, top, width, fontSize;
+		let left, top, fontSize;
 
-		left = center.x - this.size.width / 2;
 		top = center.y - this.size.height / 2;
-		width = this.size.width;
 
 		fontSize = this.properties.fontSize
 
@@ -208,28 +204,32 @@ class Text extends Shape {
 
 		if (hitRegion) {
 			let row = 0
-			for (let line of lines) {
+			for (let line of lines) {	
+				let xOffset = this.properties.xOffsets[row] || 0
+				left = center.x + xOffset	
 				ctx.beginPath();
 				const rgb = Shape.getHitRGB(this.id);
 				ctx.fillStyle = rgb;
 				ctx.strokeStyle = rgb;
 				ctx.lineWidth = this.options.strokeWidth + this.properties.dilation;
-				ctx.fillText(line, left + width / 2, (top + fontSize / 2) + row * fontSize);
-				ctx.strokeText(line, left + width / 2, (top + fontSize / 2) + row * fontSize);
+				ctx.fillText(line, left, (top + fontSize / 2) + row * fontSize);
+				ctx.strokeText(line, left, (top + fontSize / 2) + row * fontSize);
 				row++
 			}
 		} else {
 			let row = 0
 			for (let line of lines) {
+				let xOffset = this.properties.xOffsets[row] || 0
+				left = center.x + xOffset
 				ctx.beginPath();
 				if (this.options.fill) {
 					ctx.fillStyle = this.options.fillColor;
-					ctx.fillText(line, left + width / 2, (top + fontSize / 2) + row * fontSize);
+					ctx.fillText(line, left, (top + fontSize / 2) + row * fontSize);
 				}
 				if (this.options.stroke) {
 					ctx.strokeStyle = this.options.strokeColor;
 					ctx.lineWidth = this.options.strokeWidth;
-					ctx.strokeText(line, left + width / 2, (top + fontSize / 2) + row * fontSize);
+					ctx.strokeText(line, left, (top + fontSize / 2) + row * fontSize);
 				}
 				row++
 			}
