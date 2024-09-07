@@ -33,6 +33,13 @@ class SelectTool {
 		if (shape) {
 			if (!isClickingSelectedShape) {
 				shape.select();
+				if (shape.text !== undefined) {
+					viewport.dispatchEvent(
+						new CustomEvent("TextSelected", {
+							detail: { shape, clickedPoint: startPosition },
+						})
+					)
+				}
 			}
 			const selectedShapes = viewport.getSelectedShapes();
 			const oldCenters = selectedShapes.map((s) => s.center);
