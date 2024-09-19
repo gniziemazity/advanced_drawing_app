@@ -408,7 +408,7 @@ class PropertiesPanel {
 		viewport
 			.getSelectedShapes()
 			.filter((s) => s.text !== undefined)
-			.forEach((s) => s.setText(value, value));
+			.forEach((s) => s.setText(value, save));
 	}
 
 	static changeFontSize(value, save = true) {
