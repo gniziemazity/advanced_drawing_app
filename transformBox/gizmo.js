@@ -1,7 +1,5 @@
 class Gizmo {
-	static shouldTrackFlip = false;
 	static nextId = 0;
-	static canFlip = { x: false, y: false };
 	constructor(shape) {
 		this.id = Gizmo.nextId++;
 
@@ -10,45 +8,21 @@ class Gizmo {
 		this.rotation = shape.rotation;
 
 		this.#generate();
-
-		viewport.addEventListener(
-			"positionChanged",
-			this.updatePosition.bind(this)
-		);
-		viewport.addEventListener("sizeChanged", this.updateSize.bind(this));
-		viewport.addEventListener(
-			"rotationChanged",
-			this.updateRotation.bind(this)
-		);
+		shape.gizmo = this
 	}
 
 	updatePosition(e) {
-		if (e.detail.shape === this.shape) {
-			this.center = e.detail.position;
-			this.#update();
-			viewport.dispatchEvent(
-				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
-			);
-		}
+		this.center = this.shape.center
+		this.#update();
 	}
 
 	updateSize(e) {
-		if (e.detail.shape === this.shape) {
-			this.#update();
-			viewport.dispatchEvent(
-				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
-			);
-		}
+		this.#update();
 	}
 
 	updateRotation(e) {
-		if (e.detail.shape === this.shape) {
-			this.rotation = e.detail.rotation;
-			this.#update();
-			viewport.dispatchEvent(
-				new CustomEvent("gizmoChanged", { detail: { gizmo: this } })
-			);
-		}
+		this.rotation = this.shape.rotation;
+		this.#update();
 	}
 
 	hasHandle(id) {
@@ -100,9 +74,14 @@ class Gizmo {
 		const oldBoxes = selectedShapes.map((s) =>
 			BoundingBox.fromPoints(s.getPoints().map((p) => p.add(this.center)))
 		);
+
+		const startingSigns = selectedShapes.map(s => ({
+			widthSign: Math.sign(s.size.width),
+			heightSign: Math.sign(s.size.height)
+		}))
+
 		const oldRotations = selectedShapes.map((s) => s.rotation);
 		let mouseDelta = null;
-		let prevRatio = null;
 		const prevSize = { width: this.box.width, height: this.box.height };
 		const moveCallback = (e) => {
 			const mousePosition = new Vector(e.offsetX, e.offsetY);
@@ -112,7 +91,6 @@ class Gizmo {
 			diff.toXY(polar);
 
 			mouseDelta = viewport.getAdjustedScale(diff);
-			Gizmo.shouldTrackFlip = true;
 
 			let ratio = new Vector(
 				mouseDelta.x / prevSize.width,
@@ -172,10 +150,6 @@ class Gizmo {
 				const oldBox = oldBoxes[i];
 				const oldRotation = oldRotations[i];
 
-				if (prevRatio !== null) {
-					Gizmo.setCanFlip(prevRatio.x, ratio.x, prevRatio.y, ratio.y);
-				}
-
 				if (handle.type === Handle.TYPES.ROTATE) {
 					const fixedStart = viewport.getAdjustedPosition(startPosition);
 					const fixedMouse = viewport.getAdjustedPosition(mousePosition);
@@ -188,19 +162,15 @@ class Gizmo {
 					shape.setRotation(combinedAngle, false);
 				} else {
 					shape.setSize(
-						oldBox.width * ratio.x,
-						oldBox.height * ratio.y,
+						oldBox.width  * ratio.x * startingSigns[i].widthSign,
+						oldBox.height * ratio.y * startingSigns[i].heightSign,
 						false
 					);
 				}
 			}
-
-			prevRatio = ratio;
 		};
 
 		const upCallback = (e) => {
-			Gizmo.shouldTrackFlip = false;
-			Gizmo.canFlip = { x: false, y: false };
 			selectedShapes.forEach((s) => s.setSize(s.size.width, s.size.height));
 			viewport
 				.getStageCanvas()
@@ -209,15 +179,6 @@ class Gizmo {
 		};
 		viewport.getStageCanvas().addEventListener("pointermove", moveCallback);
 		viewport.getStageCanvas().addEventListener("pointerup", upCallback);
-	}
-
-	static setCanFlip(prevRatioX, ratioX, prevRatioY, ratioY) {
-		if (Math.sign(prevRatioX) !== Math.sign(ratioX)) {
-			Gizmo.canFlip.x = true;
-		}
-		if (Math.sign(prevRatioY) !== Math.sign(ratioY)) {
-			Gizmo.canFlip.y = true;
-		}
 	}
 
 	draw(ctx, hitRegion = false) {

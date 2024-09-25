@@ -404,9 +404,7 @@ function drawAllShapes() {
 }
 
 function mimicDocumentToolsDotSave() {
-    const data = JSON.stringify(
-      viewport.getShapes().map((s) => s.serialize())
-    );
+    const data = JSON.stringify(viewport.layers.map((l) => l.serialize()));
 
     const file = new Blob([data], { type: "application/json" });
     
@@ -414,16 +412,13 @@ function mimicDocumentToolsDotSave() {
 }
 
 function mimicDocumentToolsDotExport() {
+
     const tmpCanvas = document.createElement("canvas");
-    tmpCanvas.width = STAGE_PROPERTIES.width;
-    tmpCanvas.height = STAGE_PROPERTIES.height;
+    tmpCanvas.width = viewport.canvasWidth;
+    tmpCanvas.height = viewport.canvasHeight;
     const tmpCtx = tmpCanvas.getContext("2d");
-    tmpCtx.translate(-STAGE_PROPERTIES.left, -STAGE_PROPERTIES.top);
-    for (const shape of viewport.getShapes()) {
-        const isSelected = shape.selected;
-        shape.unselect();
-        shape.draw(tmpCtx);
-        shape.select();
+    for(const layer of viewport.layers) {
+       tmpCtx.drawImage(layer.canvas, 0, 0);
     }
 
     return new Promise((resolve) => {
@@ -450,8 +445,7 @@ async function loadBlob(blob, type) {
         reader.onload = (e) => {
             if (type === "json") {
                 const data = JSON.parse(e.target.result);
-                viewport.setShapes(ShapeFactory.loadShapes(data, viewport.stageProperties));
-                viewport.drawShapes();
+                viewport.setLayers(data)
                 resolve(viewport.getShapes())
             } else if (type === "png") {
                 // DocumentTools.loadImage duplicate
@@ -465,7 +459,6 @@ async function loadBlob(blob, type) {
                         )
                     );
                     viewport.addShapes(myImage);
-                    viewport.drawShapes();
                     resolve(viewport.getShapes())
                 };
                 img.src = e.target.result;

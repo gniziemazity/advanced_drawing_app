@@ -53,4 +53,10 @@ function formatAngle(angle) {
 	return (angle * 180) / Math.PI;
 }
 
-
+function makeSpace(length) {
+	let str = ""
+	for (let i = 0; i < length; i++) {
+		str += String.fromCharCode(8202) // append thin space
+	}
+	return str
+}

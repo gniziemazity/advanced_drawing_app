@@ -34,7 +34,7 @@ class CornerGeneratedShapeTool extends ShapeTool {
 			.removeEventListener("pointermove", moveCallback);
 		viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 
-		if (shape.size.width > 0 && shape.size.height > 0) {
+		if (shape?.size.width > 0 && shape?.size.height > 0) {
 			viewport.addShapes(shape);
 		}
 	}

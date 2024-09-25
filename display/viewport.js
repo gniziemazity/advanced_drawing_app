@@ -226,7 +226,6 @@ class Viewport extends EventTarget {
 		this.addEventListener("optionsChanged", this.#handleChanges.bind(this));
 		this.addEventListener("shapesAdded", this.#handleChanges.bind(this));
 		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
-		this.addEventListener("textChanged", this.#handleChanges.bind(this));
 		this.addEventListener("shapesReordered", this.#handleChanges.bind(this));
 		this.addEventListener("layersChanged", (event) => {
 			this.gizmos = [];
@@ -235,6 +234,7 @@ class Viewport extends EventTarget {
                s.unselect(false);
             });
          });
+		 	Cursor.stopEditMode()
 			this.#handleChanges(event);
 		});
 
@@ -242,8 +242,41 @@ class Viewport extends EventTarget {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
 			this.#handleChanges(event);
 		});
+
+		this.addEventListener("TextSelected", (event) => {
+			let selectedShapes = this.getSelectedShapes()
+
+			if (selectedShapes.length > 1) {
+				Cursor.stopEditMode()
+				return
+			}
+
+			const { shape, clickedPoint } = event.detail
+			let adjustedPoint = this.getAdjustedPosition(clickedPoint)
+
+			let shapeHeight = shape.size.height
+			let top = shape.center.y - (shapeHeight / 2)
+
+			let lines = shape.parseText()
+		
+			let ratioOnYaxis = Math.abs((adjustedPoint.y - top) / shapeHeight)
+			let lineIndex = Math.floor(ratioOnYaxis * lines.length)
+		
+			let line = lines[lineIndex]
+
+			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line)
+
+			Cursor.enterEditMode(shape, index, lineIndex)
+
+		});
+
+		this.addEventListener("textChanged", (event) => {
+			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
+			this.#handleChanges(event);
+		});
 		this.addEventListener("shapeUnselected", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
+			Cursor.stopEditMode()
 			this.#handleChanges(event);
 		});
 		this.addEventListener("gizmoChanged", () => this.drawShapes());

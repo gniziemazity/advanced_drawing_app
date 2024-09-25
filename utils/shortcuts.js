@@ -19,8 +19,10 @@ const shortcuts = [
 	{ control: false, key: "Delete", action: EditingTools.delete },
 ];
 
-document.addEventListener("keydown", (e) => {
-	if (e.target instanceof HTMLInputElement) {
+document.addEventListener("keydown", handleShortCutKeysPress);
+
+function handleShortCutKeysPress(e) {
+	if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
 		return;
 	}
 
@@ -28,7 +30,7 @@ document.addEventListener("keydown", (e) => {
 		executeShortcut(e.ctrlKey, e.key);
 		e.preventDefault();
 	}
-});
+}
 
 function isShortcut(control, key) {
 	return shortcuts.find((s) => s.key === key && s.control === control);
