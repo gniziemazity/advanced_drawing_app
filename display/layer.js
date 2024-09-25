@@ -217,13 +217,6 @@ class Layer {
 		this.ctx.restore();
 	}
 
-	#rotateCanvas(center, rotation) {
-		if (rotation == 0) return;
-		this.ctx.translate(center.x, center.y);
-		this.ctx.rotate(rotation);
-		this.ctx.translate(-center.x, -center.y);
-	}
-
 	drawItems(items, doClearCanvas = true) {
 		this.ctx.save();
 
@@ -233,9 +226,9 @@ class Layer {
 		this.type == Layer.TYPES.STAGE && this.#drawStage();
 
 		for (const item of items) {
-			this.#rotateCanvas(item.center, item.rotation);
+			rotateCanvas(this.ctx, item.center, item.rotation);
 			item.draw(this.ctx, this.type == Layer.TYPES.HIT_TEST);
-			this.#rotateCanvas(item.center, -item.rotation);
+			rotateCanvas(this.ctx, item.center, -item.rotation);
 		}
 
 		this.ctx.restore();

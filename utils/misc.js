@@ -67,3 +67,10 @@ function resizeStage(newWidth, newHeight) {
    viewport.resizeStage(newWidth, newHeight);
    viewport.drawShapes();
 }
+
+function rotateCanvas(ctx, center, rotation) {
+   if (rotation == 0) return;
+   ctx.translate(center.x, center.y);
+   ctx.rotate(rotation);
+   ctx.translate(-center.x, -center.y);
+}

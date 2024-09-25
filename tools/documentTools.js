@@ -73,25 +73,16 @@ class DocumentTools {
       }
          
       for (const item of allShapes) {
-         rotateCanvas(item.center, item.rotation);
+         rotateCanvas(tmpCtx, item.center, item.rotation);
          item.draw(tmpCtx);
-         rotateCanvas(item.center, -item.rotation);
+         rotateCanvas(tmpCtx, item.center, -item.rotation);
       }
    
-		
 		tmpCanvas.toBlob((blob) => {
 			const a = document.createElement("a");
 			a.href = URL.createObjectURL(blob);
 			a.download = "image.png";
 			a.click();
 		});
-
-      // WARNING! DUPLICATE in LAYER
-      function rotateCanvas(center, rotation) {
-         if (rotation == 0) return;
-         this.ctx.translate(center.x, center.y);
-         this.ctx.rotate(rotation);
-         this.ctx.translate(-center.x, -center.y);
-      }
 	}
 }
