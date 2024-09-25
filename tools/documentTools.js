@@ -22,6 +22,11 @@ class DocumentTools {
 				if (extension === "json") {
 					const data = JSON.parse(e.target.result);
 					viewport.setLayers(data);
+               // To-Do reorganize the save file (stageProperties only once)
+					resizeStage(
+						data[0].stageProperties.width,
+						data[0].stageProperties.height
+					);
 				} else if (extension === "png") {
 					DocumentTools.loadImage(e);
 				}
@@ -52,18 +57,44 @@ class DocumentTools {
 	}
 
 	static do_export() {
-      const tmpCanvas = document.createElement("canvas");
-      tmpCanvas.width = viewport.canvasWidth;
-      tmpCanvas.height = viewport.canvasHeight;
-      const tmpCtx = tmpCanvas.getContext("2d");
-      for(const layer of viewport.layers) {
-         tmpCtx.drawImage(layer.canvas, 0, 0);
+      // TO-DO: Fix problem when exporting image (stage properties top)
+		const tmpCanvas = document.createElement("canvas");
+      const stageProperties = viewport.layers[0].stageProperties;
+		tmpCanvas.width = stageProperties.width;
+		tmpCanvas.height = stageProperties.height;
+		const tmpCtx = tmpCanvas.getContext("2d");
+
+      const zeroCenterOffset = viewport.zeroCenterOffset;
+		tmpCtx.translate(zeroCenterOffset.x, zeroCenterOffset.y);
+      tmpCtx.translate(stageProperties.left, stageProperties.top);
+
+      const allShapes = [];
+      for (const layer of viewport.layers) {
+         if (layer.type == Layer.TYPES.NORMAL) {
+            allShapes.push(...layer.shapes);
+         }
       }
+         
+      for (const item of allShapes) {
+         rotateCanvas(item.center, item.rotation);
+         item.draw(tmpCtx);
+         rotateCanvas(item.center, -item.rotation);
+      }
+   
+		
 		tmpCanvas.toBlob((blob) => {
 			const a = document.createElement("a");
 			a.href = URL.createObjectURL(blob);
 			a.download = "image.png";
 			a.click();
 		});
+
+      // WARNING! DUPLICATE in LAYER
+      function rotateCanvas(center, rotation) {
+         if (rotation == 0) return;
+         this.ctx.translate(center.x, center.y);
+         this.ctx.rotate(rotation);
+         this.ctx.translate(-center.x, -center.y);
+      }
 	}
 }

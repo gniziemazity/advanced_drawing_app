@@ -61,6 +61,7 @@ class Layer {
 	}
 
 	static load(data, canvasWidth, canvasHeight) {
+      // TO-DO: Fix stageProperties (should be in viewport)
 		const layer = new Layer(
 			canvasWidth,
 			canvasHeight,

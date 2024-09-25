@@ -60,3 +60,10 @@ function makeSpace(length) {
 	}
 	return str
 }
+
+function resizeStage(newWidth, newHeight) {
+   STAGE_PROPERTIES.width = newWidth;
+   STAGE_PROPERTIES.height = newHeight;
+   viewport.resizeStage(newWidth, newHeight);
+   viewport.drawShapes();
+}

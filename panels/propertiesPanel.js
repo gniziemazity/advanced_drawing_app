@@ -19,6 +19,13 @@ class PropertiesPanel {
 			class: "panel-section three_col_grid",
 			["data-title"]: "Color",
 		});
+		const filterSection = createDOMElement("div", {
+			class: "panel-section",
+			["data-title"]: "Filters",
+		});
+		PropertiesPanel.filterSection = filterSection;
+      PropertiesPanel.showFilters([]);
+
 		const textSection = createDOMElement("div", {
 			class: "panel-section",
 			["data-title"]: "Text",
@@ -39,6 +46,7 @@ class PropertiesPanel {
 		panelBodyDiv.appendChild(transformSection);
 		panelBodyDiv.appendChild(colorSection);
 		panelBodyDiv.appendChild(textSection);
+		panelBodyDiv.appendChild(filterSection);
 		panelBodyDiv.appendChild(arrangeSection);
 		panelBodyDiv.appendChild(this.layerSection);
 
@@ -205,7 +213,7 @@ class PropertiesPanel {
 				title: "Text",
 				value: "",
 				placeholder: "Enter Text",
-				style: "width: 100%;"
+				style: "width: 100%;",
 			})
 		);
 		textSection.appendChild(
@@ -221,7 +229,7 @@ class PropertiesPanel {
 				createInputWithLabel(alignment, {
 					type: "radio",
 					onchange: `PropertiesPanel.changeTextAlignment("${alignment}", false)`,
-					id: "textAlign"+alignment,
+					id: "textAlign" + alignment,
 					name: "textAlign",
 				})
 			);
@@ -244,11 +252,62 @@ class PropertiesPanel {
 			"shapeUnselected",
 			PropertiesPanel.updateDisplay
 		);
-		viewport.addEventListener("textChanged", PropertiesPanel.updateDisplay)
+		viewport.addEventListener("textChanged", PropertiesPanel.updateDisplay);
 		viewport.addEventListener("history", PropertiesPanel.updateDisplay);
 		viewport.addEventListener("layersChanged", (e) => {
 			this.populateLayers(e.detail.count);
 		});
+	}
+
+	static showFilters(filters) {
+		PropertiesPanel.filterSection.innerHTML = "";
+      PropertiesPanel.filterSection.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "addFilterBtn",
+					onclick: "PropertiesPanel.addChromaFilter()",
+					title: "Add Chroma Filter",
+				},
+				"➕"
+			)
+		);
+		PropertiesPanel.filterSection.appendChild(
+			createDOMElement(
+				"button",
+				{
+					id: "removeFiltersBtn",
+					onclick: "PropertiesPanel.removeFilters()",
+					title: "Add Filters",
+				},
+				"🗑️"
+			)
+		);
+		for (let i = 0; i < filters.length; i++) {
+			const filter = filters[i];
+			PropertiesPanel.filterSection.appendChild(
+				createDOMElement("input", {
+					id: "colorKey_" + i,
+					onchange:
+						"PropertiesPanel.changeChromaKey(" + i + ",this.value)",
+					title: "Color Key",
+					value: filter.getHexColor(),
+					type: "color",
+				})
+			);
+			PropertiesPanel.filterSection.appendChild(
+				createDOMElement("input", {
+					id: "threshold_" + i,
+					max: "255",
+					min: "0",
+					onchange:
+						"PropertiesPanel.changeChromaThreshold(" + i + ",this.value)",
+					title: "Threshold",
+					type: "range",
+					value: filter.threshold,
+				})
+			);
+		}
 	}
 
 	populateLayers(count) {
@@ -267,15 +326,15 @@ class PropertiesPanel {
 		this.layerSection.appendChild(createDOMElement("div", {}, ""));
 
 		for (let i = 1; i <= count; i++) {
-         const props = {
-            type: "radio",
-            id: "layer_" + i + "_radio",
-            name: "layerRadio",
-            onchange: `LayerTools.selectLayer(${i-1})`
-         }
-         if(viewport.selectedLayer == viewport.layers[i-1]){
-            props.checked=true;
-         }
+			const props = {
+				type: "radio",
+				id: "layer_" + i + "_radio",
+				name: "layerRadio",
+				onchange: `LayerTools.selectLayer(${i - 1})`,
+			};
+			if (viewport.selectedLayer == viewport.layers[i - 1]) {
+				props.checked = true;
+			}
 			this.layerSection.appendChild(
 				createInputWithLabel("layer " + i, props)
 			);
@@ -323,7 +382,7 @@ class PropertiesPanel {
 		viewport.getSelectedShapes().forEach((s) => {
 			const currentWidth = s.size.width;
 			if (value == 0) {
-				newWidth = Math.sign(currentWidth) * -1
+				newWidth = Math.sign(currentWidth) * -1;
 			}
 			const currentHeight = s.size.height;
 			newHeight = currentHeight;
@@ -349,7 +408,7 @@ class PropertiesPanel {
 			const currentWidth = s.size.width;
 			const currentHeight = s.size.height;
 			if (value == 0) {
-				newHeight = Math.sign(currentHeight) * -1
+				newHeight = Math.sign(currentHeight) * -1;
 			}
 			newWidth = currentWidth;
 			if (constrainDimensions.checked) {
@@ -404,6 +463,24 @@ class PropertiesPanel {
 			.forEach((s) => s.setOptions({ strokeWidth: Number(value) }, save));
 	}
 
+	static resetColors() {
+		fillColor.value = "#ffffff";
+		strokeColor.value = "#000000";
+		PropertiesPanel.changeFillColor(fillColor.value);
+		PropertiesPanel.changeStrokeColor(strokeColor.value);
+	}
+
+	static swapColors() {
+		const fillStyle = fillColor.value;
+		const strokeStyle = strokeColor.value;
+
+		fillColor.value = strokeStyle;
+		strokeColor.value = fillStyle;
+
+		PropertiesPanel.changeFillColor(fillColor.value);
+		PropertiesPanel.changeStrokeColor(strokeColor.value);
+	}
+
 	static changeText(value, save = true) {
 		viewport
 			.getSelectedShapes()
@@ -425,23 +502,33 @@ class PropertiesPanel {
 			.forEach((s) => s.setAligngment(value, save));
 	}
 
-	static resetColors() {
-		fillColor.value = "#ffffff";
-		strokeColor.value = "#000000";
-		PropertiesPanel.changeFillColor(fillColor.value);
-		PropertiesPanel.changeStrokeColor(strokeColor.value);
+	static changeChromaKey(index, value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.forEach((s) => s.filters[index].setKeyFromHex(value), save);
 	}
 
-	static swapColors() {
-		const fillStyle = fillColor.value;
-		const strokeStyle = strokeColor.value;
-
-		fillColor.value = strokeStyle;
-		strokeColor.value = fillStyle;
-
-		PropertiesPanel.changeFillColor(fillColor.value);
-		PropertiesPanel.changeStrokeColor(strokeColor.value);
+	static changeChromaThreshold(index, value, save = true) {
+		viewport
+			.getSelectedShapes()
+			.forEach((s) => s.filters[index].setThreshold(value), save);
 	}
+
+	static addChromaFilter() {
+		const selectedShapes = viewport.getSelectedShapes();
+		if (selectedShapes.length == 1 && selectedShapes[0].filters) {
+			selectedShapes[0].filters.push(new Chroma());
+		}
+      PropertiesPanel.updateDisplay();
+	}
+
+   static removeFilters() {
+      const selectedShapes = viewport.getSelectedShapes();
+		if (selectedShapes.length == 1 && selectedShapes[0].filters) {
+			selectedShapes[0].filters = [];
+		}
+      PropertiesPanel.updateDisplay();
+   }
 
 	static reset() {
 		xInput.value = "";
@@ -455,7 +542,7 @@ class PropertiesPanel {
 		widthInput.placeholder = "";
 		heightInput.placeholder = "";
 		rotationInput.placeholder = "";
-		document.getElementById(`textAlignCenter`).checked = true
+		document.getElementById(`textAlignCenter`).checked = true;
 	}
 
 	static getValues() {
@@ -473,7 +560,7 @@ class PropertiesPanel {
 	// To add a PanelProperty field that will update when updateDisplay is
 	// called. we have to do 3 things:
 	// - update the variable panelFields with the new panel property field
-	// - in PropertiesPanel.getNewProperties function: write a simple get<FieldValue> function 
+	// - in PropertiesPanel.getNewProperties function: write a simple get<FieldValue> function
 	// 	 that takes in a shape argument
 	// - in PropertiesPanel.getNewProperties function: update the variable newProperties
 	//   with the field to update and an extract function that uses your get<FieldValue>
@@ -485,53 +572,76 @@ class PropertiesPanel {
 		}
 
 		const panelFields = {
-			xInput, yInput, widthInput, heightInput, fillColor, fill, 
-			strokeColor, stroke, strokeWidth, text, rotationInput, 
-			fontSize, textAlignLeft, textAlignCenter, textAlignRight
-		}
+			xInput,
+			yInput,
+			widthInput,
+			heightInput,
+			fillColor,
+			fill,
+			strokeColor,
+			stroke,
+			strokeWidth,
+			text,
+			rotationInput,
+			fontSize,
+			textAlignLeft,
+			textAlignCenter,
+			textAlignRight,
+		};
 
 		const placeholderText = "Multiple Values";
 
-		let newProperties = PropertiesPanel.getNewProperties(selectedShapes)
+		let newProperties = PropertiesPanel.getNewProperties(selectedShapes);
+		if (selectedShapes.length === 1 && selectedShapes[0].filters) {
+			PropertiesPanel.showFilters(selectedShapes[0].filters);
+		} else {
+			PropertiesPanel.filterSection.innerHTML = "";
+		}
 
 		for (let key in newProperties) {
-			let newProperty = newProperties[key]
+			let newProperty = newProperties[key];
 			if (Number(newProperty.value)) {
-				newProperty.value = Math.round(newProperty.value)
+				newProperty.value = Math.round(newProperty.value);
 			}
 
 			switch (key) {
-				case "fill", "stroke":
-					panelFields[key].checked = newProperty.value || false
-					break
+				case ("fill", "stroke"):
+					panelFields[key].checked = newProperty.value || false;
+					break;
 				case "textAlingnment":
-					document.getElementById(`textAlignCenter`).checked = true
-					let value = newProperty.value
+					document.getElementById(`textAlignCenter`).checked = true;
+					let value = newProperty.value;
 					if (value) {
-						document.getElementById(`textAlign${value}`).checked = true
-					} 
-					break
+						document.getElementById(`textAlign${value}`).checked = true;
+					}
+					break;
 				default:
-					panelFields[key].value = newProperty.value === null ? "" : newProperty.value
-					panelFields[key].placeholder = key === "text" ? "Enter Text" : newProperty.value || placeholderText
+					panelFields[key].value =
+						newProperty.value === null ? "" : newProperty.value;
+					panelFields[key].placeholder =
+						key === "text"
+							? "Enter Text"
+							: newProperty.value || placeholderText;
 			}
 		}
 	}
 
 	static getNewProperties(selectedShapes) {
-		let getX = (shape) => shape.center.x - STAGE_PROPERTIES.left
-		let getY = (shape) => shape.center.y - STAGE_PROPERTIES.top
-		let getWidth = (shape) => shape.size.width
-		let getHeight = (shape) => shape.size.height
-		let getFillColor = (shape) => shape.options.fillColor
-		let getFill = (shape) => shape.options.fill
-		let getStrokeColor = (shape) => shape.options.strokeColor
-		let getStroke = (shape) => shape.options.stroke
-		let getStrokeWidth = (shape) => shape.options.strokeWidth
-		let getText = (shape) => shape.text || null
-		let getRotation = (shape) => shape.rotation
-		let getFontSize = (shape) => shape.text !== undefined ? shape.getFontSize() : ""
-		let getTextAlignMent = (shape) => shape.text !== undefined ? shape.getAlignment() : ""
+		let getX = (shape) => shape.center.x - STAGE_PROPERTIES.left;
+		let getY = (shape) => shape.center.y - STAGE_PROPERTIES.top;
+		let getWidth = (shape) => shape.size.width;
+		let getHeight = (shape) => shape.size.height;
+		let getFillColor = (shape) => shape.options.fillColor;
+		let getFill = (shape) => shape.options.fill;
+		let getStrokeColor = (shape) => shape.options.strokeColor;
+		let getStroke = (shape) => shape.options.stroke;
+		let getStrokeWidth = (shape) => shape.options.strokeWidth;
+		let getText = (shape) => shape.text || null;
+		let getRotation = (shape) => shape.rotation;
+		let getFontSize = (shape) =>
+			shape.text !== undefined ? shape.getFontSize() : "";
+		let getTextAlignMent = (shape) =>
+			shape.text !== undefined ? shape.getAlignment() : "";
 
 		let newProperties = null;
 		for (const shape of selectedShapes) {
@@ -541,25 +651,42 @@ class PropertiesPanel {
 					yInput: { value: getY(shape), extractor: getY },
 					widthInput: { value: getWidth(shape), extractor: getWidth },
 					heightInput: { value: getHeight(shape), extractor: getHeight },
-					fillColor: { value: getFillColor(shape), extractor: getFillColor },
+					fillColor: {
+						value: getFillColor(shape),
+						extractor: getFillColor,
+					},
 					fill: { value: getFill(shape), extractor: getFill },
-					strokeColor: { value: getStrokeColor(shape), extractor: getStrokeColor },
+					strokeColor: {
+						value: getStrokeColor(shape),
+						extractor: getStrokeColor,
+					},
 					stroke: { value: getStroke(shape), extractor: getStroke },
-					strokeWidth: { value: getStrokeWidth(shape), extractor: getStrokeWidth },
+					strokeWidth: {
+						value: getStrokeWidth(shape),
+						extractor: getStrokeWidth,
+					},
 					text: { value: getText(shape), extractor: getText },
-					rotationInput: { value: getRotation(shape), extractor: getRotation },
+					rotationInput: {
+						value: getRotation(shape),
+						extractor: getRotation,
+					},
 					fontSize: { value: getFontSize(shape), extractor: getFontSize },
-					textAlingnment: { value: getTextAlignMent(shape), extractor: getTextAlignMent },
+					textAlingnment: {
+						value: getTextAlignMent(shape),
+						extractor: getTextAlignMent,
+					},
 				};
 			} else {
 				for (let key in newProperties) {
-					let newPanelProperty = newProperties[key]
-					if (newPanelProperty.value !== newPanelProperty.extractor(shape)) {
-						newPanelProperty.value = null
+					let newPanelProperty = newProperties[key];
+					if (
+						newPanelProperty.value !== newPanelProperty.extractor(shape)
+					) {
+						newPanelProperty.value = null;
 					}
-				}		
+				}
 			}
 		}
-		return newProperties
+		return newProperties;
 	}
 }

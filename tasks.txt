@@ -1,14 +1,16 @@
 FOR YOU:
 Tool Buttons
-Find Reason for the ‘slowness’
+Find Reason for the ‘slowness’ 
 Add More tests
-Inheritance for Layer Types
-Refactor Properties Panel  (updateDisplay)
 Better Text Tool
-Refactor selectTool.js
-Refactor gizmo.js 
-Fix width between [1 - infinity) issue
-Layout fix from layer.js
+Align / distribute shapes
+Stage properties tool
+  - Near the other properties? 
+  - Show all shapes as properties of stage mshryane
+
+
+Steve Ruiz's explainers: https://www.steveruiz.me/archive
+Thanks to @hellothere8547 for pointing them out!
 
 
 FOR LATER:

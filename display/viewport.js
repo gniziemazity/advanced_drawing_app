@@ -178,6 +178,13 @@ class Viewport extends EventTarget {
 		);
 	}
 
+   resizeStage(newWidth, newHeight) {
+      this.layers.forEach((l) => {
+         l.stageProperties.width = newWidth;
+         l.stageProperties.height = newHeight;
+      });
+   }
+
 	#handleChanges({ detail }) {
 		this.drawShapes();
 		if (detail.save) {
@@ -227,6 +234,7 @@ class Viewport extends EventTarget {
 		this.addEventListener("shapesAdded", this.#handleChanges.bind(this));
 		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
 		this.addEventListener("shapesReordered", this.#handleChanges.bind(this));
+      this.addEventListener("filterChanged", this.#handleChanges.bind(this));
 		this.addEventListener("layersChanged", (event) => {
 			this.gizmos = [];
          this.layers.forEach((l) => {
