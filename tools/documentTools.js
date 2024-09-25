@@ -57,16 +57,13 @@ class DocumentTools {
 	}
 
 	static do_export() {
-      // TO-DO: Fix problem when exporting image (stage properties top)
 		const tmpCanvas = document.createElement("canvas");
       const stageProperties = viewport.layers[0].stageProperties;
 		tmpCanvas.width = stageProperties.width;
 		tmpCanvas.height = stageProperties.height;
 		const tmpCtx = tmpCanvas.getContext("2d");
 
-      const zeroCenterOffset = viewport.zeroCenterOffset;
-		tmpCtx.translate(zeroCenterOffset.x, zeroCenterOffset.y);
-      tmpCtx.translate(stageProperties.left, stageProperties.top);
+      tmpCtx.translate(-stageProperties.left, -stageProperties.top);
 
       const allShapes = [];
       for (const layer of viewport.layers) {
