@@ -210,6 +210,7 @@ class PropertiesPanel {
 			createDOMElement("textarea", {
 				id: "text",
 				oninput: "PropertiesPanel.changeText(this.value)",
+				onfocus: "Cursor.stopEditMode()",
 				title: "Text",
 				value: "",
 				placeholder: "Enter Text",

@@ -270,7 +270,7 @@ class Viewport extends EventTarget {
 			let ratioOnYaxis = Math.abs((adjustedPoint.y - top) / shapeHeight)
 			let lineIndex = Math.floor(ratioOnYaxis * lines.length)
 		
-			let line = lines[lineIndex]
+			let line = lines[lineIndex] || ""
 
 			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line)
 
