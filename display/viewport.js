@@ -262,6 +262,10 @@ class Viewport extends EventTarget {
 			const { shape, clickedPoint } = event.detail
 			let adjustedPoint = this.getAdjustedPosition(clickedPoint)
 
+			if (shape.rotation) {
+				adjustedPoint = Vector.rotateAroundCenter(adjustedPoint, shape.center, shape.rotation)
+			}
+
 			let shapeHeight = shape.size.height
 			let top = shape.center.y - (shapeHeight / 2)
 
