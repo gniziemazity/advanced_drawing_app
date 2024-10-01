@@ -73,11 +73,6 @@ class Vector {
 	}
 
 	static rotateAroundCenter(v, center, angle) {
-
-		angle = angle % (2 * Math.PI);
-		if (angle < 0) angle += 2 * Math.PI;
-		angle *= -1
-
 		// Translate point to 0,0
 		let translated = new Vector(v.x - center.x, v.y - center.y);
 		
