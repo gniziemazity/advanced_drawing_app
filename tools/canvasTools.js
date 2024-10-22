@@ -1,6 +1,7 @@
 class CanvasTools {
 	static tools = [
 		{ name: "Path", class: new PathTool(), showButton: true },
+		{ name: "Line", class: new LineTool(), showButton: true },
 		{ name: "Rect", class: new RectTool(), showButton: true },
 		{ name: "Oval", class: new OvalTool(), showButton: true },
 		{ name: "Text", class: new TextTool(), showButton: true },

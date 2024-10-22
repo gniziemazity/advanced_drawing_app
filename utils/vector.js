@@ -72,6 +72,27 @@ class Vector {
 		return Math.atan2(v1.y, v1.x) - Math.atan2(v2.y, v2.x);
 	}
 
+	static rotateAroundCenter(v, center, angle) {
+		// Translate point to 0,0
+		let translated = new Vector(v.x - center.x, v.y - center.y);
+		
+		let rotated = {
+			x: translated.x * Math.cos(angle) - translated.y * Math.sin(angle),
+			y: translated.x * Math.sin(angle) + translated.y * Math.cos(angle)
+		};
+		
+		// Translate back to cente.x, center.y
+		return new Vector(
+			rotated.x + center.x,
+			rotated.y + center.y
+		);
+	}
+
+	static distance(v1, v2) {
+		return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2));
+	}
+
+
 	add(v) {
 		return new Vector(this.x + v.x, this.y + v.y);
 	}

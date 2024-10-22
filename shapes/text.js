@@ -168,10 +168,24 @@ class Text extends Shape {
 	getIndexOfTextAtPoint(point, line) {
 		let index = 0
 		let left = this.center.x - (this.getTextWidthOnCanvas(line) / 2)
+		let lines = this.parseText()
+		let xOffset = 0
+		for (let i = 0; i < lines.length; i++) {
+			if (line === lines[i]) {
+				xOffset = this.properties.xOffsets[i] || 0
+			}
+		}
 		
 		while (index < line.length) {
-			let offset = left + this.getTextWidthOnCanvas(line.slice(0, index + 1))
-			if (offset >= point.x) break
+			let offset = left + this.getTextWidthOnCanvas(line.slice(0, index + 1)) + xOffset
+			if (offset >= point.x) {
+				if ( // point is at left side of character
+					point.x - left - this.getTextWidthOnCanvas(line.slice(0, index)) - xOffset < this.getTextWidthOnCanvas(line[index]) / 2
+				) {
+					index--
+				}
+				break
+			}
 			index++
 		}
 

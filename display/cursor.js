@@ -40,18 +40,27 @@ class Cursor {
             case 'Escape':
             case 'Control':
             case 'Shift':
+            case 'Alt':
                 return
+            case 'Home':
+                Cursor.currentIndex = -1
+                break
+            case 'End':
+                Cursor.currentIndex = line.length - 1
+                break
             case 'ArrowUp':
                 if (lineIndex > 0) {
+                    let targetIndex = Cursor.getIndexOnMoveUp()
                     Cursor.currentLineIndex--;
-                    Cursor.currentIndex = Math.min(Cursor.currentIndex, lines[Cursor.currentLineIndex].length);
+                    Cursor.currentIndex = targetIndex;
                 }
                 break;
     
             case 'ArrowDown':
                 if (lineIndex < lines.length - 1) {
+                    let targetIndex = Cursor.getIndexOnMoveDown()
                     Cursor.currentLineIndex++;
-                    Cursor.currentIndex = Math.min(Cursor.currentIndex, lines[Cursor.currentLineIndex].length);
+                    Cursor.currentIndex = targetIndex;
                 }
                 break;
     
@@ -121,6 +130,40 @@ class Cursor {
 		)
     }
 
+    static getIndexOnMoveUp() {
+        return Cursor.getIndexOnMoveTo(Cursor.currentLineIndex - 1)
+    }
+
+    static getIndexOnMoveDown() {
+        return Cursor.getIndexOnMoveTo(Cursor.currentLineIndex + 1)
+    }
+
+    static getIndexOnMoveTo(targetLineIndex) {
+        let textShape = Cursor.currentText;
+        let lines = textShape.parseText();
+        let currentIndex = Cursor.currentIndex;
+        let currentLineIndex = Cursor.currentLineIndex;
+        let currentLine = lines[currentLineIndex];
+        let targetLine = lines[targetLineIndex]
+        let currentLineXOffset = textShape.properties.xOffsets[currentLineIndex] || 0
+        let targetLineXOffset = textShape.properties.xOffsets[targetLineIndex] || 0
+        let currentCursorOffsetFromCenter = textShape.getTextWidthOnCanvas(currentLine.slice(0, currentIndex + 1))
+            - (textShape.getTextWidthOnCanvas(currentLine) / 2)
+            + currentLineXOffset
+
+        let targetCurorOffsetFromCenter = (textShape.getTextWidthOnCanvas(targetLine) / 2) + currentCursorOffsetFromCenter
+        let targetLeft = (-textShape.getTextWidthOnCanvas(targetLine) / 2) + targetLineXOffset
+        let targetRight = (textShape.getTextWidthOnCanvas(targetLine) / 2) + targetLineXOffset
+        if (currentCursorOffsetFromCenter < targetLeft) return -1
+        if (currentCursorOffsetFromCenter > targetRight) return targetLine.length - 1
+
+        let targetLineLeft = textShape.center.x - (textShape.getTextWidthOnCanvas(targetLine) / 2) + targetLineXOffset
+        let targetOffset = targetLineLeft + targetCurorOffsetFromCenter
+        let xOffset = textShape.properties.xOffsets[targetLineIndex] || 0
+        let targetIndex = textShape.getIndexOfTextAtPoint(new Vector(targetOffset - xOffset, 0), targetLine)
+        return targetIndex
+    }
+
     static stopEditMode() {
         if (!Cursor.currentIntervalId) {
             return
@@ -132,6 +175,7 @@ class Cursor {
         Cursor.currentLineIndex = 0
         Cursor.restoreKeyPressListeners()
         document.removeEventListener("keydown", Cursor.handleKeyPress)
+        viewport.drawShapes()
     }
 
     static startCursorBlink() {

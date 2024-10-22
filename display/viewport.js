@@ -262,6 +262,10 @@ class Viewport extends EventTarget {
 			const { shape, clickedPoint } = event.detail
 			let adjustedPoint = this.getAdjustedPosition(clickedPoint)
 
+			if (shape.rotation) {
+				adjustedPoint = Vector.rotateAroundCenter(adjustedPoint, shape.center, -shape.rotation)
+			}
+
 			let shapeHeight = shape.size.height
 			let top = shape.center.y - (shapeHeight / 2)
 
@@ -270,7 +274,7 @@ class Viewport extends EventTarget {
 			let ratioOnYaxis = Math.abs((adjustedPoint.y - top) / shapeHeight)
 			let lineIndex = Math.floor(ratioOnYaxis * lines.length)
 		
-			let line = lines[lineIndex]
+			let line = lines[lineIndex] || ""
 
 			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line)
 
