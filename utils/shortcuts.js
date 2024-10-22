@@ -1,6 +1,7 @@
 const shortcuts = [
 	{ control: false, key: "r", action: () => CanvasTools.selectTool("Rect") },
 	{ control: false, key: "p", action: () => CanvasTools.selectTool("Path") },
+	{ control: false, key: "l", action: () => CanvasTools.selectTool("Line") },
 	{ control: false, key: "v", action: () => CanvasTools.selectTool("Select") },
 	{ control: false, key: "o", action: () => CanvasTools.selectTool("Oval") },
 	{ control: false, key: "t", action: () => CanvasTools.selectTool("Text") },
