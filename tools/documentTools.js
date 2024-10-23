@@ -12,7 +12,7 @@ class DocumentTools {
 	static load() {
 		const input = document.createElement("input");
 		input.type = "file";
-		input.accept = ".json, .png";
+		input.accept = ".json, .png, .jpg";
 		input.onchange = (e) => {
 			const file = e.target.files[0];
 			const reader = new FileReader();
@@ -27,14 +27,14 @@ class DocumentTools {
 						data[0].stageProperties.width,
 						data[0].stageProperties.height
 					);
-				} else if (extension === "png") {
+				} else {
 					DocumentTools.loadImage(e);
 				}
 			};
 
 			if (extension === "json") {
 				reader.readAsText(file);
-			} else if (extension === "png") {
+			} else if (extension === "png" || extension === "jpg") {
 				reader.readAsDataURL(file);
 			}
 		};

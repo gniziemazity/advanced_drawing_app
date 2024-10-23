@@ -2,6 +2,8 @@
 	--gap: 0.5rem;
 	--padding: 0.5rem;
 	--border-width: 1px;
+	--hr-border-width: 4px;
+	--border-radius: 3px;
 	--border-radius: 3px;
 	--outline-width: calc(1rem / 16 * 3);
 	--menu-height: 20px;
@@ -10,15 +12,19 @@
 	--bg-panel: #f7f7f7;
 	--bg-canvas: #e0e0e0;
 	--bg-input: rgba(0, 0, 0, 0.2);
+	--bg-button: #e0e0e0;
 	--bg-button-hover: rgba(0, 0, 0, 0.3);
 	--bg-scrollbar: rgba(0, 0, 0, 0.5);
 	--border-color: rgba(0, 0, 0, 0.2);
 	--text-color: #000;
 
-	--toolbar-width: 30px;
-   --input-width: 110px;
-   --input-medium-width: 40px;
-   --input-small-width: 20px;
+	--highlight-color: #0077ff;
+	--icon-filters: grayscale(100%) contrast(10);
+
+	--toolbar-width: 35px;
+	--input-width: 110px;
+	--input-medium-width: 40px;
+	--input-small-width: 20px;
 }
 
 /* Dark mode if the user's system prefers it */
@@ -27,7 +33,9 @@
 		--bg-color: #474747;
 		--bg-panel: #474747;
 		--bg-canvas: #252525;
+		--bg-button: #252525;
 		--text-color: #f9f9f9;
+		--icon-filters: grayscale(100%) contrast(5) invert(1);
 	}
 }
 
@@ -37,6 +45,7 @@
 	border-color: var(--border-color);
 	column-rule-style: solid;
 	column-rule-color: var(--bg-panel);
+	box-sizing: border-box;
 }
 
 body {
@@ -53,13 +62,12 @@ body {
 }
 
 button {
-	background-color: var(--local-bg-color, var(--bg-color));
-	border: var(--border-width) solid var(--border-color);
-	border-radius: var(--border-radius);
+	background-color: var(--bg-button);
 	padding: 3px;
-	margin: 2px;
 	cursor: pointer;
 	color: var(--text-color);
+	width: var(--toolbar-width);
+	height: var(--toolbar-width);
 }
 
 button:hover {
@@ -67,7 +75,7 @@ button:hover {
 }
 
 hr {
-	border-top: var(--border-width) solid var(--border-color);
+	border-top: var(--hr-border-width) solid var(--border-color);
 	display: inline-flex;
 	margin: 0;
 	padding: 0;
@@ -79,18 +87,19 @@ select {
 	background-color: var(--bg-input);
 	color: var(--text-color);
 	border: var(--border-width) solid var(--bg-input);
-	border-radius: var(--border-radius);
-	transition: border 0.5s;
-   width: var(--input-width);
+	width: var(--input-width);
 }
 
 input[type="color"],
-input[type="checkbox"]{
-   width: var(--input-medium-width);
+input[type="checkbox"] {
+	width: var(--toolbar-width);
+	height: var(--toolbar-width);
+	background-color: var(--bg-button);
+	border: none;
 }
 
 input[type="radio"] {
-   width: var(--input-small-width);
+	width: var(--toolbar-width);
 }
 
 input,
@@ -102,12 +111,8 @@ textarea {
 
 .tool-button {
 	width: var(--toolbar-width);
-	transform-origin: top left;
-	transform: scale(1, 1);
-	position: relative;
-	border-radius: 0;
+	height: var(--toolbar-width);
 	margin: 0;
-	border: 0;
 	font-size: large;
 }
 
@@ -131,6 +136,9 @@ textarea {
 	cursor: pointer;
 	border-bottom-width: var(--border-width);
 	padding: 8px;
+   flex-direction: row !important;
+   align-items: center;
+   justify-content: space-between;
 }
 
 .panel-body {
@@ -151,22 +159,15 @@ textarea {
 	display: flex;
 	flex-direction: column;
 	position: relative;
-	border-left-width: var(--gap);
-	padding-top: calc(1rem + var(--gap) * 2);
+	padding-top:var(--gap);
 
 	overflow-x: hidden;
 	overflow-y: auto;
 	scrollbar-color: var(--bg-scrollbar) rgba(0, 0, 0, 0.3);
 	scrollbar-width: thin;
+	padding-bottom: var(--gap);
 }
 
-.panel-section:before {
-	content: attr(data-title);
-	padding: var(--gap);
-	position: absolute;
-	top: 0;
-	font-size: 0.75rem;
-}
 
 .panel-body > .panel-section:not([hidden]) {
 	border-bottom-width: var(--gap);
@@ -178,27 +179,39 @@ textarea {
 }
 
 .panel-section.two_col_grid {
-	padding-left: calc(var(--gap));
-	padding-top: calc(1rem + var(--gap) * 2);
+	padding-left: var(--gap);
+	padding-right: var(--gap);
+	padding-top: var(--gap);
 
 	display: grid;
 	grid-template-columns: repeat(2, 0.5fr);
+
+	justify-items: left;
+	align-items: center;
 }
 
 .panel-section.three_col_grid {
-	padding-left: calc(var(--gap));
-	padding-top: calc(1rem + var(--gap) * 2);
+	padding-left: var(--gap);
+	padding-right: var(--gap);
+	padding-top: var(--gap);
 
 	display: grid;
 	grid-template-columns: repeat(3, 0.5fr);
+
+	justify-items: left;
+	align-items: center;
 }
 
 .panel-section.four_col_grid {
-	padding-left: calc(var(--gap));
-	padding-top: calc(1rem + var(--gap) * 2);
+	padding-left: var(--gap);
+	padding-right: var(--gap);
+	padding-top: var(--gap);
 
 	display: grid;
 	grid-template-columns: repeat(4, 0.5fr);
+
+	justify-items: left;
+	align-items: center;
 }
 
 .panel-section > div > label {
@@ -214,13 +227,16 @@ textarea {
 	width: var(--toolbar-width);
 	display: inline-flex;
 	flex-flow: column wrap;
-   overflow: hidden;
+	overflow: hidden;
 }
 
 #propertiesHolder {
-   width: 200px;
+	width: 190px;
 	right: 0;
 	background-color: var(--bg-canvas);
+
+	scrollbar-width: thin;
+	overflow-y: auto;
 }
 
 .menu-container {
@@ -231,7 +247,7 @@ textarea {
 }
 
 #strokeWidth {
-   width: var(--input-medium-width);
+	width: var(--input-medium-width);
 }
 
 #contributorsContainer {
@@ -248,8 +264,8 @@ textarea {
 	padding-top: 3px;
 	padding-bottom: 3px;
 	display: inline-block;
-   animation: scroll-left 180s linear normal;
-   width: 100%;
+	animation: scroll-left 180s linear normal;
+	width: 100%;
 }
 
 @keyframes scroll-left {
@@ -259,4 +275,53 @@ textarea {
 	100% {
 		transform: translateX(-100%);
 	}
+}
+
+.radio {
+	display: none;
+}
+
+.radio-button-button {
+	display: inline-block;
+
+	background-color: var(--local-bg-color, var(--bg-color));
+	cursor: pointer;
+	color: var(--text-color);
+
+	width: var(--toolbar-width);
+	height: var(--toolbar-width);
+	min-width: var(--toolbar-width) !important;
+
+	padding: 2px;
+}
+
+/* Add hover effect to look more like a button */
+.radio-button-button:hover {
+	background-color: var(--bg-button-hover);
+}
+
+.icon {
+	width: 100%;
+	filter: var(--icon-filters);
+}
+
+input[type="checkbox"] {
+	-webkit-appearance: none; /* For WebKit browsers */
+	appearance: none; /* Standard syntax */
+	background-color: #fff; /* Unchecked background color */
+	width: var(--toolbar-width);
+	height: var(--toolbar-width);
+	cursor: pointer;
+	position: relative;
+	border: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+input[type="checkbox"]:checked::before {
+	content: "\2713";
+	color: black;
+	font-size: 22px;
+	position: absolute;
 }

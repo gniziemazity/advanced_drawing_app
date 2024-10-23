@@ -27,10 +27,44 @@ function createInputWithLabel(labelText, attributes) {
 	element.appendChild(
 		createDOMElement(
 			"label",
-			{ for: attributes["id"] || labelText.toLowerCase() },
+			{
+				for: attributes["id"] || labelText.toLowerCase(),
+				class: attributes["labelClass"],
+			},
 			labelText
 		)
 	);
+	element.appendChild(
+		createDOMElement("input", {
+			id: labelText.toLowerCase(),
+			title: labelText,
+			...attributes,
+		})
+	);
+	return element;
+}
+
+function createButtonWithIcon(attributes) {
+	const button = createDOMElement("button", attributes);
+	const image = new Image();
+	image.src = `drawings/icons/${attributes.iconName}.png`;
+	image.classList.add("icon");
+	button.appendChild(image);
+	return button;
+}
+
+function createRadioWithImage(labelText, attributes) {
+	const element = document.createElement("div");
+	const label = createDOMElement("label", {
+		for: attributes["id"] || labelText.toLowerCase(),
+		class: "radio-button-button",
+	});
+	const image = new Image();
+	image.src = `drawings/icons/${labelText.toLowerCase()}.png`;
+	image.classList.add("icon");
+	label.appendChild(image);
+
+	element.appendChild(label);
 	element.appendChild(
 		createDOMElement("input", {
 			id: labelText.toLowerCase(),
@@ -54,23 +88,23 @@ function formatAngle(angle) {
 }
 
 function makeSpace(length) {
-	let str = ""
+	let str = "";
 	for (let i = 0; i < length; i++) {
-		str += String.fromCharCode(8202) // append thin space
+		str += String.fromCharCode(8202); // append thin space
 	}
-	return str
+	return str;
 }
 
 function resizeStage(newWidth, newHeight) {
-   STAGE_PROPERTIES.width = newWidth;
-   STAGE_PROPERTIES.height = newHeight;
-   viewport.resizeStage(newWidth, newHeight);
-   viewport.drawShapes();
+	STAGE_PROPERTIES.width = newWidth;
+	STAGE_PROPERTIES.height = newHeight;
+	viewport.resizeStage(newWidth, newHeight);
+	viewport.drawShapes();
 }
 
 function rotateCanvas(ctx, center, rotation) {
-   if (rotation == 0) return;
-   ctx.translate(center.x, center.y);
-   ctx.rotate(rotation);
-   ctx.translate(-center.x, -center.y);
+	if (rotation == 0) return;
+	ctx.translate(center.x, center.y);
+	ctx.rotate(rotation);
+	ctx.translate(-center.x, -center.y);
 }

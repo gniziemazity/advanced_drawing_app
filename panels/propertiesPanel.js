@@ -1,54 +1,100 @@
 class PropertiesPanel {
 	constructor(holderDiv) {
-		this.holderDiv = holderDiv;
-
-		const panelHeaderDiv = createDOMElement("div", {
-			class: "panel-head",
-		});
-		panelHeaderDiv.innerText = "Properties";
+		PropertiesPanel.holderDiv = holderDiv;
 
 		const panelBodyDiv = createDOMElement("div", {
 			class: "panel-body",
-			["data-title"]: "Properties",
 		});
 
-		this.holderDiv.appendChild(panelHeaderDiv);
-		this.holderDiv.appendChild(panelBodyDiv);
+		const transformHeader = createDOMElement("div", {
+			class: "panel-head",
+		});
+		transformHeader.innerText = "Properties";
 
+		const colorHeader = createDOMElement("div", {
+			class: "panel-head",
+		});
+		colorHeader.innerText = "Color";
 		const colorSection = createDOMElement("div", {
 			class: "panel-section three_col_grid",
-			["data-title"]: "Color",
 		});
-		const filterSection = createDOMElement("div", {
-			class: "panel-section",
-			["data-title"]: "Filters",
+
+		const filtersHeader = createDOMElement("div", {
+			class: "panel-head",
+			style: "display:none;",
 		});
-		PropertiesPanel.filterSection = filterSection;
-      PropertiesPanel.showFilters([]);
+		filtersHeader.innerText = "Filters";
+
+		const filtersSection = createDOMElement("div", {
+			class: "panel-section three_col_grid",
+			style: "display:none;",
+		});
+		PropertiesPanel.filtersSection = filtersSection;
+		PropertiesPanel.filtersHeader = filtersHeader;
+		PropertiesPanel.filtersHeader.appendChild(
+			createButtonWithIcon({
+				id: "addFilterBtn",
+				onclick: "PropertiesPanel.addChromaFilter()",
+				title: "Add Chroma Filter",
+				iconName: "plus",
+			})
+		);
+
+		const textHeader = createDOMElement("div", {
+			class: "panel-head",
+			style: "display:none;",
+		});
+		textHeader.innerText = "Text";
 
 		const textSection = createDOMElement("div", {
 			class: "panel-section",
-			["data-title"]: "Text",
+			style: "display:none;",
 		});
+		PropertiesPanel.textSection = textSection;
+		PropertiesPanel.textHeader = textHeader;
 		const transformSection = createDOMElement("div", {
 			class: "panel-section",
-			["data-title"]: "Transform",
-		});
-		const arrangeSection = createDOMElement("div", {
-			class: "panel-section four_col_grid",
-			["data-title"]: "Arrange",
-		});
-		this.layerSection = createDOMElement("div", {
-			class: "panel-section two_col_grid",
-			["data-title"]: "Layers",
 		});
 
+		const arrangeHeader = createDOMElement("div", {
+			class: "panel-head",
+		});
+		arrangeHeader.innerText = "Arrange";
+		const arrangeSection = createDOMElement("div", {
+			class: "panel-section four_col_grid",
+		});
+
+		const layersHeader = createDOMElement("div", {
+			class: "panel-head",
+		});
+		layersHeader.innerText = "Layers";
+		PropertiesPanel.layersHeader = layersHeader;
+		PropertiesPanel.layersHeader.appendChild(
+			createButtonWithIcon({
+				id: "addLayerBtn",
+				onclick: "LayerTools.addLayer()",
+				title: "Add Layer",
+				iconName: "plus",
+			})
+		);
+		PropertiesPanel.layersSection = createDOMElement("div", {
+			class: "panel-section two_col_grid",
+			style: "max-height:110px",
+		});
+
+		holderDiv.appendChild(panelBodyDiv);
+		panelBodyDiv.appendChild(transformHeader);
 		panelBodyDiv.appendChild(transformSection);
+		panelBodyDiv.appendChild(colorHeader);
 		panelBodyDiv.appendChild(colorSection);
+		panelBodyDiv.appendChild(textHeader);
 		panelBodyDiv.appendChild(textSection);
-		panelBodyDiv.appendChild(filterSection);
+		panelBodyDiv.appendChild(filtersHeader);
+		panelBodyDiv.appendChild(filtersSection);
+		panelBodyDiv.appendChild(arrangeHeader);
 		panelBodyDiv.appendChild(arrangeSection);
-		panelBodyDiv.appendChild(this.layerSection);
+		panelBodyDiv.appendChild(layersHeader);
+		panelBodyDiv.appendChild(PropertiesPanel.layersSection);
 
 		transformSection.appendChild(
 			createInputWithLabel("X", {
@@ -98,48 +144,36 @@ class PropertiesPanel {
 		);
 
 		arrangeSection.appendChild(
-			createDOMElement(
-				"button",
-				{
-					id: "sendBackBtn",
-					onclick: "TransformTools.sendToBack()",
-					title: "Send to Back",
-				},
-				"Back"
-			)
+			createButtonWithIcon({
+				id: "sendBackBtn",
+				onclick: "TransformTools.sendToBack()",
+				title: "Send to Back",
+				iconName: "back",
+			})
 		);
 		arrangeSection.appendChild(
-			createDOMElement(
-				"button",
-				{
-					id: "bringFrontBtn",
-					onclick: "TransformTools.bringToFront()",
-					title: "Bring to Front",
-				},
-				"Front"
-			)
+			createButtonWithIcon({
+				id: "sendBackwardBtn",
+				onclick: "TransformTools.sendBackward()",
+				title: "Send Backward",
+				iconName: "bwd",
+			})
 		);
 		arrangeSection.appendChild(
-			createDOMElement(
-				"button",
-				{
-					id: "sendBackwardBtn",
-					onclick: "TransformTools.sendBackward()",
-					title: "Send Backward",
-				},
-				"Bwd"
-			)
+			createButtonWithIcon({
+				id: "bringForwardBtn",
+				onclick: "TransformTools.bringForward()",
+				title: "Bring Forward",
+				iconName: "fwd",
+			})
 		);
 		arrangeSection.appendChild(
-			createDOMElement(
-				"button",
-				{
-					id: "bringForwardBtn",
-					onclick: "TransformTools.bringForward()",
-					title: "Bring Forward",
-				},
-				"Fwd"
-			)
+			createButtonWithIcon({
+				id: "bringFrontBtn",
+				onclick: "TransformTools.bringToFront()",
+				title: "Bring to Front",
+				iconName: "front",
+			})
 		);
 
 		this.populateLayers(1);
@@ -163,11 +197,13 @@ class PropertiesPanel {
 			})
 		);
 		colorSection.appendChild(
-			createDOMElement(
-				"button",
-				{ id: "resetBtn", onclick: "PropertiesPanel.resetColors()" },
-				"Reset"
-			)
+			createButtonWithIcon({
+				id: "resetBtn",
+				title: "Reset",
+				class: "tool-button",
+				onclick: "PropertiesPanel.resetColors()",
+				iconName: "reset_colors",
+			})
 		);
 		colorSection.appendChild(
 			createDOMElement("input", {
@@ -188,11 +224,13 @@ class PropertiesPanel {
 			})
 		);
 		colorSection.appendChild(
-			createDOMElement(
-				"button",
-				{ id: "swapBtn", onclick: "PropertiesPanel.swapColors()" },
-				"Swap"
-			)
+			createButtonWithIcon({
+				id: "swapBtn",
+				title: "Swap",
+				class: "tool-button",
+				onclick: "PropertiesPanel.swapColors()",
+				iconName: "swap_colors",
+			})
 		);
 		colorSection.appendChild(
 			createDOMElement("input", {
@@ -207,17 +245,6 @@ class PropertiesPanel {
 			})
 		);
 		textSection.appendChild(
-			createDOMElement("textarea", {
-				id: "text",
-				oninput: "PropertiesPanel.changeText(this.value)",
-				onfocus: "Cursor.stopEditMode()",
-				title: "Text",
-				value: "",
-				placeholder: "Enter Text",
-				style: "width: 100%;",
-			})
-		);
-		textSection.appendChild(
 			createInputWithLabel("font-size", {
 				type: "number",
 				oninput: "PropertiesPanel.changeFontSize(this.value, false)",
@@ -225,19 +252,28 @@ class PropertiesPanel {
 			})
 		);
 
+		const alignmentDiv = createDOMElement("div", {
+			class: "panel-section three_col_grid",
+			style: "padding-top:0;",
+		});
+		textSection.appendChild(alignmentDiv);
 		for (let alignment of ["Left", "Center", "Right"]) {
-			textSection.appendChild(
-				createInputWithLabel(alignment, {
+			alignmentDiv.appendChild(
+				createRadioWithImage("text_" + alignment.toLowerCase(), {
 					type: "radio",
-					onchange: `PropertiesPanel.changeTextAlignment("${alignment}", false)`,
 					id: "textAlign" + alignment,
 					name: "textAlign",
+					class: "radio",
+					onchange: `PropertiesPanel.changeTextAlignment('${alignment}', false)`,
 				})
 			);
 		}
 
 		PropertiesPanel.reset();
 		PropertiesPanel.resetColors();
+
+		PropertiesPanel.changeTextAlignment("Left", false);
+		LayerTools.selectLayer(0);
 
 		viewport.addEventListener(
 			"positionChanged",
@@ -261,32 +297,11 @@ class PropertiesPanel {
 	}
 
 	static showFilters(filters) {
-		PropertiesPanel.filterSection.innerHTML = "";
-      PropertiesPanel.filterSection.appendChild(
-			createDOMElement(
-				"button",
-				{
-					id: "addFilterBtn",
-					onclick: "PropertiesPanel.addChromaFilter()",
-					title: "Add Chroma Filter",
-				},
-				"➕"
-			)
-		);
-		PropertiesPanel.filterSection.appendChild(
-			createDOMElement(
-				"button",
-				{
-					id: "removeFiltersBtn",
-					onclick: "PropertiesPanel.removeFilters()",
-					title: "Add Filters",
-				},
-				"🗑️"
-			)
-		);
+		PropertiesPanel.filtersSection.innerHTML = "";
+
 		for (let i = 0; i < filters.length; i++) {
 			const filter = filters[i];
-			PropertiesPanel.filterSection.appendChild(
+			PropertiesPanel.filtersSection.appendChild(
 				createDOMElement("input", {
 					id: "colorKey_" + i,
 					onchange:
@@ -296,7 +311,7 @@ class PropertiesPanel {
 					type: "color",
 				})
 			);
-			PropertiesPanel.filterSection.appendChild(
+			PropertiesPanel.filtersSection.appendChild(
 				createDOMElement("input", {
 					id: "threshold_" + i,
 					max: "255",
@@ -306,51 +321,51 @@ class PropertiesPanel {
 					title: "Threshold",
 					type: "range",
 					value: filter.threshold,
+					style: "width: var(--input-medium-width);",
+				})
+			);
+			PropertiesPanel.filtersSection.appendChild(
+				createButtonWithIcon({
+					onclick: "PropertiesPanel.removeFilter(" + i + ")",
+					title: "Remove Filter",
+					iconName: "minus",
 				})
 			);
 		}
 	}
 
 	populateLayers(count) {
-		this.layerSection.innerHTML = "";
-		this.layerSection.appendChild(
-			createDOMElement(
-				"button",
-				{
-					id: "addLayerBtn",
-					onclick: "LayerTools.addLayer()",
-					title: "Add Layer",
-				},
-				"➕"
-			)
-		);
-		this.layerSection.appendChild(createDOMElement("div", {}, ""));
+		PropertiesPanel.layersSection.innerHTML = "";
 
 		for (let i = 1; i <= count; i++) {
 			const props = {
 				type: "radio",
 				id: "layer_" + i + "_radio",
 				name: "layerRadio",
+				class: "radio",
 				onchange: `LayerTools.selectLayer(${i - 1})`,
 			};
 			if (viewport.selectedLayer == viewport.layers[i - 1]) {
 				props.checked = true;
 			}
-			this.layerSection.appendChild(
+			PropertiesPanel.layersSection.appendChild(
 				createInputWithLabel("layer " + i, props)
 			);
 
-			this.layerSection.appendChild(
-				createDOMElement(
-					"button",
-					{
+			if (count > 1) {
+				PropertiesPanel.layersSection.appendChild(
+					createButtonWithIcon({
 						id: "layer_" + i + "_removeBtn",
 						onclick: "LayerTools.removeLayer(" + (i - 1) + ")",
 						title: "Remove Layer",
-					},
-					"🗑️"
-				)
-			);
+						iconName: "minus",
+					})
+				);
+			} else {
+				PropertiesPanel.layersSection.appendChild(
+					createDOMElement("div", {}, "")
+				);
+			}
 		}
 	}
 
@@ -380,22 +395,22 @@ class PropertiesPanel {
 		let newWidth = value;
 		let newHeight = 0;
 
-      const selectedShapes = viewport.getSelectedShapes();
-      if (selectedShapes.length == 0) {
-         newHeight = STAGE_PROPERTIES.height;
-         const aspectRatio = STAGE_PROPERTIES.width / STAGE_PROPERTIES.height;
+		const selectedShapes = viewport.getSelectedShapes();
+		if (selectedShapes.length == 0) {
+			newHeight = STAGE_PROPERTIES.height;
+			const aspectRatio = STAGE_PROPERTIES.width / STAGE_PROPERTIES.height;
 			if (constrainDimensions.checked) {
-            if(!isNaN(aspectRatio)) {
-               newHeight = newWidth / aspectRatio;
-            } else {
-               newHeight = newWidth
-            }
-         }
-         resizeStage(newWidth, newHeight);
-         setValue(widthInput, Math.round(newWidth));
-         setValue(heightInput, Math.round(newHeight));
-         return;
-      }
+				if (!isNaN(aspectRatio)) {
+					newHeight = newWidth / aspectRatio;
+				} else {
+					newHeight = newWidth;
+				}
+			}
+			resizeStage(newWidth, newHeight);
+			setValue(widthInput, Math.round(newWidth));
+			setValue(heightInput, Math.round(newHeight));
+			return;
+		}
 
 		selectedShapes.forEach((s) => {
 			const currentWidth = s.size.width;
@@ -422,23 +437,22 @@ class PropertiesPanel {
 		let newHeight = value;
 		let newWidth = 0;
 
-      const selectedShapes = viewport.getSelectedShapes();
-      if (selectedShapes.length == 0) {
-         newWidth = STAGE_PROPERTIES.width;
-         const aspectRatio = STAGE_PROPERTIES.width / STAGE_PROPERTIES.height;
-         if (constrainDimensions.checked) {
-            if(!isNaN(aspectRatio)) {
-               newWidth = newHeight * aspectRatio;
-            }else{
-               newWidth = newHeight;
-            }
-         }
-         resizeStage(newWidth, newHeight);
-         setValue(widthInput, Math.round(newWidth));
-         setValue(heightInput, Math.round(newHeight));
-         return;
-      }
-
+		const selectedShapes = viewport.getSelectedShapes();
+		if (selectedShapes.length == 0) {
+			newWidth = STAGE_PROPERTIES.width;
+			const aspectRatio = STAGE_PROPERTIES.width / STAGE_PROPERTIES.height;
+			if (constrainDimensions.checked) {
+				if (!isNaN(aspectRatio)) {
+					newWidth = newHeight * aspectRatio;
+				} else {
+					newWidth = newHeight;
+				}
+			}
+			resizeStage(newWidth, newHeight);
+			setValue(widthInput, Math.round(newWidth));
+			setValue(heightInput, Math.round(newHeight));
+			return;
+		}
 
 		viewport.getSelectedShapes().forEach((s) => {
 			const currentWidth = s.size.width;
@@ -536,6 +550,18 @@ class PropertiesPanel {
 			.getSelectedShapes()
 			.filter((s) => s.text !== undefined)
 			.forEach((s) => s.setAligngment(value, save));
+
+		PropertiesPanel.textSection
+			.querySelectorAll(".radio-button-button")
+			.forEach((label) => {
+				label.style.backgroundColor = "transparent";
+			});
+		const radio = document.getElementById("textAlign" + value);
+		radio.checked = true;
+		const label = PropertiesPanel.textSection.querySelector(
+			`label[for="${radio.id}"]`
+		);
+		label.style.backgroundColor = "var(--highlight-color)";
 	}
 
 	static changeChromaKey(index, value, save = true) {
@@ -555,16 +581,16 @@ class PropertiesPanel {
 		if (selectedShapes.length == 1 && selectedShapes[0].filters) {
 			selectedShapes[0].filters.push(new Chroma());
 		}
-      PropertiesPanel.updateDisplay();
+		PropertiesPanel.updateDisplay();
 	}
 
-   static removeFilters() {
-      const selectedShapes = viewport.getSelectedShapes();
+	static removeFilter(index) {
+		const selectedShapes = viewport.getSelectedShapes();
 		if (selectedShapes.length == 1 && selectedShapes[0].filters) {
-			selectedShapes[0].filters = [];
+			selectedShapes[0].filters.splice(index, 1);
 		}
-      PropertiesPanel.updateDisplay();
-   }
+		PropertiesPanel.updateDisplay();
+	}
 
 	static reset() {
 		xInput.value = "";
@@ -572,13 +598,17 @@ class PropertiesPanel {
 		yInput.value = "";
 		widthInput.value = STAGE_PROPERTIES.width;
 		heightInput.value = STAGE_PROPERTIES.height;
-		text.value = "";
 		xInput.placeholder = "";
 		yInput.placeholder = "";
 		widthInput.placeholder = "";
 		heightInput.placeholder = "";
 		rotationInput.placeholder = "";
 		document.getElementById(`textAlignCenter`).checked = true;
+
+		PropertiesPanel.filtersSection.style.display = "none";
+		PropertiesPanel.textSection.style.display = "none";
+		PropertiesPanel.filtersHeader.style.display = "none";
+		PropertiesPanel.textHeader.style.display = "none";
 	}
 
 	static getValues() {
@@ -617,7 +647,6 @@ class PropertiesPanel {
 			strokeColor,
 			stroke,
 			strokeWidth,
-			text,
 			rotationInput,
 			fontSize,
 			textAlignLeft,
@@ -630,8 +659,13 @@ class PropertiesPanel {
 		let newProperties = PropertiesPanel.getNewProperties(selectedShapes);
 		if (selectedShapes.length === 1 && selectedShapes[0].filters) {
 			PropertiesPanel.showFilters(selectedShapes[0].filters);
-		} else {
-			PropertiesPanel.filterSection.innerHTML = "";
+			PropertiesPanel.filtersSection.style.display = "";
+			PropertiesPanel.filtersHeader.style.display = "";
+		}
+
+		if (selectedShapes.length === 1 && selectedShapes[0] instanceof Text) {
+			PropertiesPanel.textSection.style.display = "";
+			PropertiesPanel.textHeader.style.display = "";
 		}
 
 		for (let key in newProperties) {
@@ -655,9 +689,7 @@ class PropertiesPanel {
 					panelFields[key].value =
 						newProperty.value === null ? "" : newProperty.value;
 					panelFields[key].placeholder =
-						key === "text"
-							? "Enter Text"
-							: newProperty.value || placeholderText;
+						newProperty.value || placeholderText;
 			}
 		}
 	}
@@ -701,7 +733,6 @@ class PropertiesPanel {
 						value: getStrokeWidth(shape),
 						extractor: getStrokeWidth,
 					},
-					text: { value: getText(shape), extractor: getText },
 					rotationInput: {
 						value: getRotation(shape),
 						extractor: getRotation,
