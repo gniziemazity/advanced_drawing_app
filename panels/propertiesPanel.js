@@ -380,7 +380,24 @@ class PropertiesPanel {
 		let newWidth = value;
 		let newHeight = 0;
 
-		viewport.getSelectedShapes().forEach((s) => {
+      const selectedShapes = viewport.getSelectedShapes();
+      if (selectedShapes.length == 0) {
+         newHeight = STAGE_PROPERTIES.height;
+         const aspectRatio = STAGE_PROPERTIES.width / STAGE_PROPERTIES.height;
+			if (constrainDimensions.checked) {
+            if(!isNaN(aspectRatio)) {
+               newHeight = newWidth / aspectRatio;
+            } else {
+               newHeight = newWidth
+            }
+         }
+         resizeStage(newWidth, newHeight);
+         setValue(widthInput, Math.round(newWidth));
+         setValue(heightInput, Math.round(newHeight));
+         return;
+      }
+
+		selectedShapes.forEach((s) => {
 			const currentWidth = s.size.width;
 			if (value == 0) {
 				newWidth = Math.sign(currentWidth) * -1;
@@ -404,6 +421,24 @@ class PropertiesPanel {
 	static changeHeight(value, save = true) {
 		let newHeight = value;
 		let newWidth = 0;
+
+      const selectedShapes = viewport.getSelectedShapes();
+      if (selectedShapes.length == 0) {
+         newWidth = STAGE_PROPERTIES.width;
+         const aspectRatio = STAGE_PROPERTIES.width / STAGE_PROPERTIES.height;
+         if (constrainDimensions.checked) {
+            if(!isNaN(aspectRatio)) {
+               newWidth = newHeight * aspectRatio;
+            }else{
+               newWidth = newHeight;
+            }
+         }
+         resizeStage(newWidth, newHeight);
+         setValue(widthInput, Math.round(newWidth));
+         setValue(heightInput, Math.round(newHeight));
+         return;
+      }
+
 
 		viewport.getSelectedShapes().forEach((s) => {
 			const currentWidth = s.size.width;
@@ -535,8 +570,8 @@ class PropertiesPanel {
 		xInput.value = "";
 		rotationInput.value = "";
 		yInput.value = "";
-		widthInput.value = "";
-		heightInput.value = "";
+		widthInput.value = STAGE_PROPERTIES.width;
+		heightInput.value = STAGE_PROPERTIES.height;
 		text.value = "";
 		xInput.placeholder = "";
 		yInput.placeholder = "";
