@@ -77,6 +77,7 @@ class Layer {
 
 	serialize() {
 		return {
+			id: this.id,
 			type: this.type,
 			stageProperties: this.stageProperties,
 			shapes: this.shapes.map((s) => s.serialize()),

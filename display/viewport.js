@@ -137,18 +137,42 @@ class Viewport extends EventTarget {
 		this.layers = layers.map((l) =>
 			Layer.load(l, this.canvasWidth, this.canvasHeight)
 		);
+
+		this.redrawLayers(save)
+	}
+
+	redrawLayers(save = false) {
 		this.layerContainer.innerHTML = "";
 		this.layers.forEach((l) => {
 			this.layerContainer.appendChild(l.canvas);
-			viewport.selectedLayer = l;
-			viewport.drawShapes();
+			this.selectedLayer = l;
+			this.drawShapes();
+			if (save) {
+				this.dispatchEvent(
+					new CustomEvent("layersChanged", {
+						detail: { layer: this.layers, count: this.layers.length, save },
+					})
+				);
+			}
 		});
+	}
 
-		this.dispatchEvent(
-			new CustomEvent("layersChanged", {
-				detail: { layers: layers, count: this.layers.length, save },
-			})
-		);
+	swapLayerById(layerId, layer) {
+		for (let i = 0; i < this.layers.length; i++) {
+			if (this.layers[i].id === layerId) {
+				this.layers[i] = layer
+				layer.id = layerId
+				this.redrawLayers()
+				this.selectedLayer = layer
+				this.dispatchEvent(
+					new CustomEvent("layersChanged", {
+						detail: { layers: this.layers, count: this.layers.length },
+					})
+				);
+				return
+			}
+		}
+		throw new Error("viewport.swapLayerById: no layers with id ", layerId)
 	}
 
 	selectLayerByIndex(index) {
@@ -188,7 +212,7 @@ class Viewport extends EventTarget {
 	#handleChanges({ detail }) {
 		this.drawShapes();
 		if (detail.save) {
-			HistoryTools.record(this.layers);
+			HistoryTools.record();
 		}
 	}
 
@@ -234,14 +258,14 @@ class Viewport extends EventTarget {
 		this.addEventListener("shapesAdded", this.#handleChanges.bind(this));
 		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
 		this.addEventListener("shapesReordered", this.#handleChanges.bind(this));
-      this.addEventListener("filterChanged", this.#handleChanges.bind(this));
+        this.addEventListener("filterChanged", this.#handleChanges.bind(this));
 		this.addEventListener("layersChanged", (event) => {
 			this.gizmos = [];
-         this.layers.forEach((l) => {
-            l.shapes.forEach((s) => {
-               s.unselect(false);
-            });
-         });
+         	this.layers.forEach((l) => {
+				l.shapes.forEach((s) => {
+					s.unselect(false);
+				});
+         	});
 		 	Cursor.stopEditMode()
 			this.#handleChanges(event);
 		});
