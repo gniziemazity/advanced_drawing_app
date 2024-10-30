@@ -1,5 +1,13 @@
-class SelectTool {
-	static addPointerDownListener(e) {
+class SelectTool extends GenericTool {
+	constructor() {
+		super();
+	}
+
+	getShortcut() {
+		return new Shortcut({ control: false, key: "v", action: () => CanvasTools.selectTool("Select") });
+	}
+
+	addPointerDownListener(e) {
 		if (e.button !== 0) return;
 
 		const startPosition = new Vector(e.offsetX, e.offsetY);
@@ -78,11 +86,11 @@ class SelectTool {
 				.addEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 		} else {
-			SelectTool.selectShapesUnderRectangle(e);
+			this.selectShapesUnderRectangle(e);
 		}
 	}
 
-	static selectShapesUnderRectangle(e) {
+	selectShapesUnderRectangle(e) {
 		const startPosition = viewport.getAdjustedPosition(
 			Vector.fromOffsets(e)
 		)
@@ -152,15 +160,15 @@ class SelectTool {
 		viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 	}
 
-	static configureEventListeners() {
+	configureEventListeners() {
 		viewport
 			.getStageCanvas()
-			.addEventListener("pointerdown", this.addPointerDownListener);
+			.addEventListener("pointerdown", this.addPointerDownListener.bind(this));
 	}
 
-	static removeEventListeners() {
+	removeEventListeners() {
 		viewport
 			.getStageCanvas()
-			.removeEventListener("pointerdown", this.addPointerDownListener);
+			.removeEventListener("pointerdown", this.addPointerDownListener.bind(this));
 	}
 }

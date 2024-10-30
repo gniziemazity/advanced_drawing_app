@@ -1,5 +1,69 @@
 class EditingTools {
 	static clipboard = null;
+	static tools = [
+		{
+			name: "Duplicate",
+			func: "EditingTools.duplicate()",
+			showButton: true,
+			icon: "copy",
+			shortcut: new Shortcut({
+				control: true,
+				key: "d",
+				action: EditingTools.duplicate,
+			}),
+		},
+		{
+			name: "Select All",
+			func: "EditingTools.selectAll()",
+			showButton: true,
+			icon: "select_all",
+			shortcut: new Shortcut({
+				control: true,
+				key: "a",
+				action: EditingTools.selectAll,
+			}),
+		},
+		{
+			name: "Delete",
+			func: "EditingTools.delete()",
+			showButton: true,
+			icon: "trash",
+			shortcut: new Shortcut({
+				control: false,
+				key: "Delete",
+				action: EditingTools.delete,
+			}),
+		},
+		{
+			name: "Copy",
+			func: "EditingTools.copy()",
+			showButton: false,
+			shortcut: new Shortcut({
+				control: true,
+				key: "c",
+				action: EditingTools.copy,
+			}),
+		},
+		{
+			name: "Paste",
+			func: "EditingTools.paste()",
+			showButton: false,
+			shortcut: new Shortcut({
+				control: true,
+				key: "v",
+				action: EditingTools.paste,
+			}),
+		},
+	];
+
+	static registerShortcuts() {
+		EditingTools.tools.forEach((tool) => {
+			const shortcut = tool.shortcut;
+			if (shortcut) {
+				shortcutManager.addShortcut(shortcut);
+			}
+		});
+	}
 
 	static selectAll() {
 		viewport.selectShapes(viewport.selectedLayer.shapes)

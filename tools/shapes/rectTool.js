@@ -3,6 +3,10 @@ class RectTool extends CornerGeneratedShapeTool {
 		super();
 	}
 
+	getShortcut() {
+		return new Shortcut({ control: false, key: "r", action: () => CanvasTools.selectTool("Rect") });
+	}
+
 	addPointerDownListener(e) {
 		if (e.button !== 0) return;
 

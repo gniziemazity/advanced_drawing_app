@@ -2,6 +2,40 @@ class HistoryTools {
 	static redoStack = [];
 	static undoStack = [];
 
+	static tools = [
+		{
+			name: "Undo",
+			func: "HistoryTools.undo()",
+			showButton: true,
+			icon: "undo",
+			shortcut: new Shortcut({
+				control: true,
+				key: "z",
+				action: HistoryTools.undo,
+			}),
+		},
+		{
+			name: "Redo",
+			func: "HistoryTools.redo()",
+			showButton: true,
+			icon: "redo",
+			shortcut: new Shortcut({
+				control: true,
+				key: "y",
+				action: HistoryTools.redo,
+			}),
+		},
+	];
+
+	static registerShortcuts() {
+		HistoryTools.tools.forEach((tool) => {
+			const shortcut = tool.shortcut;
+			if (shortcut) {
+				shortcutManager.addShortcut(shortcut);
+			}
+		});
+	}
+
 	static redo() {
 		if (HistoryTools.redoStack.length > 0) {
 			const data = HistoryTools.redoStack.pop();

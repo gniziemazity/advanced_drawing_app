@@ -199,7 +199,7 @@ class PropertiesPanel {
 		colorSection.appendChild(
 			createButtonWithIcon({
 				id: "resetBtn",
-				title: "Reset",
+				title: "Reset (D)",
 				class: "tool-button",
 				onclick: "PropertiesPanel.resetColors()",
 				iconName: "reset_colors",
@@ -226,7 +226,7 @@ class PropertiesPanel {
 		colorSection.appendChild(
 			createButtonWithIcon({
 				id: "swapBtn",
-				title: "Swap",
+				title: "Swap (X)",
 				class: "tool-button",
 				onclick: "PropertiesPanel.swapColors()",
 				iconName: "swap_colors",
@@ -259,7 +259,7 @@ class PropertiesPanel {
 		textSection.appendChild(alignmentDiv);
 		for (let alignment of ["Left", "Center", "Right"]) {
 			alignmentDiv.appendChild(
-				createRadioWithImage("text_" + alignment.toLowerCase(), {
+				createRadioWithImage("text_" + alignment.toLowerCase(), alignment, {
 					type: "radio",
 					id: "textAlign" + alignment,
 					name: "textAlign",
@@ -294,6 +294,13 @@ class PropertiesPanel {
 		viewport.addEventListener("layersChanged", (e) => {
 			this.populateLayers(e.detail.count);
 		});
+
+		this.registerShortcuts();
+	}
+
+	registerShortcuts() {
+		shortcutManager.addShortcut(new Shortcut({ control: false, key: "d", action: PropertiesPanel.resetColors }));
+		shortcutManager.addShortcut(new Shortcut({ control: false, key: "x", action: PropertiesPanel.swapColors }));
 	}
 
 	static showFilters(filters) {

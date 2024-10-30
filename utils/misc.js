@@ -53,15 +53,16 @@ function createButtonWithIcon(attributes) {
 	return button;
 }
 
-function createRadioWithImage(labelText, attributes) {
+function createRadioWithImage(iconName, labelText, attributes) {
 	const element = document.createElement("div");
 	const label = createDOMElement("label", {
-		for: attributes["id"] || labelText.toLowerCase(),
+		for: attributes["id"] || iconName.toLowerCase(),
 		class: "radio-button-button",
 	});
 	const image = new Image();
-	image.src = `drawings/icons/${labelText.toLowerCase()}.png`;
+	image.src = `drawings/icons/${iconName.toLowerCase()}.png`;
 	image.classList.add("icon");
+	image.title = labelText;
 	label.appendChild(image);
 
 	element.appendChild(label);
