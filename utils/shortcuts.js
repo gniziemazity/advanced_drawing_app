@@ -18,6 +18,7 @@ const shortcuts = [
 	{ control: true, key: "v", action: EditingTools.paste },
 	{ control: true, key: "d", action: EditingTools.duplicate },
 	{ control: false, key: "Delete", action: EditingTools.delete },
+	{ control: false, key: "Backspace", action: EditingTools.delete },
 ];
 
 document.addEventListener("keydown", handleShortCutKeysPress);
@@ -27,18 +28,17 @@ function handleShortCutKeysPress(e) {
 		return;
 	}
 
-	if (isShortcut(e.ctrlKey, e.key)) {
-		executeShortcut(e.ctrlKey, e.key);
-		e.preventDefault();
-	}
+	const control = e.ctrlKey || e.metaKey; // Support for mac
+	executeShortcut(control, e.key);
+	e.preventDefault();
 }
 
-function isShortcut(control, key) {
+function getShortcut(control, key) {
 	return shortcuts.find((s) => s.key === key && s.control === control);
 }
 
 function executeShortcut(control, key) {
-	const shortcut = isShortcut(control, key);
+	const shortcut = getShortcut(control, key);
 	if (shortcut) {
 		shortcut.action();
 	}
