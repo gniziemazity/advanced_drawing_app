@@ -1,6 +1,6 @@
 class HistoryTools {
-	static redoStack = [];
-	static undoStack = [];
+
+	static _stacksByLayer = {}
 
 	static tools = [
 		{
@@ -37,10 +37,14 @@ class HistoryTools {
 	}
 
 	static redo() {
-		if (HistoryTools.redoStack.length > 0) {
-			const data = HistoryTools.redoStack.pop();
-         viewport.setLayers(data, false);
-			HistoryTools.undoStack.push(data);
+		let selectedLayerId = viewport.selectedLayer.id
+		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId)
+		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId)
+		if (redoStack.length > 0) {
+			const data = redoStack.pop();
+			viewport.selectedLayer = Layer.load(data, viewport.canvasWidth, viewport.canvasHeight)
+			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer)
+			undoStack.push(data);
 		}
 		viewport.dispatchEvent(
 			new CustomEvent("history", { detail: { layers: viewport.layers } })
@@ -48,32 +52,61 @@ class HistoryTools {
 	}
 
 	static undo() {
-		if (!HistoryTools.undoStack.length) return; // prevent pushing undefined into redoStack
-		HistoryTools.redoStack.push(HistoryTools.undoStack.pop());
-		if (HistoryTools.undoStack.length > 0) {
-         const newLayers = HistoryTools.undoStack[HistoryTools.undoStack.length - 1];
-			viewport.setLayers(newLayers, false);
+		let selectedLayerId = viewport.selectedLayer.id
+		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId)
+		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId)
+		if (!undoStack.length) return; // prevent pushing undefined into redoStack
+		redoStack.push(undoStack.pop());
+		if (undoStack.length > 0) {
+         	const activeLayer = undoStack[undoStack.length - 1];
+			viewport.selectedLayer = Layer.load(activeLayer, viewport.canvasWidth, viewport.canvasHeight)
+			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer)
 		} else {
-			viewport.setLayers([new Layer(
-            viewport.canvasWidth,
-            viewport.canvasHeight,
-            viewport.stageProperties,
-            Layer.TYPES.NORMAL
-         )], false);
+			viewport.selectedLayer = new Layer(
+				viewport.canvasWidth,
+				viewport.canvasHeight,
+				viewport.stageProperties,
+				Layer.TYPES.NORMAL
+        	)
+			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer);
 		}
 		viewport.dispatchEvent(
 			new CustomEvent("history", { detail: { layers: viewport.layers } })
 		);
 	}
 
-	static record(layers) {
-		const newState = layers.map((l) => l.serialize());
-		if (HistoryTools.undoStack.length > 0) {
-			const lastItem =
-				HistoryTools.undoStack[HistoryTools.undoStack.length - 1];
-			if (JSON.stringify(lastItem) === JSON.stringify(newState)) return;
+	static record() {
+		let selectedLayerId = viewport.selectedLayer.id
+		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId)
+		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId)
+		const currentState = viewport.selectedLayer.serialize()
+		if (undoStack.length > 0) {
+			const lastItem = undoStack[undoStack.length - 1];
+			if (JSON.stringify(lastItem) === JSON.stringify(currentState)) return;
 		}
-		HistoryTools.undoStack.push(newState);
-		HistoryTools.redoStack.length = 0;
+		undoStack.push(currentState);
+		redoStack.length = 0;
+	}
+
+	static _getUndoStackByLayerId(layerId) {
+		if (HistoryTools._stacksByLayer[layerId]?.undoStack) {
+			return HistoryTools._stacksByLayer[layerId].undoStack
+		}
+		if (!HistoryTools._stacksByLayer[layerId]) {
+			HistoryTools._stacksByLayer[layerId] = {}
+		}
+		HistoryTools._stacksByLayer[layerId].undoStack = []
+		return HistoryTools._stacksByLayer[layerId].undoStack
+	}
+
+	static _getRedoStackByLayerId(layerId) {
+		if (HistoryTools._stacksByLayer[layerId]?.redoStack) {
+			return HistoryTools._stacksByLayer[layerId].redoStack
+		}
+		if (!HistoryTools._stacksByLayer[layerId]) {
+			HistoryTools._stacksByLayer[layerId] = {}
+		}
+		HistoryTools._stacksByLayer[layerId].redoStack = []
+		return HistoryTools._stacksByLayer[layerId].redoStack
 	}
 }

@@ -6,7 +6,7 @@ class LayerTools {
 
 	static removeLayer(index) {
 		viewport.removeLayerByIndex(index);
-		LayerTools.selectLayer(0);
+		LayerTools.selectLayer(Math.max(0, index - 1));
 	}
 
 	static selectLayer(index) {

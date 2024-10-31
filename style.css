@@ -331,3 +331,7 @@ input[type="checkbox"]:checked::before {
 	font-size: 22px;
 	position: absolute;
 }
+
+.highlight-bg {
+	background-color: var(--highlight-color);
+}

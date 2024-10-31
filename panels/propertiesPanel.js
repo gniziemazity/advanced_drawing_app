@@ -355,6 +355,7 @@ class PropertiesPanel {
 			};
 			if (viewport.selectedLayer == viewport.layers[i - 1]) {
 				props.checked = true;
+				props.labelClass = "highlight-bg"
 			}
 			PropertiesPanel.layersSection.appendChild(
 				createInputWithLabel("layer " + i, props)
@@ -721,7 +722,6 @@ class PropertiesPanel {
 		let getStrokeColor = (shape) => shape.options.strokeColor;
 		let getStroke = (shape) => shape.options.stroke;
 		let getStrokeWidth = (shape) => shape.options.strokeWidth;
-		let getText = (shape) => shape.text || null;
 		let getRotation = (shape) => shape.rotation;
 		let getFontSize = (shape) =>
 			shape.text !== undefined ? shape.getFontSize() : "";
