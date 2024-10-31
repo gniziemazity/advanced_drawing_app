@@ -206,6 +206,13 @@ class Text extends Shape {
 	}
 
 	click() {
+		if (Cursor.isEditing) {
+			// this means we are currently editing this text
+			// but clicked a different part possibly trying
+			// to move the cursor there, therfore do nothing
+			return
+		}
+
 		this.numberClicked += 1
 		if (this.numberClicked % 2 !== 0) {
 			this.select()

@@ -17,6 +17,7 @@ class Cursor {
 	}
 
     static enterEditMode(textShape, index, lineIndex) {
+        Cursor.stopEditMode()
         Cursor.currentText = textShape
         Cursor.currentIndex = index
         Cursor.currentLineIndex = lineIndex
