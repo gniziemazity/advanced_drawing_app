@@ -55,7 +55,6 @@ class SelectTool extends GenericTool {
 				const diff = Vector.subtract(mousePosition, startPosition);
 				mouseDelta = viewport.getAdjustedScale(diff);
 				isDragging = true;
-				shape.select()
 				selectedShapes.forEach((s, i) => {
 					s.setCenter(Vector.add(oldCenters[i], mouseDelta), false);
 				});

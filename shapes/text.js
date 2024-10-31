@@ -211,7 +211,7 @@ class Text extends Shape {
 			this.select()
 		}
 
-		if ((this.numberClicked) % 3 === 0) {
+		if (this.numberClicked % 3 === 0) {
 			this.unselect()
 		}
 	}
