@@ -254,6 +254,7 @@ textarea {
 	width: 100%;
 	overflow: hidden;
 	white-space: nowrap;
+	--animation-play-state: paused;
 }
 
 #contributors {
@@ -264,13 +265,18 @@ textarea {
 	padding-top: 3px;
 	padding-bottom: 3px;
 	display: inline-block;
-	animation: scroll-left 180s linear normal;
-	width: 100%;
+	animation: scroll-left 60s linear normal infinite;
+	animation-delay: -30s;
+	animation-play-state: var(--animation-play-state);
+}
+
+#contributorsContainer:hover {
+	--animation-play-state: running;
 }
 
 @keyframes scroll-left {
 	0% {
-		transform: translateX(10%);
+		transform: translateX(100%);
 	}
 	100% {
 		transform: translateX(-100%);

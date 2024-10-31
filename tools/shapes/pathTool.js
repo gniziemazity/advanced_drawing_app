@@ -3,4 +3,8 @@ class PathTool extends PathGeneratedShapeTool {
 		super();
 		this._shape = Path
 	}
+
+	getShortcut() {
+		return new Shortcut({ control: false, key: "p", action: () => CanvasTools.selectTool("Path") });
+	}
 }

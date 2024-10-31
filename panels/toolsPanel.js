@@ -3,7 +3,7 @@ class ToolsPanel {
 		this.holderDiv = holderDiv;
 
 		this.#addDocumentTools(holderDiv);
-      holderDiv.appendChild(createDOMElement("hr"));
+      	holderDiv.appendChild(createDOMElement("hr"));
 
 		this.#addEditingTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
@@ -19,92 +19,70 @@ class ToolsPanel {
 	}
 
 	#addDocumentTools(holderDiv) {
-		holderDiv.appendChild(
-			createButtonWithIcon({
-				id: "saveBtn",
-				title: "Save",
-				class: "tool-button",
-				onclick: "DocumentTools.save()",
-				iconName: "save",
-			})
-		);
-		holderDiv.appendChild(
-			createButtonWithIcon({
-				id: "exportBtn",
-				title: "Export",
-				class: "tool-button",
-				onclick: "DocumentTools.do_export()",
-				iconName: "export",
-			})
-		);
-		holderDiv.appendChild(
-			createButtonWithIcon({
-				id: "loadBtn",
-				title: "Load",
-				class: "tool-button",
-				onclick: "DocumentTools.load()",
-				iconName: "load",
-			})
-		);
+		for (let tool of DocumentTools.tools) {
+			if (!tool.showButton) continue;
+
+			const shortcut = tool.shortcut;
+			holderDiv.appendChild(
+				createButtonWithIcon({
+					id: tool.name + "Btn",
+					title: (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name),
+					class: "tool-button",
+					onclick: tool.func,
+					iconName: tool.icon ?? tool.name.toLowerCase(),
+				})
+			);
+		}
+
+		DocumentTools.registerShortcuts();
 	}
 
 	#addEditingTools(holderDiv) {
-		holderDiv.appendChild(
-         createButtonWithIcon({
-				id: "duplicateBtn",
-				title: "Duplicate",
-				class: "tool-button",
-				onclick: "DocumentTools.duplicate()",
-				iconName: "copy",
-			})
-		);
-		holderDiv.appendChild(
-         createButtonWithIcon({
-				id: "selectAllBtn",
-				title: "Select All",
-				class: "tool-button",
-				onclick: "EditingTools.selectAll()",
-				iconName: "select_all",
-			})
-		);
-		holderDiv.appendChild(
-         createButtonWithIcon({
-				id: "deleteBtn",
-				title: "Delete",
-				class: "tool-button",
-				onclick: "EditingTools.delete()",
-				iconName: "trash",
-			})
-		);
+		for (let tool of EditingTools.tools) {
+			if (!tool.showButton) continue;
+
+			const shortcut = tool.shortcut;
+			holderDiv.appendChild(
+				createButtonWithIcon({
+					id: tool.name + "Btn",
+					title: (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name),
+					class: "tool-button",
+					onclick: tool.func,
+					iconName: tool.icon ?? tool.name.toLowerCase(),
+				})
+			);
+		}
+
+		EditingTools.registerShortcuts();
 	}
 
 	#addHistoryTools(holderDiv) {
-		holderDiv.appendChild(
-         createButtonWithIcon({
-				id: "undoBtn",
-				title: "Undo",
-				class: "tool-button",
-				onclick: "HistoryTools.undo()",
-				iconName: "undo",
-			})
-		);
-		holderDiv.appendChild(
-         createButtonWithIcon({
-				id: "redoBtn",
-				title: "Redo",
-				class: "tool-button",
-				onclick: "HistoryTools.redo()",
-				iconName: "redo",
-			})
-		);
+		for (let tool of HistoryTools.tools) {
+			if (!tool.showButton) continue;
+
+			const shortcut = tool.shortcut;
+			holderDiv.appendChild(
+				createButtonWithIcon({
+					id: tool.name + "Btn",
+					title: (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name),
+					class: "tool-button",
+					onclick: tool.func,
+					iconName: tool.icon ?? tool.name.toLowerCase(),
+				})
+			);
+		}
+
+
+		HistoryTools.registerShortcuts();
 	}
 
 	#addCanvasTools(holderDiv) {
 		for (let tool of CanvasTools.tools) {
 			if (!tool.showButton) continue;
 
+			const shortcut = tool.class.getShortcut();
 			holderDiv.appendChild(
-				createRadioWithImage(tool.name, {
+				createRadioWithImage(tool.name, (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name), {
 					type: "radio",
 					class: "radio",
 					id: tool.name.toLowerCase() + "Radio",
@@ -116,6 +94,8 @@ class ToolsPanel {
 
 		const selectedTool = CanvasTools.selectTool("Path");
 		this.#selectToolComponent(selectedTool);
+
+		CanvasTools.registerShortcuts();
 	}
 
 	#selectToolComponent(tool) {

@@ -5,9 +5,18 @@ class CanvasTools {
 		{ name: "Rect", class: new RectTool(), showButton: true },
 		{ name: "Oval", class: new OvalTool(), showButton: true },
 		{ name: "Text", class: new TextTool(), showButton: true },
-		{ name: "Select", class: SelectTool, showButton: true },
+		{ name: "Select", class: new SelectTool(), showButton: true },
 		{ name: "Image", class: new MyImageTool(), showButton: false },
 	];
+
+	static registerShortcuts() {
+		CanvasTools.tools.forEach((tool) => {
+			const shortcut = tool.class.getShortcut();
+			if (shortcut) {
+				shortcutManager.addShortcut(shortcut);
+			}
+		});
+	}
 
 	static selectTool(type) {
 		CanvasTools.tools.forEach((tool) => tool.class.removeEventListeners());
@@ -19,4 +28,6 @@ class CanvasTools {
 
 		return tool;
 	}
+
+	
 }
