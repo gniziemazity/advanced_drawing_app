@@ -367,7 +367,7 @@ class PropertiesPanel {
 						id: "layer_" + i + "_removeBtn",
 						onclick: "LayerTools.removeLayer(" + (i - 1) + ")",
 						title: "Remove Layer",
-						iconName: "minus",
+						iconName: "trash",
 					})
 				);
 			} else {
