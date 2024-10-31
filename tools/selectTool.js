@@ -39,14 +39,10 @@ class SelectTool extends GenericTool {
 		}
 
 		if (shape) {
-			if (!isClickingSelectedShape) {
-				shape.select();
+			if (!isClickingSelectedShape){
+				shape.click();
 				if (shape.text !== undefined) {
-					viewport.dispatchEvent(
-						new CustomEvent("TextSelected", {
-							detail: { shape, clickedPoint: startPosition },
-						})
-					)
+					Cursor.attemptToEnterEditMode(shape, startPosition)
 				}
 			}
 			const selectedShapes = viewport.getSelectedShapes();
@@ -59,6 +55,7 @@ class SelectTool extends GenericTool {
 				const diff = Vector.subtract(mousePosition, startPosition);
 				mouseDelta = viewport.getAdjustedScale(diff);
 				isDragging = true;
+				shape.select()
 				selectedShapes.forEach((s, i) => {
 					s.setCenter(Vector.add(oldCenters[i], mouseDelta), false);
 				});
@@ -72,13 +69,17 @@ class SelectTool extends GenericTool {
 					.getStageCanvas()
 					.removeEventListener("pointerup", upCallback);
 
-				if (isClickingSelectedShape && !isDragging) {
-					shape.unselect();
-				}
 				if (isDragging && mouseDelta.magnitude() > 0) {
 					selectedShapes.forEach((s, i) => {
 						s.setCenter(Vector.add(oldCenters[i], mouseDelta));
 					});
+				}
+				
+				if (isClickingSelectedShape && !isDragging) {
+					shape.click();
+					if (shape.text !== undefined) {
+						Cursor.attemptToEnterEditMode(shape, startPosition)
+					}
 				}
 			};
 			viewport

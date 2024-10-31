@@ -6,6 +6,16 @@ class Cursor {
     static currentIntervalId = null
     static isEditing = false
 
+    static attemptToEnterEditMode(shape, startPosition) {
+		if (shape.numberClicked && shape.numberClicked % 2 === 0) {
+			viewport.dispatchEvent(
+				new CustomEvent("TextSelected", {
+					detail: { shape, clickedPoint: startPosition },
+				})
+			)
+		}
+	}
+
     static enterEditMode(textShape, index, lineIndex) {
         Cursor.currentText = textShape
         Cursor.currentIndex = index
@@ -173,6 +183,10 @@ class Cursor {
         }
         clearInterval(Cursor.currentIntervalId)
         Cursor.currentIntervalId = null
+        if (Cursor.currentText.text === "") {
+            Cursor.currentText.selected = true
+            viewport.deleteShapes([Cursor.currentText])
+        }
         Cursor.currentText = null
         Cursor.currentIndex = 0
         Cursor.currentLineIndex = 0

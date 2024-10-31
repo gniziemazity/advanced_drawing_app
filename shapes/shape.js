@@ -139,6 +139,14 @@ class Shape {
 		ctx.restore();
 	}
 
+	click() {
+		if (this.selected) {
+			this.unselect()
+		} else {
+			this.select()
+		}
+	}
+
 	getPoints() {
 		throw new Error("getPoints method must be implemented");
 	}
