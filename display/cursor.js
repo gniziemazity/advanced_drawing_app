@@ -4,28 +4,21 @@ class Cursor {
     static currentIndex = 0
     static currentLineIndex = 0
     static currentIntervalId = null
+    static isEditing = false
 
     static enterEditMode(textShape, index, lineIndex) {
         Cursor.currentText = textShape
         Cursor.currentIndex = index
         Cursor.currentLineIndex = lineIndex
 
-        Cursor.disableKeyPressListeners()
         Cursor.addEventListeners()
+        Cursor.isEditing = true;
 
         Cursor.startCursorBlink()
     }
 
     static addEventListeners() {
         document.addEventListener("keydown", Cursor.handleKeyPress)
-    }
-
-    static disableKeyPressListeners() {
-        document.removeEventListener("keydown", handleShortCutKeysPress);
-    }
-
-    static restoreKeyPressListeners() {
-        document.addEventListener("keydown", handleShortCutKeysPress);
     }
 
     static handleKeyPress(e) {
@@ -44,6 +37,8 @@ class Cursor {
             case 'Control':
             case 'Shift':
             case 'Alt':
+            case 'Meta':
+            case 'Tab':
                 return
             case 'Home':
                 Cursor.currentIndex = -1
@@ -181,7 +176,7 @@ class Cursor {
         Cursor.currentText = null
         Cursor.currentIndex = 0
         Cursor.currentLineIndex = 0
-        Cursor.restoreKeyPressListeners()
+        Cursor.isEditing = false
         document.removeEventListener("keydown", Cursor.handleKeyPress)
         viewport.drawShapes()
     }

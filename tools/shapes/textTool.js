@@ -3,6 +3,10 @@ class TextTool extends ShapeTool {
 		super();
 	}
 
+	getShortcut() {
+		return new Shortcut({ control: false, key: "t", action: () => CanvasTools.selectTool("Text") });
+	}
+
 	addPointerDownListener(e) {
 		if (e.button !== 0) return;
 

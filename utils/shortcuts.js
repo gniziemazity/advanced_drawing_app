@@ -1,45 +1,54 @@
-const shortcuts = [
-	{ control: false, key: "r", action: () => CanvasTools.selectTool("Rect") },
-	{ control: false, key: "p", action: () => CanvasTools.selectTool("Path") },
-	{ control: false, key: "l", action: () => CanvasTools.selectTool("Line") },
-	{ control: false, key: "v", action: () => CanvasTools.selectTool("Select") },
-	{ control: false, key: "o", action: () => CanvasTools.selectTool("Oval") },
-	{ control: false, key: "t", action: () => CanvasTools.selectTool("Text") },
-	{ control: true, key: "u", action: () => window.open(window.location.pathname.replace("index.html", "") + "test.html", "_blank")},
-	{ control: false, key: "d", action: PropertiesPanel.resetColors },
-	{ control: false, key: "x", action: PropertiesPanel.swapColors },
-	{ control: true, key: "z", action: HistoryTools.undo },
-	{ control: true, key: "y", action: HistoryTools.redo },
-	{ control: true, key: "s", action: DocumentTools.save },
-	{ control: true, key: "l", action: DocumentTools.load },
-	{ control: true, key: "x", action: DocumentTools.do_export },
-	{ control: true, key: "a", action: EditingTools.selectAll },
-	{ control: true, key: "c", action: EditingTools.copy },
-	{ control: true, key: "v", action: EditingTools.paste },
-	{ control: true, key: "d", action: EditingTools.duplicate },
-	{ control: false, key: "Delete", action: EditingTools.delete },
-];
-
-document.addEventListener("keydown", handleShortCutKeysPress);
-
-function handleShortCutKeysPress(e) {
-	if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-		return;
+class Shortcut {
+	constructor({control, key, action}) {
+		this.control = control ?? false;
+		this.key = key ?? "";
+		this.action = action ?? (() => {});
 	}
 
-	if (isShortcut(e.ctrlKey, e.key)) {
-		executeShortcut(e.ctrlKey, e.key);
+	toString() {
+		return `${this.control ? "Ctrl+" : ""}${this.key.toUpperCase()}`;
+	}
+}
+
+class ShortcutManager {
+	constructor(config) {
+		this.shortcuts = [];
+		if (config) {
+			config.forEach((shortcut) => this.addShortcut(new Shortcut(shortcut)));
+		}
+		document.addEventListener("keydown", this.handleShortCutKeysPress.bind(this));
+	}
+
+	addShortcut(shortcut) {
+		this.shortcuts.push(shortcut);
+	}
+
+	removeShortcut(shortcut) {
+		this.shortcuts = this.shortcuts.filter((s) => s !== shortcut);
+	}
+
+	getShortcut(control, key) {
+		return this.shortcuts.find((s) => s.key === key && s.control === control);
+	}
+
+	executeShortcut(control, key) {
+		const shortcut = this.getShortcut(control, key);
+		if (shortcut) {
+			shortcut.action();
+		}
+	}
+
+	handleShortCutKeysPress(e) {
+		if (Cursor.isEditing || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+		
+		const control = e.ctrlKey || e.metaKey;
+		this.executeShortcut(control, e.key);
 		e.preventDefault();
 	}
 }
 
-function isShortcut(control, key) {
-	return shortcuts.find((s) => s.key === key && s.control === control);
-}
-
-function executeShortcut(control, key) {
-	const shortcut = isShortcut(control, key);
-	if (shortcut) {
-		shortcut.action();
-	}
-}
+const shortcutManager = new ShortcutManager([
+	{ control: true, key: "u", action: () => window.open(window.location.pathname.replace("index.html", "") + "test.html", "_blank")},
+]);

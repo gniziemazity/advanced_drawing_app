@@ -1,5 +1,6 @@
-class ShapeTool {
+class ShapeTool extends GenericTool {
 	constructor() {
+		super();
 		this.boundEventListener = null;
 	}
 
