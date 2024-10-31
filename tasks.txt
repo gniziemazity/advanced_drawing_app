@@ -1,9 +1,9 @@
-FOR YOU:
-Tool Buttons
-Find Reason for the ‘slowness’ 
-Add More tests
-Better Text Tool
+Text tool improvements:
+1. Clicking on it and pressing delete does not delete it because the cursor appears (so it deletes the next letter)
+2. I feel like cursor should appear on a second click
+
 Align / distribute shapes
+
 Stage properties tool
   - Near the other properties? 
   - Show all shapes as properties of stage mshryane

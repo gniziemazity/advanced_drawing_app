@@ -1,6 +1,7 @@
 const contributors = [
    "iyusuf",
    "michael golden",
+   "Pieter De Schepper",
    "pesterenan",
    "rahul thakare",
    "egbertpostma",
@@ -11,7 +12,10 @@ const contributors = [
    "V-key",
    "Gyanendra Singh",
    "mshryane",
-   "Mihir-Fluxbyte"
+   "Mihir-Fluxbyte",
+   "EggBird",
+   "Christophe Carvalho Vilas-Boas",
+   "Mihir Patel"
 ];
 
 document.getElementById("contributors").innerHTML = contributors.join(", ");
