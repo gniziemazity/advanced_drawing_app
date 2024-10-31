@@ -22,6 +22,9 @@ class Cursor {
     }
 
     static handleKeyPress(e) {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+            return;
+        }
         let textShape = Cursor.currentText;
         let lines = textShape.parseText();
         let currentIndex = Cursor.currentIndex;
@@ -113,6 +116,11 @@ class Cursor {
     
             default:
                 let keyPressedValue = e.key;
+                if (keyPressedValue.length !== 1) {
+                    // speacial keys that has not been handled
+                    // e.g 'number lock' key
+                    return
+                }
                 line = line.slice(0, currentIndex + 1) + keyPressedValue + line.slice(currentIndex + 1)
                 Cursor.currentIndex++
                 lines[Cursor.currentLineIndex] = line

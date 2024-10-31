@@ -62,14 +62,13 @@ function createRadioWithImage(iconName, labelText, attributes) {
 	const image = new Image();
 	image.src = `drawings/icons/${iconName.toLowerCase()}.png`;
 	image.classList.add("icon");
-	image.title = labelText;
+	image.title = attributes.title || labelText
 	label.appendChild(image);
 
 	element.appendChild(label);
 	element.appendChild(
 		createDOMElement("input", {
 			id: labelText.toLowerCase(),
-			title: labelText,
 			...attributes,
 		})
 	);

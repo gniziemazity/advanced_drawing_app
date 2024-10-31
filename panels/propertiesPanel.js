@@ -264,7 +264,8 @@ class PropertiesPanel {
 					id: "textAlign" + alignment,
 					name: "textAlign",
 					class: "radio",
-					onchange: `PropertiesPanel.changeTextAlignment('${alignment}', false)`,
+					title: "align " + alignment.toLowerCase(),
+					onchange: `PropertiesPanel.changeTextAlignment('${alignment}', false)`
 				})
 			);
 		}
@@ -272,7 +273,7 @@ class PropertiesPanel {
 		PropertiesPanel.reset();
 		PropertiesPanel.resetColors();
 
-		PropertiesPanel.changeTextAlignment("Left", false);
+		PropertiesPanel.changeTextAlignment("Center", false);
 		LayerTools.selectLayer(0);
 
 		viewport.addEventListener(
@@ -613,6 +614,10 @@ class PropertiesPanel {
 		document.getElementById(`textAlignCenter`).checked = true;
 
 		PropertiesPanel.filtersSection.style.display = "none";
+		PropertiesPanel.textSection.querySelectorAll('label')
+		.forEach( label => {
+			label.style.backgroundColor = "transparent"
+		})
 		PropertiesPanel.textSection.style.display = "none";
 		PropertiesPanel.filtersHeader.style.display = "none";
 		PropertiesPanel.textHeader.style.display = "none";
@@ -689,7 +694,12 @@ class PropertiesPanel {
 					document.getElementById(`textAlignCenter`).checked = true;
 					let value = newProperty.value;
 					if (value) {
-						document.getElementById(`textAlign${value}`).checked = true;
+						const radio = document.getElementById(`textAlign${value}`)
+						radio.checked = true;
+						const label = PropertiesPanel.textSection.querySelector(
+							`label[for="${radio.id}"]`
+						);
+						label.style.backgroundColor = "var(--highlight-color)";
 					}
 					break;
 				default:
