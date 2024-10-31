@@ -86,11 +86,11 @@ class SelectTool extends GenericTool {
 				.addEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 		} else {
-			this.selectShapesUnderRectangle(e);
+			SelectTool.selectShapesUnderRectangle(e);
 		}
 	}
 
-	selectShapesUnderRectangle(e) {
+	static selectShapesUnderRectangle(e) {
 		const startPosition = viewport.getAdjustedPosition(
 			Vector.fromOffsets(e)
 		)
@@ -163,12 +163,12 @@ class SelectTool extends GenericTool {
 	configureEventListeners() {
 		viewport
 			.getStageCanvas()
-			.addEventListener("pointerdown", this.addPointerDownListener.bind(this));
+			.addEventListener("pointerdown", this.addPointerDownListener);
 	}
 
 	removeEventListeners() {
 		viewport
 			.getStageCanvas()
-			.removeEventListener("pointerdown", this.addPointerDownListener.bind(this));
+			.removeEventListener("pointerdown", this.addPointerDownListener);
 	}
 }
