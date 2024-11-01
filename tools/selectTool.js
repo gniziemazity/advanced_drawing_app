@@ -39,14 +39,10 @@ class SelectTool extends GenericTool {
 		}
 
 		if (shape) {
-			if (!isClickingSelectedShape) {
-				shape.select();
+			if (!isClickingSelectedShape){
+				shape.click();
 				if (shape.text !== undefined) {
-					viewport.dispatchEvent(
-						new CustomEvent("TextSelected", {
-							detail: { shape, clickedPoint: startPosition },
-						})
-					)
+					Cursor.attemptToEnterEditMode(shape, startPosition)
 				}
 			}
 			const selectedShapes = viewport.getSelectedShapes();
@@ -72,13 +68,17 @@ class SelectTool extends GenericTool {
 					.getStageCanvas()
 					.removeEventListener("pointerup", upCallback);
 
-				if (isClickingSelectedShape && !isDragging) {
-					shape.unselect();
-				}
 				if (isDragging && mouseDelta.magnitude() > 0) {
 					selectedShapes.forEach((s, i) => {
 						s.setCenter(Vector.add(oldCenters[i], mouseDelta));
 					});
+				}
+				
+				if (isClickingSelectedShape && !isDragging) {
+					shape.click();
+					if (shape.text !== undefined) {
+						Cursor.attemptToEnterEditMode(shape, startPosition)
+					}
 				}
 			};
 			viewport
@@ -86,11 +86,11 @@ class SelectTool extends GenericTool {
 				.addEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 		} else {
-			this.selectShapesUnderRectangle(e);
+			SelectTool.selectShapesUnderRectangle(e);
 		}
 	}
 
-	selectShapesUnderRectangle(e) {
+	static selectShapesUnderRectangle(e) {
 		const startPosition = viewport.getAdjustedPosition(
 			Vector.fromOffsets(e)
 		)
@@ -163,12 +163,12 @@ class SelectTool extends GenericTool {
 	configureEventListeners() {
 		viewport
 			.getStageCanvas()
-			.addEventListener("pointerdown", this.addPointerDownListener.bind(this));
+			.addEventListener("pointerdown", this.addPointerDownListener);
 	}
 
 	removeEventListeners() {
 		viewport
 			.getStageCanvas()
-			.removeEventListener("pointerdown", this.addPointerDownListener.bind(this));
+			.removeEventListener("pointerdown", this.addPointerDownListener);
 	}
 }

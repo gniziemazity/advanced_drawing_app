@@ -16,6 +16,8 @@ class Text extends Shape {
 			dilation: 20, //for hit test
 		};
 
+		this.numberClicked = 0
+
 		this.thinWhiteSpace = String.fromCharCode(8202)  // helps in aligning text finely
 
 		this.setText("Enter Text Here", false);
@@ -201,6 +203,36 @@ class Text extends Shape {
 		const tmpCtx = tmpCanvas.getContext("2d");
 		this.setProperties(tmpCtx);
 		return tmpCtx.measureText(text)
+	}
+
+	click() {
+		if (Cursor.isEditing) {
+			// this means we are currently editing this text
+			// but clicked a different part possibly trying
+			// to move the cursor there, therfore do nothing
+			return
+		}
+
+		this.numberClicked += 1
+		if (this.numberClicked % 2 !== 0) {
+			this.select()
+		}
+
+		if (this.numberClicked % 3 === 0) {
+			this.unselect()
+		}
+	}
+
+	unselect(save = true) {
+		this.numberClicked = 0
+		this.selected = false;
+		this.gizmo = null
+		
+		viewport.dispatchEvent(
+			new CustomEvent("shapeUnselected", {
+				detail: { shape: this, save },
+			})
+		);
 	}
 
 	draw(ctx, hitRegion = false) {
