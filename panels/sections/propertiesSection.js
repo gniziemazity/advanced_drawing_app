@@ -2,6 +2,38 @@ class PropertiesSection extends PanelSection {
 
     constructor() {
         super("Properties");
+		this.panelProperties = [
+			{
+				key: "x",
+				type: "number",
+				inputId: "xInput",
+				extractor: this.getX.bind(this),
+			},
+			{
+				key: "y",
+				type: "number",
+				inputId: "yInput",
+				extractor: this.getY.bind(this),
+			},
+			{
+				key: "width",
+				type: "number",
+				inputId: "widthInput",
+				extractor: this.getWidth.bind(this),
+			},
+			{
+				key: "height",
+				type: "number",
+				inputId: "heightInput",
+				extractor: this.getHeight.bind(this),
+			},
+			{
+				key: "rotation",
+				type: "number",
+				inputId: "rotationInput",
+				extractor: this.getRotation.bind(this),
+			},
+		]
     }
 
     addContent(holderDiv) {
@@ -165,5 +197,25 @@ class PropertiesSection extends PanelSection {
 			s.setRotation(radians, save);
 		});
 		setValue(rotationInput, degrees);
+	}
+
+	getX(shape) {
+		return shape.center.x - STAGE_PROPERTIES.left;
+	}
+
+	getY(shape) {
+		return shape.center.y - STAGE_PROPERTIES.top;
+	}
+
+	getWidth(shape) {
+		return shape.size.width;
+	}
+	
+	getHeight(shape){
+		return shape.size.height;
+	} 
+
+	getRotation(shape) {
+		return shape.rotation * (180 / Math.PI);
 	}
 }

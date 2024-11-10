@@ -1,12 +1,43 @@
 class ColorSection extends PanelSection {
+	constructor() {
+		super("Color", { sectionClass: "three_col_grid" });
+		this.registerShortcuts();
+		this.panelProperties = [
+			{
+				key: "fillColor",
+				type: "string",
+				inputId: "fillColor",
+				extractor: this.getFillColor.bind(this),
+			},
+			{
+				key: "fill",
+				type: "boolean",
+				inputId: "fill",
+				extractor: this.getFill.bind(this),
+			},
+			{
+				key: "strokeColor",
+				type: "string",
+				inputId: "strokeColor",
+				extractor: this.getStrokeColor.bind(this),
+			},
+			{
+				key: "stroke",
+				type: "boolean",
+				inputId: "stroke",
+				extractor: this.getStroke.bind(this),
+			},
+			{
+				key: "strokeWidth",
+				type: "number",
+				inputId: "strokeWidth",
+				extractor: this.getStrokeWidth.bind(this),
+			},
+		];
+	}
 
-    constructor() {
-        super("Color", { sectionClass: "three_col_grid" });
-        this.registerShortcuts();
-    }
-    
-    addContent(holderDiv) {
-        holderDiv.appendChild(
+	addContent(holderDiv) {
+		holderDiv.appendChild(
 			createDOMElement("input", {
 				id: "fillColor",
 				onchange: (e) => this.changeFillColor(e.currentTarget.value),
@@ -37,7 +68,8 @@ class ColorSection extends PanelSection {
 			createDOMElement("input", {
 				id: "strokeColor",
 				onchange: (e) => this.changeStrokeColor(e.currentTarget.value),
-				oninput: (e) => this.changeStrokeColor(e.currentTarget.value, false),
+				oninput: (e) =>
+					this.changeStrokeColor(e.currentTarget.value, false),
 				title: "Stroke Color",
 				type: "color",
 			})
@@ -66,20 +98,33 @@ class ColorSection extends PanelSection {
 				max: "30",
 				min: "1",
 				onchange: (e) => this.changeStrokeWidth(e.currentTarget.value),
-				oninput: (e) => this.changeStrokeWidth(e.currentTarget.value, false),
+				oninput: (e) =>
+					this.changeStrokeWidth(e.currentTarget.value, false),
 				title: "Stroke Width",
 				type: "range",
 				value: "5",
 			})
 		);
-    }
+	}
 
-    registerShortcuts() {
-        shortcutManager.addShortcut(new Shortcut({ control: false, key: "d", action: this.resetColors.bind(this) }));
-		shortcutManager.addShortcut(new Shortcut({ control: false, key: "x", action: this.swapColors.bind(this) }));
-    }
+	registerShortcuts() {
+		shortcutManager.addShortcut(
+			new Shortcut({
+				control: false,
+				key: "d",
+				action: this.resetColors.bind(this),
+			})
+		);
+		shortcutManager.addShortcut(
+			new Shortcut({
+				control: false,
+				key: "x",
+				action: this.swapColors.bind(this),
+			})
+		);
+	}
 
-    changeFillColor(value, save = true) {
+	changeFillColor(value, save = true) {
 		viewport
 			.getSelectedShapes()
 			.forEach((s) => s.setOptions({ fillColor: value }, save));
@@ -125,5 +170,21 @@ class ColorSection extends PanelSection {
 
 		this.changeFillColor(fillColor.value);
 		this.changeStrokeColor(strokeColor.value);
+	}
+
+	getFillColor(shape) {
+		return shape.options.fillColor;
+	}
+	getFill(shape) {
+		return shape.options.fill;
+	}
+	getStrokeColor(shape) {
+		return shape.options.strokeColor;
+	}
+	getStroke(shape) {
+		return shape.options.stroke;
+	}
+	getStrokeWidth(shape) {
+		return shape.options.strokeWidth;
 	}
 }

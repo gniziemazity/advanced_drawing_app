@@ -1,14 +1,28 @@
 class TextSection extends PanelSection {
+	constructor() {
+		super("Text", { visible: false });
+		this.panelProperties = [
+			{
+				key: "fontSize",
+				type: "number",
+				inputId: "fontSize",
+				extractor: this.getFontSize.bind(this),
+			},
+			{
+				key: "textAlignment",
+				type: "enum",
+				enum: ["Left", "Center", "Right"],
+				inputId: "textAlign",
+				extractor: this.getTextAlignment.bind(this),
+			},
+		];
+	}
 
-    constructor() {
-        super("Text", { visible: false });
-    }
-    
-    addContent(holderDiv) {
-        holderDiv.appendChild(
+	addContent(holderDiv) {
+		holderDiv.appendChild(
 			createInputWithLabel("font-size", {
 				type: "number",
-				oninput: (e) => this.changeFontSize(e.currentTarget.value , false),
+				oninput: (e) => this.changeFontSize(e.currentTarget.value, false),
 				id: "fontSize",
 			})
 		);
@@ -18,7 +32,7 @@ class TextSection extends PanelSection {
 			style: "padding-top:0;",
 		});
 		holderDiv.appendChild(alignmentDiv);
-		for (let alignment of ["Left", "Center", "Right"]) {
+		for (const alignment of ["Left", "Center", "Right"]) {
 			alignmentDiv.appendChild(
 				createRadioWithImage("text_" + alignment.toLowerCase(), alignment, {
 					type: "radio",
@@ -26,11 +40,11 @@ class TextSection extends PanelSection {
 					name: "textAlign",
 					class: "radio",
 					title: "align " + alignment.toLowerCase(),
-					onchange: () => this.changeTextAlignment(alignment, false)
+					onchange: () => this.changeTextAlignment(alignment, false),
 				})
 			);
 		}
-    }
+	}
 
 	changeFontSize(value, save = true) {
 		viewport
@@ -50,11 +64,19 @@ class TextSection extends PanelSection {
 			.forEach((label) => {
 				label.style.backgroundColor = "transparent";
 			});
+			
 		const radio = document.getElementById("textAlign" + value);
 		radio.checked = true;
 		const label = this.sectionContent.querySelector(
 			`label[for="${radio.id}"]`
 		);
 		label.style.backgroundColor = "var(--highlight-color)";
+	}
+
+	getFontSize(shape) {
+		return shape.text !== undefined ? shape.getFontSize() : "";
+	}
+	getTextAlignment(shape) {
+		return shape.text !== undefined ? shape.getAlignment() : "";
 	}
 }

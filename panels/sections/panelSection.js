@@ -9,6 +9,23 @@ class PanelSection {
         this.sectionContent = null;
         this.#generateSection();
         this.#addEventListeners();
+
+        /**
+         * This defines the properties that can be updated through the panel, to be set in the subclass constructor
+         * Based on these properties, the panel will update its values automatically
+         * format:
+         * [
+         *  {
+         *      key: string, // unique identifier for the property
+         *      type: string, // "number", "string", "boolean", "enum"
+         *      enum: array, // if type is "enum" then this should be an array of possible values
+         *      inputId: string, // id of the input element in the panel
+         *      extractor: function // function that extracts the property from a shape
+         *  },
+         *  ...
+         * ]
+         */
+        this.panelProperties = [];
     }
 
     #generateSection() {
@@ -67,10 +84,66 @@ class PanelSection {
         throw new Error("PanelSection.addContent() must be implemented by the subclass");
     }
 
-    updateDisplay() {
-        throw new Error("PanelSection.updateDisplay() must be implemented by the subclass");
+    addTitleContent(holderDiv) {
     }
 
-    addTitleContent(holderDiv) {
+    updateDisplay(selectedShapes) {
+        const placeholderText = "Multiple Values";
+
+		const selectedProperties = this.getSelectedProperties(selectedShapes);
+
+		for (const key in selectedProperties) {
+			const selectedProperty = this.panelProperties.find(p => p.key === key);
+            let value = selectedProperties[key];
+            switch (selectedProperty.type) {
+                case "number":
+                    if (Number(value)) {
+                        value = Math.round(value);
+                    }
+                case "string":
+                    const el = document.getElementById(selectedProperty.inputId);
+                    el.value = value === null ? "" : value;
+                    el.placeholder = value || placeholderText;
+                    break;
+                case "boolean":
+                    document.getElementById(selectedProperty.inputId).checked = value || false;
+                    break;
+                case "enum":
+					if (value) {
+                        for (const option of selectedProperty.enum) {
+                            const radio = document.getElementById(selectedProperty.inputId + option);
+                            radio.checked = value === option;
+                            const label = this.sectionContent.querySelector(
+                                `label[for="${radio.id}"]`
+                            );
+                            label.style.backgroundColor = value === option ? "var(--highlight-color)" : "transparent";
+                        }
+					}
+					break;
+            }
+		}
+    }
+
+    getSelectedProperties(selectedShapes) {
+        let selectedProperties = null;
+		for (const shape of selectedShapes) {
+			if (selectedProperties === null) {
+                selectedProperties = {};
+                for (const property of this.panelProperties) {
+                    selectedProperties[property.key] = property.extractor(shape);
+                }
+			} else {
+				for (let key in selectedProperties) {
+					let newPanelProperty = selectedProperties[key];
+                    const property = this.panelProperties.find(p => p.key === key);
+					if (
+						newPanelProperty !== property.extractor(shape)
+					) {
+						selectedProperties[key] = null;
+					}
+				}
+			}
+		}
+        return selectedProperties;
     }
 }
