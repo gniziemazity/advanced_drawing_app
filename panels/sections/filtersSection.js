@@ -12,7 +12,10 @@ class FiltersSection extends PanelSection {
         holderDiv.appendChild(
 			createButtonWithIcon({
 				id: "addFilterBtn",
-				onclick: this.addChromaFilter,
+				onclick: (e) => {
+                    e.stopPropagation();
+                    this.addChromaFilter();
+                },
 				title: "Add Chroma Filter",
 				iconName: "plus",
 			})
