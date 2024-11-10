@@ -451,7 +451,7 @@ async function loadBlob(blob, type) {
                 // DocumentTools.loadImage duplicate
                 const img = new Image();
                 img.onload = () => {
-                    const myImage = new MyImage(img, PropertiesPanel.getValues());
+                    const myImage = new MyImage(img, propertiesPanel.getValues());
                     myImage.setCenter(
                         new Vector(
                             STAGE_PROPERTIES.left + STAGE_PROPERTIES.width / 2,

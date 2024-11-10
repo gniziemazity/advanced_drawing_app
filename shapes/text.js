@@ -97,7 +97,7 @@ class Text extends Shape {
 		);
 	}
 
-	setAligngment(value, save = true) {
+	setAlignment(value, save = true) {
 		this.properties._textAlign = value
 		viewport.dispatchEvent(
 			new CustomEvent("textChanged", { detail: { shape: this, save } })

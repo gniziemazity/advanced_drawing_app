@@ -87,7 +87,7 @@ class ToolsPanel {
 					class: "radio",
 					id: tool.name.toLowerCase() + "Radio",
 					name: "CanvasTools",
-					onchange: `CanvasTools.selectTool("${tool.name}")`,
+					onchange: () => CanvasTools.selectTool(tool.name),
 				})
 			);
 		}

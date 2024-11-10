@@ -148,7 +148,7 @@ textarea {
 	background-color: var(--bg-panel);
 }
 
-.panel-body > div {
+.panel-body > div > div {
 	display: flex;
 	flex-direction: column;
 }
@@ -217,6 +217,10 @@ textarea {
 .panel-section > div > label {
 	min-width: 4rem;
 	padding: var(--gap);
+}
+
+.panel-section.layer {
+	max-height: 110px;
 }
 
 #canvasHolder {

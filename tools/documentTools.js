@@ -2,7 +2,7 @@ class DocumentTools {
 	static tools = [
 		{
 			name: "Save",
-			func: "DocumentTools.save()",
+			func: DocumentTools.save,
 			showButton: true,
 			icon: "save",
 			shortcut: new Shortcut({
@@ -13,7 +13,7 @@ class DocumentTools {
 		},
 		{
 			name: "Export",
-			func: "DocumentTools.do_export()",
+			func: DocumentTools.do_export,
 			showButton: true,
 			icon: "export",
 			shortcut: new Shortcut({
@@ -24,7 +24,7 @@ class DocumentTools {
 		},
 		{
 			name: "Load",
-			func: "DocumentTools.load()",
+			func: DocumentTools.load,
 			icon: "load",
 			showButton: true,
 			shortcut: new Shortcut({
@@ -89,7 +89,7 @@ class DocumentTools {
 	static loadImage(e) {
 		const img = new Image();
 		img.onload = () => {
-			const myImage = new MyImage(img, PropertiesPanel.getValues());
+			const myImage = new MyImage(img, propertiesPanel.getValues());
 			myImage.setCenter(
 				new Vector(
 					STAGE_PROPERTIES.left + STAGE_PROPERTIES.width / 2,

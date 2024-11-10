@@ -17,7 +17,7 @@ class RectTool extends CornerGeneratedShapeTool {
 			const { center, size } = this.moveCallback(e, startPosition);
 
 			const prevId = rect ? rect.id : null;
-			rect = new Rect(center, size, PropertiesPanel.getValues());
+			rect = new Rect(center, size, propertiesPanel.getValues());
 			if (prevId) {
 				rect.id = prevId;
 			}

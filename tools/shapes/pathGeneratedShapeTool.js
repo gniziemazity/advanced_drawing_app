@@ -7,7 +7,7 @@ class PathGeneratedShapeTool extends ShapeTool {
 		if (e.button !== 0) return;
 
 		const startPosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
-		const pathGeneratedShape = new this._shape(startPosition, PropertiesPanel.getValues());
+		const pathGeneratedShape = new this._shape(startPosition, propertiesPanel.getValues());
 
 		const moveCallback = function (e) {
 			const mousePosition = viewport.getAdjustedPosition(

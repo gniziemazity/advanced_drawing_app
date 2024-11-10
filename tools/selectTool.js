@@ -95,7 +95,7 @@ class SelectTool extends GenericTool {
 			Vector.fromOffsets(e)
 		)
 
-		let selecetionRectangle = null
+		let selectionRectangle = null
 
 		const moveCallback = function (e) {
 			const mousePosition = viewport.getAdjustedPosition(
@@ -114,9 +114,9 @@ class SelectTool extends GenericTool {
 				lineCap: "round",
 			}
 
-			selecetionRectangle = new Rect(center, size, rectProperTies)
+			selectionRectangle = new Rect(center, size, rectProperTies)
 
-			viewport.overlayLayer.drawItems([selecetionRectangle], true) 
+			viewport.overlayLayer.drawItems([selectionRectangle], true) 
 		};
 
 		const upCallback = function (e) {
@@ -127,8 +127,8 @@ class SelectTool extends GenericTool {
 
 			viewport.overlayLayer.drawItems([], true)
 
-			if (selecetionRectangle) {
-				const rectBox = BoundingBox.fromPoints(selecetionRectangle.getPoints().map((p) => p.add(selecetionRectangle.center)))
+			if (selectionRectangle) {
+				const rectBox = BoundingBox.fromPoints(selectionRectangle.getPoints().map((p) => p.add(selectionRectangle.center)))
 
 				viewport.getShapes().forEach((shape) => {
 					const shapeBox = BoundingBox.fromPoints(

@@ -11,7 +11,7 @@ class TextTool extends ShapeTool {
 		if (e.button !== 0) return;
 
 		const mousePosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
-		const text = new Text(mousePosition, PropertiesPanel.getValues());
+		const text = new Text(mousePosition, propertiesPanel.getValues());
 		viewport.addShapes(text);
 	}
 }
