@@ -17,10 +17,14 @@ class Chroma {
       };
    }
 
-	apply(img) {
+   apply(img) {
 		if (this.cache) {
-			// Disabling it for now
-			// return this.cache;
+			if (
+				this.cache.prevColorKey == this.colorKey
+				&& this.cache.prevThreshold == this.threshold
+			) {
+				return this.cache.canvas
+			}
 		}
 		const canvas = document.createElement("canvas");
 		canvas.width = img.width;
@@ -43,9 +47,10 @@ class Chroma {
 			}
 		}
 		ctx.putImageData(imgData, 0, 0);
-		this.cache = canvas;
+		this.cache = {canvas, prevColorKey: this.colorKey, prevThreshold: this.threshold};
 		return canvas;
 	}
+
 	getHexColor() {
 		return `#${this.colorKey[0]
 			.toString(16)
