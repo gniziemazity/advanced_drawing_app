@@ -38,8 +38,4 @@ class ArrangeSection extends PanelSection {
 			})
 		);
     }
-
-	updateDisplay() {
-		//Do nothing
-	}
 }
