@@ -87,6 +87,10 @@ class PanelSection {
     addTitleContent(holderDiv) {
     }
 
+    reset() {
+        
+    }
+
     updateDisplay(selectedShapes) {
         const placeholderText = "Multiple Values";
 

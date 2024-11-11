@@ -85,6 +85,19 @@ class PropertiesSection extends PanelSection {
 		);
     }
 
+	reset() {
+		xInput.value = "";
+		rotationInput.value = "";
+		yInput.value = "";
+		widthInput.value = STAGE_PROPERTIES.width;
+		heightInput.value = STAGE_PROPERTIES.height;
+		xInput.placeholder = "";
+		yInput.placeholder = "";
+		widthInput.placeholder = "";
+		heightInput.placeholder = "";
+		rotationInput.placeholder = "";
+	}
+
 	changeX(value, save = true) {
 		viewport
 			.getSelectedShapes()

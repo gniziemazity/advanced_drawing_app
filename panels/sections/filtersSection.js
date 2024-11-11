@@ -21,6 +21,10 @@ class FiltersSection extends PanelSection {
 			})
 		);
     }
+
+	reset() {
+		this.hide();
+	}
 	
 	populateFilters(filters) {
 		this.sectionContent.innerHTML = "";

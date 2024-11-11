@@ -46,6 +46,11 @@ class TextSection extends PanelSection {
 		}
 	}
 
+	reset() {
+		this.hide();
+		this.changeTextAlignment("Center", false);
+	}
+
 	changeFontSize(value, save = true) {
 		viewport
 			.getSelectedShapes()

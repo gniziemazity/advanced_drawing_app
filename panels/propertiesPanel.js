@@ -45,22 +45,11 @@ class PropertiesPanel {
 	}
 
 	reset() {
-		xInput.value = "";
-		rotationInput.value = "";
-		yInput.value = "";
-		widthInput.value = STAGE_PROPERTIES.width;
-		heightInput.value = STAGE_PROPERTIES.height;
-		xInput.placeholder = "";
-		yInput.placeholder = "";
-		widthInput.placeholder = "";
-		heightInput.placeholder = "";
-		rotationInput.placeholder = "";
-
-		this.sections.filters.hide();
-		this.sections.text.hide();
-		this.sections.text.changeTextAlignment("Center", false);
+		for (const key of Object.keys(this.sections)) {
+			this.sections[key].reset();
+		}
 	}
-
+	
 	getValues() {
 		return {
 			fillColor: fillColor.value,
