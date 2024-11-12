@@ -12,11 +12,15 @@ class Layer {
 		this.id = Layer.nextId++;
 
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = canvasWidth;
-		this.canvas.height = canvasHeight;
+		const pixelRatio = window.devicePixelRatio;
+		this.canvas.style.width = canvasWidth + "px";
+		this.canvas.style.height = canvasHeight + "px";
+		this.canvas.width = Math.floor(canvasWidth * pixelRatio);
+		this.canvas.height = Math.floor(canvasHeight * pixelRatio);
 		this.ctx = this.canvas.getContext("2d", {
 			willReadFrequently: true,
 		});
+		this.ctx.scale(pixelRatio, pixelRatio);
 
 		this.stageProperties = stageProperties;
 
