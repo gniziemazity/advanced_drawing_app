@@ -84,8 +84,8 @@ class Gizmo {
 		let mouseDelta = null;
 		const prevSize = { width: this.box.width, height: this.box.height };
 		const moveCallback = (e) => {
-			const mousePosition = new Vector(e.offsetX, e.offsetY);
-			const diff = Vector.subtract(mousePosition, startPosition);
+			const mousePosition = new Vector(e.offsetX, e.offsetY).scale(window.devicePixelRatio);
+			const diff = Vector.subtract(mousePosition, startPosition).scale(1/window.devicePixelRatio);
 			const polar = diff.toPolar();
 			polar.dir -= this.rotation;
 			diff.toXY(polar);
@@ -151,8 +151,8 @@ class Gizmo {
 				const oldRotation = oldRotations[i];
 
 				if (handle.type === Handle.TYPES.ROTATE) {
-					const fixedStart = viewport.getAdjustedPosition(startPosition);
-					const fixedMouse = viewport.getAdjustedPosition(mousePosition);
+					const fixedStart = viewport.getAdjustedPosition(startPosition.scale(1/window.devicePixelRatio));
+					const fixedMouse = viewport.getAdjustedPosition(mousePosition.scale(1/window.devicePixelRatio));
 
 					// vectors centered at the bounding box center
 					const v1 = Vector.subtract(fixedStart, oldBox.center);
