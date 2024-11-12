@@ -3,7 +3,7 @@ class EditingTools {
 	static tools = [
 		{
 			name: "Duplicate",
-			func: "EditingTools.duplicate()",
+			func: EditingTools.duplicate,
 			showButton: true,
 			icon: "copy",
 			shortcut: new Shortcut({
@@ -14,7 +14,7 @@ class EditingTools {
 		},
 		{
 			name: "Select All",
-			func: "EditingTools.selectAll()",
+			func: EditingTools.selectAll,
 			showButton: true,
 			icon: "select_all",
 			shortcut: new Shortcut({
@@ -25,7 +25,7 @@ class EditingTools {
 		},
 		{
 			name: "Delete",
-			func: "EditingTools.delete()",
+			func: EditingTools.delete,
 			showButton: true,
 			icon: "trash",
 			shortcut: new Shortcut({
@@ -36,7 +36,7 @@ class EditingTools {
 		},
 		{
 			name: "Copy",
-			func: "EditingTools.copy()",
+			func: EditingTools.copy,
 			showButton: false,
 			shortcut: new Shortcut({
 				control: true,
@@ -46,7 +46,7 @@ class EditingTools {
 		},
 		{
 			name: "Paste",
-			func: "EditingTools.paste()",
+			func: EditingTools.paste,
 			showButton: false,
 			shortcut: new Shortcut({
 				control: true,
@@ -97,6 +97,6 @@ class EditingTools {
 	static delete() {
 		const selectedShapes = viewport.getSelectedShapes();
 		viewport.deleteShapes(selectedShapes);
-		PropertiesPanel.reset();
+		propertiesPanel.reset();
 	}
 }

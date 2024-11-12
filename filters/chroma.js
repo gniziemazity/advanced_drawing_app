@@ -5,17 +5,17 @@ class Chroma {
 		this.cache = null;
 	}
 
-   static load(data) {
-      return new Chroma(data.colorKey, data.threshold);
-   }
+	static load(data) {
+		return new Chroma(data.colorKey, data.threshold);
+	}
 
-   serialize() {
-      return {
-         type: "Chroma",
-         colorKey: this.colorKey,
-         threshold: this.threshold,
-      };
-   }
+	serialize() {
+		return {
+			type: "Chroma",
+			colorKey: this.colorKey,
+			threshold: this.threshold,
+		};
+	}
 
 	apply(img) {
 		if (this.cache) {
@@ -54,23 +54,23 @@ class Chroma {
 			.padStart(2, "0")}${this.colorKey[2].toString(16).padStart(2, "0")}`;
 	}
 
-   setKeyFromHex(hex) {
-      this.colorKey = [
-         parseInt(hex.slice(1, 3), 16),
-         parseInt(hex.slice(3, 5), 16),
-         parseInt(hex.slice(5, 7), 16),
-      ];
+	setKeyFromHex(hex, save = true) {
+		this.colorKey = [
+			parseInt(hex.slice(1, 3), 16),
+			parseInt(hex.slice(3, 5), 16),
+			parseInt(hex.slice(5, 7), 16),
+		];
 
-      viewport.dispatchEvent(
-			new CustomEvent("filterChanged", { detail: { save: true } })
+		viewport.dispatchEvent(
+			new CustomEvent("filterChanged", { detail: { save } })
 		);
-   }
+	}
 
-   setThreshold(value) {
-      this.threshold = value;
+	setThreshold(value, save = true) {
+		this.threshold = value;
 
-      viewport.dispatchEvent(
-         new CustomEvent("filterChanged", { detail: { save: true } })
-      );
-   }
+		viewport.dispatchEvent(
+			new CustomEvent("filterChanged", { detail: { save } })
+		);
+	}
 }

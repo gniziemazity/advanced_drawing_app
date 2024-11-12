@@ -5,7 +5,7 @@ class HistoryTools {
 	static tools = [
 		{
 			name: "Undo",
-			func: "HistoryTools.undo()",
+			func: HistoryTools.undo,
 			showButton: true,
 			icon: "undo",
 			shortcut: new Shortcut({
@@ -16,7 +16,7 @@ class HistoryTools {
 		},
 		{
 			name: "Redo",
-			func: "HistoryTools.redo()",
+			func: HistoryTools.redo,
 			showButton: true,
 			icon: "redo",
 			shortcut: new Shortcut({

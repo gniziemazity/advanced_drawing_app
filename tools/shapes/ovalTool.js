@@ -17,7 +17,7 @@ class OvalTool extends CornerGeneratedShapeTool {
 			const { center, size } = this.moveCallback(e, startPosition);
 
 			const prevId = oval ? oval.id : null;
-			oval = new Oval(center, size, PropertiesPanel.getValues());
+			oval = new Oval(center, size, propertiesPanel.getValues());
 			if (prevId) {
 				oval.id = prevId;
 			}

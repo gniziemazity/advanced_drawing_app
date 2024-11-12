@@ -12,16 +12,10 @@ class LayerTools {
 	static selectLayer(index) {
 		viewport.selectLayerByIndex(index);
 
-		PropertiesPanel.layersSection
-			.querySelectorAll(".radio-button-button")
-			.forEach((label) => {
-				label.style.backgroundColor = "transparent";
-			});
-		const radio = document.getElementById("layer_" + (index + 1) + "_radio");
-		radio.checked = true;
-		const label = PropertiesPanel.layersSection.querySelector(
-			`label[for="${radio.id}"]`
+		viewport.dispatchEvent(
+			new CustomEvent("layerSelected", {
+				detail: { layerIndex: index },
+			})
 		);
-		label.style.backgroundColor = "var(--highlight-color)";
 	}
 }

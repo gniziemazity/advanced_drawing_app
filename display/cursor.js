@@ -214,7 +214,7 @@ class Cursor {
         let textShape = Cursor.currentText
         let lines = textShape.parseText()
         let line = lines[Cursor.currentLineIndex]
-        let cursor = new Text(textShape.center, PropertiesPanel.getValues())
+        let cursor = new Text(textShape.center, propertiesPanel.getValues())
         cursor.properties = JSON.parse(JSON.stringify(textShape.properties))
         cursor.rotation = textShape.rotation
         let textWithCursor = ""

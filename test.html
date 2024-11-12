@@ -11,26 +11,14 @@
 			}
 		</style>
 		<main>
-			<section id="menuBar">
-				<div class="menu-container">
-					<span>
-						<button class="menu-item">File</button>
-						<button class="menu-item">Edit</button>
-					</span>
-				</div>
-				<div class="menu-container">
-					<div id="contributorsContainer">
-						<div id="contributors"></div>
-					</div>
-				</div>
-			</section>
-	
-			<div id="canvasHolder">
-				<canvas id="viewport.getStageCanvas()"></canvas>
+			<div id="contributorsContainer" class="menu-container">
+				<div id="contributors"></div>
 			</div>
+
+			<div id="canvasHolder"></div>
 			<div id="toolsHolder" class="panel"></div>
 			<div id="propertiesHolder" class="panel"></div>
-		</main>	
+		</main>
       
 		<script src="utils/vector.js"></script>
 		<script src="utils/boundingBox.js"></script>
@@ -40,7 +28,7 @@
 		<script src="display/viewport.js"></script>
 		<script src="display/cursor.js"></script>
 
-      <script src="filters/chroma.js"></script>
+    	<script src="filters/chroma.js"></script>
 
 		<script src="shapes/shapeFactory.js"></script>
 		<script src="shapes/shape.js"></script>
@@ -69,15 +57,23 @@
 		<script src="tools/transformTools.js"></script>
 		<script src="tools/layerTools.js"></script>
 
+		<script src="panels/sections/panelSection.js"></script>
+		<script src="panels/sections/propertiesSection.js"></script>
+		<script src="panels/sections/colorSection.js"></script>
+		<script src="panels/sections/arrangeSection.js"></script>
+		<script src="panels/sections/textSection.js"></script>
+		<script src="panels/sections/filtersSection.js"></script>
+		<script src="panels/sections/layersSection.js"></script>
 		<script src="panels/propertiesPanel.js"></script>
 		<script src="panels/toolsPanel.js"></script>
 
 		<script src="contributors.js"></script>
 		<script src="utils/misc.js"></script>
 		<script src="main.js"></script>
+		
 		<script src="transformBox/gizmo.js"></script>
 		<script src="transformBox/handle.js"></script>
-      
+
 		<script src="test/previousDrawings.js"></script>
 		<script src="test/test.js"></script>
 	</body>

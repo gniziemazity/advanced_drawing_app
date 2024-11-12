@@ -11,7 +11,11 @@ function createDOMElement(type, attributes, text) {
 	}
 	if (attributes) {
 		Object.entries(attributes).forEach(([key, value]) => {
-			element.setAttribute(key, value);
+			if (key.indexOf('on') === 0) {
+				element.addEventListener(key.substring(2), value);
+			} else {
+				element.setAttribute(key, value);
+			}
 		});
 	}
 	return element;
