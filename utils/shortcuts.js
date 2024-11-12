@@ -1,5 +1,5 @@
 class Shortcut {
-	constructor({control, key, action}) {
+	constructor({ control, key, action }) {
 		this.control = control ?? false;
 		this.key = key ?? "";
 		this.action = action ?? (() => {});
@@ -16,7 +16,10 @@ class ShortcutManager {
 		if (config) {
 			config.forEach((shortcut) => this.addShortcut(new Shortcut(shortcut)));
 		}
-		document.addEventListener("keydown", this.handleShortCutKeysPress.bind(this));
+		document.addEventListener(
+			"keydown",
+			this.handleShortCutKeysPress.bind(this)
+		);
 	}
 
 	addShortcut(shortcut) {
@@ -39,10 +42,14 @@ class ShortcutManager {
 	}
 
 	handleShortCutKeysPress(e) {
-		if (Cursor.isEditing || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+		if (
+			Cursor.isEditing ||
+			e.target instanceof HTMLInputElement ||
+			e.target instanceof HTMLTextAreaElement
+		) {
 			return;
 		}
-		
+
 		const control = e.ctrlKey || e.metaKey;
 		this.executeShortcut(control, e.key);
 		e.preventDefault();
@@ -50,5 +57,13 @@ class ShortcutManager {
 }
 
 const shortcutManager = new ShortcutManager([
-	{ control: true, key: "u", action: () => window.open(window.location.pathname.replace("index.html", "") + "test.html", "_blank")},
+	{
+		control: true,
+		key: "u",
+		action: () =>
+			window.open(
+				window.location.pathname.replace("index.html", "") + "test.html",
+				"_blank"
+			),
+	},
 ]);

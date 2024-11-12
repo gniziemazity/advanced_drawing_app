@@ -4,7 +4,11 @@ class SelectTool extends GenericTool {
 	}
 
 	getShortcut() {
-		return new Shortcut({ control: false, key: "v", action: () => CanvasTools.selectTool("Select") });
+		return new Shortcut({
+			control: false,
+			key: "v",
+			action: () => CanvasTools.selectTool("Select"),
+		});
 	}
 
 	addPointerDownListener(e) {
@@ -39,10 +43,10 @@ class SelectTool extends GenericTool {
 		}
 
 		if (shape) {
-			if (!isClickingSelectedShape){
+			if (!isClickingSelectedShape) {
 				shape.click();
 				if (shape.text !== undefined) {
-					Cursor.attemptToEnterEditMode(shape, startPosition)
+					Cursor.attemptToEnterEditMode(shape, startPosition);
 				}
 			}
 			const selectedShapes = viewport.getSelectedShapes();
@@ -73,11 +77,11 @@ class SelectTool extends GenericTool {
 						s.setCenter(Vector.add(oldCenters[i], mouseDelta));
 					});
 				}
-				
+
 				if (isClickingSelectedShape && !isDragging) {
 					shape.click();
 					if (shape.text !== undefined) {
-						Cursor.attemptToEnterEditMode(shape, startPosition)
+						Cursor.attemptToEnterEditMode(shape, startPosition);
 					}
 				}
 			};
@@ -91,20 +95,18 @@ class SelectTool extends GenericTool {
 	}
 
 	static selectShapesUnderRectangle(e) {
-		const startPosition = viewport.getAdjustedPosition(
-			Vector.fromOffsets(e)
-		)
+		const startPosition = viewport.getAdjustedPosition(Vector.fromOffsets(e));
 
-		let selectionRectangle = null
+		let selectionRectangle = null;
 
 		const moveCallback = function (e) {
 			const mousePosition = viewport.getAdjustedPosition(
 				Vector.fromOffsets(e)
-			)
+			);
 
 			const points = [startPosition, mousePosition];
 			const center = Vector.mid(points);
-			const size = BoundingBox.fromPoints(points)
+			const size = BoundingBox.fromPoints(points);
 
 			let rectProperTies = {
 				fillColor: "black",
@@ -112,11 +114,11 @@ class SelectTool extends GenericTool {
 				stroke: true,
 				strokeWidth: 1,
 				lineCap: "round",
-			}
+			};
 
-			selectionRectangle = new Rect(center, size, rectProperTies)
+			selectionRectangle = new Rect(center, size, rectProperTies);
 
-			viewport.overlayLayer.drawItems([selectionRectangle], true) 
+			viewport.overlayLayer.drawItems([selectionRectangle], true);
 		};
 
 		const upCallback = function (e) {
@@ -125,16 +127,20 @@ class SelectTool extends GenericTool {
 				.removeEventListener("pointermove", moveCallback);
 			viewport.getStageCanvas().removeEventListener("pointerup", upCallback);
 
-			viewport.overlayLayer.drawItems([], true)
+			viewport.overlayLayer.drawItems([], true);
 
 			if (selectionRectangle) {
-				const rectBox = BoundingBox.fromPoints(selectionRectangle.getPoints().map((p) => p.add(selectionRectangle.center)))
+				const rectBox = BoundingBox.fromPoints(
+					selectionRectangle
+						.getPoints()
+						.map((p) => p.add(selectionRectangle.center))
+				);
 
 				viewport.getShapes().forEach((shape) => {
 					const shapeBox = BoundingBox.fromPoints(
 						shape.getPoints().map((p) => p.add(shape.center))
 					);
-	
+
 					switch (RECTANGULAR_SELECTION_MODE) {
 						case "containment":
 							if (rectBox.contains(shapeBox)) {

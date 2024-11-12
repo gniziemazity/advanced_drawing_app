@@ -69,7 +69,7 @@ class TextSection extends PanelSection {
 			.forEach((label) => {
 				label.style.backgroundColor = "transparent";
 			});
-			
+
 		const radio = document.getElementById("textAlign" + value);
 		radio.checked = true;
 		const label = this.sectionContent.querySelector(

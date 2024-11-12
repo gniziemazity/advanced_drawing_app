@@ -1,6 +1,5 @@
 class HistoryTools {
-
-	static _stacksByLayer = {}
+	static _stacksByLayer = {};
 
 	static tools = [
 		{
@@ -37,13 +36,17 @@ class HistoryTools {
 	}
 
 	static redo() {
-		let selectedLayerId = viewport.selectedLayer.id
-		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId)
-		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId)
+		let selectedLayerId = viewport.selectedLayer.id;
+		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId);
+		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId);
 		if (redoStack.length > 0) {
 			const data = redoStack.pop();
-			viewport.selectedLayer = Layer.load(data, viewport.canvasWidth, viewport.canvasHeight)
-			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer)
+			viewport.selectedLayer = Layer.load(
+				data,
+				viewport.canvasWidth,
+				viewport.canvasHeight
+			);
+			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer);
 			undoStack.push(data);
 		}
 		viewport.dispatchEvent(
@@ -52,22 +55,26 @@ class HistoryTools {
 	}
 
 	static undo() {
-		let selectedLayerId = viewport.selectedLayer.id
-		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId)
-		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId)
+		let selectedLayerId = viewport.selectedLayer.id;
+		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId);
+		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId);
 		if (!undoStack.length) return; // prevent pushing undefined into redoStack
 		redoStack.push(undoStack.pop());
 		if (undoStack.length > 0) {
-         	const activeLayer = undoStack[undoStack.length - 1];
-			viewport.selectedLayer = Layer.load(activeLayer, viewport.canvasWidth, viewport.canvasHeight)
-			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer)
+			const activeLayer = undoStack[undoStack.length - 1];
+			viewport.selectedLayer = Layer.load(
+				activeLayer,
+				viewport.canvasWidth,
+				viewport.canvasHeight
+			);
+			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer);
 		} else {
 			viewport.selectedLayer = new Layer(
 				viewport.canvasWidth,
 				viewport.canvasHeight,
 				viewport.stageProperties,
 				Layer.TYPES.NORMAL
-        	)
+			);
 			viewport.swapLayerById(selectedLayerId, viewport.selectedLayer);
 		}
 		viewport.dispatchEvent(
@@ -76,10 +83,10 @@ class HistoryTools {
 	}
 
 	static record() {
-		let selectedLayerId = viewport.selectedLayer.id
-		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId)
-		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId)
-		const currentState = viewport.selectedLayer.serialize()
+		let selectedLayerId = viewport.selectedLayer.id;
+		let redoStack = HistoryTools._getRedoStackByLayerId(selectedLayerId);
+		let undoStack = HistoryTools._getUndoStackByLayerId(selectedLayerId);
+		const currentState = viewport.selectedLayer.serialize();
 		if (undoStack.length > 0) {
 			const lastItem = undoStack[undoStack.length - 1];
 			if (JSON.stringify(lastItem) === JSON.stringify(currentState)) return;
@@ -90,23 +97,23 @@ class HistoryTools {
 
 	static _getUndoStackByLayerId(layerId) {
 		if (HistoryTools._stacksByLayer[layerId]?.undoStack) {
-			return HistoryTools._stacksByLayer[layerId].undoStack
+			return HistoryTools._stacksByLayer[layerId].undoStack;
 		}
 		if (!HistoryTools._stacksByLayer[layerId]) {
-			HistoryTools._stacksByLayer[layerId] = {}
+			HistoryTools._stacksByLayer[layerId] = {};
 		}
-		HistoryTools._stacksByLayer[layerId].undoStack = []
-		return HistoryTools._stacksByLayer[layerId].undoStack
+		HistoryTools._stacksByLayer[layerId].undoStack = [];
+		return HistoryTools._stacksByLayer[layerId].undoStack;
 	}
 
 	static _getRedoStackByLayerId(layerId) {
 		if (HistoryTools._stacksByLayer[layerId]?.redoStack) {
-			return HistoryTools._stacksByLayer[layerId].redoStack
+			return HistoryTools._stacksByLayer[layerId].redoStack;
 		}
 		if (!HistoryTools._stacksByLayer[layerId]) {
-			HistoryTools._stacksByLayer[layerId] = {}
+			HistoryTools._stacksByLayer[layerId] = {};
 		}
-		HistoryTools._stacksByLayer[layerId].redoStack = []
-		return HistoryTools._stacksByLayer[layerId].redoStack
+		HistoryTools._stacksByLayer[layerId].redoStack = [];
+		return HistoryTools._stacksByLayer[layerId].redoStack;
 	}
 }

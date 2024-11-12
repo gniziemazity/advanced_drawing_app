@@ -1,6 +1,6 @@
 class TransformTools {
 	static sendToBack() {
-      viewport.selectedLayer.sendToBack();
+		viewport.selectedLayer.sendToBack();
 	}
 
 	static bringToFront() {
@@ -8,7 +8,7 @@ class TransformTools {
 	}
 
 	static sendBackward() {
-      viewport.selectedLayer.sendBackward();
+		viewport.selectedLayer.sendBackward();
 	}
 
 	static bringForward() {

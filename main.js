@@ -6,11 +6,7 @@ const STAGE_PROPERTIES = {
 	height: 480,
 };
 
-const viewport = new Viewport(
-	canvasHolder,
-	STAGE_PROPERTIES,
-	SHOW_HIT_REGIONS
-);
+const viewport = new Viewport(canvasHolder, STAGE_PROPERTIES, SHOW_HIT_REGIONS);
 
 const propertiesPanel = new PropertiesPanel(propertiesHolder);
 const toolsPanel = new ToolsPanel(toolsHolder);

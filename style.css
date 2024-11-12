@@ -136,9 +136,9 @@ textarea {
 	cursor: pointer;
 	border-bottom-width: var(--border-width);
 	padding: 8px;
-   flex-direction: row !important;
-   align-items: center;
-   justify-content: space-between;
+	flex-direction: row !important;
+	align-items: center;
+	justify-content: space-between;
 }
 
 .panel-body {
@@ -159,7 +159,7 @@ textarea {
 	display: flex;
 	flex-direction: column;
 	position: relative;
-	padding-top:var(--gap);
+	padding-top: var(--gap);
 
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -167,7 +167,6 @@ textarea {
 	scrollbar-width: thin;
 	padding-bottom: var(--gap);
 }
-
 
 .panel-body > .panel-section:not([hidden]) {
 	border-bottom-width: var(--gap);

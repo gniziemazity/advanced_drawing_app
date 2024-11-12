@@ -1,11 +1,10 @@
 class ArrangeSection extends PanelSection {
+	constructor() {
+		super("Arrange", { sectionClass: "four_col_grid" });
+	}
 
-    constructor() {
-        super("Arrange", { sectionClass: "four_col_grid" });
-    }
-    
-    addContent(holderDiv) {
-        holderDiv.appendChild(
+	addContent(holderDiv) {
+		holderDiv.appendChild(
 			createButtonWithIcon({
 				id: "sendBackBtn",
 				onclick: TransformTools.sendToBack,
@@ -37,5 +36,5 @@ class ArrangeSection extends PanelSection {
 				iconName: "front",
 			})
 		);
-    }
+	}
 }

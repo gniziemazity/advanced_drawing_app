@@ -4,7 +4,11 @@ class TextTool extends ShapeTool {
 	}
 
 	getShortcut() {
-		return new Shortcut({ control: false, key: "t", action: () => CanvasTools.selectTool("Text") });
+		return new Shortcut({
+			control: false,
+			key: "t",
+			action: () => CanvasTools.selectTool("Text"),
+		});
 	}
 
 	addPointerDownListener(e) {

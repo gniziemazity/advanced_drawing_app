@@ -1,34 +1,33 @@
 class LayersSection extends PanelSection {
-
-    constructor() {
-        super("Layers", { sectionClass: "two_col_grid layer" });
-        viewport.addEventListener("layersChanged", (e) => {
+	constructor() {
+		super("Layers", { sectionClass: "two_col_grid layer" });
+		viewport.addEventListener("layersChanged", (e) => {
 			this.populateLayers(e.detail.count);
 		});
-        viewport.addEventListener("layerSelected", (e) => {
-            this.selectLayer(e.detail.layerIndex);
-        });
-    }
-    
-    addContent(holderDiv) {
-        this.populateLayers(1);
-    }
+		viewport.addEventListener("layerSelected", (e) => {
+			this.selectLayer(e.detail.layerIndex);
+		});
+	}
 
-    addTitleContent(holderDiv) {
-        holderDiv.appendChild(
+	addContent(holderDiv) {
+		this.populateLayers(1);
+	}
+
+	addTitleContent(holderDiv) {
+		holderDiv.appendChild(
 			createButtonWithIcon({
 				id: "addLayerBtn",
 				onclick: (e) => {
-                    e.stopPropagation();
-                    LayerTools.addLayer()
-                },
+					e.stopPropagation();
+					LayerTools.addLayer();
+				},
 				title: "Add Layer",
 				iconName: "plus",
 			})
 		);
-    }
-    
-    populateLayers(count) {
+	}
+
+	populateLayers(count) {
 		this.sectionContent.innerHTML = "";
 
 		for (let i = 1; i <= count; i++) {
@@ -41,7 +40,7 @@ class LayersSection extends PanelSection {
 			};
 			if (viewport.selectedLayer == viewport.layers[i - 1]) {
 				props.checked = true;
-				props.labelClass = "highlight-bg"
+				props.labelClass = "highlight-bg";
 			}
 			this.sectionContent.appendChild(
 				createInputWithLabel("layer " + i, props)
@@ -57,24 +56,24 @@ class LayersSection extends PanelSection {
 					})
 				);
 			} else {
-				this.sectionContent.appendChild(
-					createDOMElement("div", {}, "")
-				);
+				this.sectionContent.appendChild(createDOMElement("div", {}, ""));
 			}
 		}
 	}
 
-    selectLayer(layerIndex) {
-        this.sectionContent
+	selectLayer(layerIndex) {
+		this.sectionContent
 			.querySelectorAll(".radio-button-button")
 			.forEach((label) => {
 				label.style.backgroundColor = "transparent";
 			});
-		const radio = document.getElementById("layer_" + (layerIndex + 1) + "_radio");
+		const radio = document.getElementById(
+			"layer_" + (layerIndex + 1) + "_radio"
+		);
 		radio.checked = true;
 		const label = this.sectionContent.querySelector(
 			`label[for="${radio.id}"]`
 		);
 		label.style.backgroundColor = "var(--highlight-color)";
-    }
+	}
 }

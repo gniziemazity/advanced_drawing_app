@@ -9,7 +9,7 @@ class Shape {
 	}
 
 	static generateId() {
-      // revise at some point
+		// revise at some point
 		return Math.floor(16777216 * Math.random());
 	}
 
@@ -26,7 +26,7 @@ class Shape {
 
 	select(save = true) {
 		this.selected = true;
-		this.gizmo = new Gizmo(this)
+		this.gizmo = new Gizmo(this);
 		viewport.dispatchEvent(
 			new CustomEvent("shapeSelected", {
 				detail: { shape: this, save },
@@ -36,7 +36,7 @@ class Shape {
 
 	unselect(save = true) {
 		this.selected = false;
-		this.gizmo = null
+		this.gizmo = null;
 		viewport.dispatchEvent(
 			new CustomEvent("shapeUnselected", {
 				detail: { shape: this, save },
@@ -46,7 +46,7 @@ class Shape {
 
 	setCenter(center, save = true) {
 		this.center = center;
-		this.gizmo?.updatePosition()
+		this.gizmo?.updatePosition();
 		viewport.dispatchEvent(
 			new CustomEvent("positionChanged", {
 				detail: { shape: this, position: center, save },
@@ -65,7 +65,7 @@ class Shape {
 	setSize(width, height, save = true) {
 		this._setWidth(width);
 		this._setHeight(height);
-		this.gizmo?.updateSize()
+		this.gizmo?.updateSize();
 		viewport.dispatchEvent(
 			new CustomEvent("sizeChanged", {
 				detail: { shape: this, size: { width, height }, save },
@@ -75,7 +75,7 @@ class Shape {
 
 	setRotation(angle, save = true) {
 		this.rotation = angle;
-		this.gizmo?.updateRotation()
+		this.gizmo?.updateRotation();
 		viewport.dispatchEvent(
 			new CustomEvent("rotationChanged", {
 				detail: { shape: this, rotation: angle, save },
@@ -141,9 +141,9 @@ class Shape {
 
 	click() {
 		if (this.selected) {
-			this.unselect()
+			this.unselect();
 		} else {
-			this.select()
+			this.select();
 		}
 	}
 

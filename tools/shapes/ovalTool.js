@@ -4,7 +4,11 @@ class OvalTool extends CornerGeneratedShapeTool {
 	}
 
 	getShortcut() {
-		return new Shortcut({ control: false, key: "o", action: () => CanvasTools.selectTool("Oval") });
+		return new Shortcut({
+			control: false,
+			key: "o",
+			action: () => CanvasTools.selectTool("Oval"),
+		});
 	}
 
 	addPointerDownListener(e) {

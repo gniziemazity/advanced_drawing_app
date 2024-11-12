@@ -1,7 +1,6 @@
 class PropertiesSection extends PanelSection {
-
-    constructor() {
-        super("Properties");
+	constructor() {
+		super("Properties");
 		this.panelProperties = [
 			{
 				key: "x",
@@ -33,11 +32,11 @@ class PropertiesSection extends PanelSection {
 				inputId: "rotationInput",
 				extractor: this.getRotation.bind(this),
 			},
-		]
-    }
+		];
+	}
 
-    addContent(holderDiv) {
-        holderDiv.appendChild(
+	addContent(holderDiv) {
+		holderDiv.appendChild(
 			createInputWithLabel("X", {
 				type: "number",
 				onchange: (e) => this.changeX(e.currentTarget.value),
@@ -83,7 +82,7 @@ class PropertiesSection extends PanelSection {
 				id: "constrainDimensions",
 			})
 		);
-    }
+	}
 
 	reset() {
 		xInput.value = "";
@@ -223,10 +222,10 @@ class PropertiesSection extends PanelSection {
 	getWidth(shape) {
 		return shape.size.width;
 	}
-	
-	getHeight(shape){
+
+	getHeight(shape) {
 		return shape.size.height;
-	} 
+	}
 
 	getRotation(shape) {
 		return shape.rotation * (180 / Math.PI);

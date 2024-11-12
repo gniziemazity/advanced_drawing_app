@@ -16,9 +16,9 @@ class Text extends Shape {
 			dilation: 20, //for hit test
 		};
 
-		this.numberClicked = 0
+		this.numberClicked = 0;
 
-		this.thinWhiteSpace = String.fromCharCode(8202)  // helps in aligning text finely
+		this.thinWhiteSpace = String.fromCharCode(8202); // helps in aligning text finely
 
 		this.setText("Enter Text Here", false);
 	}
@@ -27,7 +27,9 @@ class Text extends Shape {
 		const text = new Text();
 		text.id = data.id;
 		text.options = JSON.parse(JSON.stringify(data.options));
-		text.properties = JSON.parse(JSON.stringify({...text.properties, ...data?.properties}));
+		text.properties = JSON.parse(
+			JSON.stringify({ ...text.properties, ...data?.properties })
+		);
 		text.center = Vector.load(data.center);
 		text.size = data.size;
 		text.selected = data.selected;
@@ -46,7 +48,7 @@ class Text extends Shape {
 			text: this.text,
 			selected: this.selected,
 			rotation: this.rotation,
-			properties: this.properties
+			properties: this.properties,
 		};
 	}
 
@@ -75,10 +77,10 @@ class Text extends Shape {
 
 	setText(value, save = true) {
 		this.text = value;
-		let maxLineWidth = this.getWidestLine()
+		let maxLineWidth = this.getWidestLine();
 		this.size = {};
 		this.size.width = maxLineWidth;
-		let lines = this.parseText()
+		let lines = this.parseText();
 		this.size.height = this.properties.fontSize * lines.length;
 		viewport.dispatchEvent(
 			new CustomEvent("textChanged", { detail: { shape: this, save } })
@@ -86,123 +88,133 @@ class Text extends Shape {
 	}
 
 	setFontSize(value, save = true) {
-		let fontFamily = this.properties.font.split(" ")[1]
-		this.properties.font = `${value}px ${fontFamily}`
-		this.properties.fontSize = value
-		let lines = this.parseText()
+		let fontFamily = this.properties.font.split(" ")[1];
+		this.properties.font = `${value}px ${fontFamily}`;
+		this.properties.fontSize = value;
+		let lines = this.parseText();
 		this.size.height = this.properties.fontSize * lines.length;
-		this.size.width = this.getWidestLine()
+		this.size.width = this.getWidestLine();
 		viewport.dispatchEvent(
 			new CustomEvent("textChanged", { detail: { shape: this, save } })
 		);
 	}
 
 	setAlignment(value, save = true) {
-		this.properties._textAlign = value
+		this.properties._textAlign = value;
 		viewport.dispatchEvent(
 			new CustomEvent("textChanged", { detail: { shape: this, save } })
 		);
 	}
 
 	getFontSize() {
-		return this.properties.fontSize
+		return this.properties.fontSize;
 	}
 
 	getAlignment() {
-		return this.properties._textAlign
+		return this.properties._textAlign;
 	}
 
 	getWidestLine() {
-		let maxLineWidth = 0
-		let lines = this.parseText()
+		let maxLineWidth = 0;
+		let lines = this.parseText();
 		for (let line of lines) {
-			let lineWidth = this.getTextWidthOnCanvas(line)
-			if (lineWidth > maxLineWidth) maxLineWidth = lineWidth
+			let lineWidth = this.getTextWidthOnCanvas(line);
+			if (lineWidth > maxLineWidth) maxLineWidth = lineWidth;
 		}
-		return maxLineWidth
+		return maxLineWidth;
 	}
 
 	parseText() {
-		let lines = this.text.split("\n")
-		let longestLineWidth = 0
+		let lines = this.text.split("\n");
+		let longestLineWidth = 0;
 		for (let line of lines) {
 			if (this.getTextWidthOnCanvas(line) > longestLineWidth) {
-				longestLineWidth = this.getTextWidthOnCanvas(line)
+				longestLineWidth = this.getTextWidthOnCanvas(line);
 			}
 		}
 		if (this.properties._textAlign) {
 			switch (this.properties._textAlign) {
 				case "Center":
-					this.properties.xOffsets = {}
-					break
+					this.properties.xOffsets = {};
+					break;
 				case "Left":
 					for (let i = 0; i < lines.length; i++) {
-						let line = lines[i]
+						let line = lines[i];
 						if (this.getTextWidthOnCanvas(line) < longestLineWidth) {
-							let offsetSize = longestLineWidth - this.getTextWidthOnCanvas(line)
-							this.properties.xOffsets[i] = -offsetSize / 2
+							let offsetSize =
+								longestLineWidth - this.getTextWidthOnCanvas(line);
+							this.properties.xOffsets[i] = -offsetSize / 2;
 						}
 					}
-					break
+					break;
 				case "Right":
 					for (let i = 0; i < lines.length; i++) {
-						let line = lines[i]
+						let line = lines[i];
 						if (this.getTextWidthOnCanvas(line) < longestLineWidth) {
-							let offsetSize = longestLineWidth - this.getTextWidthOnCanvas(line)
-							this.properties.xOffsets[i] = offsetSize / 2
+							let offsetSize =
+								longestLineWidth - this.getTextWidthOnCanvas(line);
+							this.properties.xOffsets[i] = offsetSize / 2;
 						}
 					}
-					break
+					break;
 			}
 		}
-		
-		return lines
+
+		return lines;
 	}
 
 	getPaddingSize(line, longestLine) {
-		let longWidth = this.getTextWidthOnCanvas(longestLine)
-		let shortWidth = this.getTextWidthOnCanvas(line)
-		let widthOfSpace = this.getTextWidthOnCanvas(this.thinWhiteSpace)
-		let paddingSize = (longWidth - shortWidth) / widthOfSpace
-		return Math.round(paddingSize)
+		let longWidth = this.getTextWidthOnCanvas(longestLine);
+		let shortWidth = this.getTextWidthOnCanvas(line);
+		let widthOfSpace = this.getTextWidthOnCanvas(this.thinWhiteSpace);
+		let paddingSize = (longWidth - shortWidth) / widthOfSpace;
+		return Math.round(paddingSize);
 	}
 
 	getIndexOfTextAtPoint(point, line) {
-		let index = 0
-		let left = this.center.x - (this.getTextWidthOnCanvas(line) / 2)
-		let lines = this.parseText()
-		let xOffset = 0
+		let index = 0;
+		let left = this.center.x - this.getTextWidthOnCanvas(line) / 2;
+		let lines = this.parseText();
+		let xOffset = 0;
 		for (let i = 0; i < lines.length; i++) {
 			if (line === lines[i]) {
-				xOffset = this.properties.xOffsets[i] || 0
+				xOffset = this.properties.xOffsets[i] || 0;
 			}
-		}
-		
-		while (index < line.length) {
-			let offset = left + this.getTextWidthOnCanvas(line.slice(0, index + 1)) + xOffset
-			if (offset >= point.x) {
-				if ( // point is at left side of character
-					point.x - left - this.getTextWidthOnCanvas(line.slice(0, index)) - xOffset < this.getTextWidthOnCanvas(line[index]) / 2
-				) {
-					index--
-				}
-				break
-			}
-			index++
 		}
 
-		return index
+		while (index < line.length) {
+			let offset =
+				left +
+				this.getTextWidthOnCanvas(line.slice(0, index + 1)) +
+				xOffset;
+			if (offset >= point.x) {
+				if (
+					// point is at left side of character
+					point.x -
+						left -
+						this.getTextWidthOnCanvas(line.slice(0, index)) -
+						xOffset <
+					this.getTextWidthOnCanvas(line[index]) / 2
+				) {
+					index--;
+				}
+				break;
+			}
+			index++;
+		}
+
+		return index;
 	}
 
 	getTextWidthOnCanvas(text) {
-		return this.getTextMeasure(text).width
+		return this.getTextMeasure(text).width;
 	}
 
 	getTextMeasure(text) {
 		const tmpCanvas = document.createElement("canvas");
 		const tmpCtx = tmpCanvas.getContext("2d");
 		this.setProperties(tmpCtx);
-		return tmpCtx.measureText(text)
+		return tmpCtx.measureText(text);
 	}
 
 	click() {
@@ -210,24 +222,24 @@ class Text extends Shape {
 			// this means we are currently editing this text
 			// but clicked a different part possibly trying
 			// to move the cursor there, therfore do nothing
-			return
+			return;
 		}
 
-		this.numberClicked += 1
+		this.numberClicked += 1;
 		if (this.numberClicked % 2 !== 0) {
-			this.select()
+			this.select();
 		}
 
 		if (this.numberClicked % 3 === 0) {
-			this.unselect()
+			this.unselect();
 		}
 	}
 
 	unselect(save = true) {
-		this.numberClicked = 0
+		this.numberClicked = 0;
 		this.selected = false;
-		this.gizmo = null
-		
+		this.gizmo = null;
+
 		viewport.dispatchEvent(
 			new CustomEvent("shapeUnselected", {
 				detail: { shape: this, save },
@@ -241,43 +253,43 @@ class Text extends Shape {
 
 		top = center.y - this.size.height / 2;
 
-		fontSize = this.properties.fontSize
+		fontSize = this.properties.fontSize;
 
-		let lines = this.parseText()
+		let lines = this.parseText();
 
 		ctx.save();
 		this.setProperties(ctx);
 
 		if (hitRegion) {
-			let row = 0
-			for (let line of lines) {	
-				let xOffset = this.properties.xOffsets[row] || 0
-				left = center.x + xOffset	
+			let row = 0;
+			for (let line of lines) {
+				let xOffset = this.properties.xOffsets[row] || 0;
+				left = center.x + xOffset;
 				ctx.beginPath();
 				const rgb = Shape.getHitRGB(this.id);
 				ctx.fillStyle = rgb;
 				ctx.strokeStyle = rgb;
 				ctx.lineWidth = this.options.strokeWidth + this.properties.dilation;
-				ctx.fillText(line, left, (top + fontSize / 2) + row * fontSize);
-				ctx.strokeText(line, left, (top + fontSize / 2) + row * fontSize);
-				row++
+				ctx.fillText(line, left, top + fontSize / 2 + row * fontSize);
+				ctx.strokeText(line, left, top + fontSize / 2 + row * fontSize);
+				row++;
 			}
 		} else {
-			let row = 0
+			let row = 0;
 			for (let line of lines) {
-				let xOffset = this.properties.xOffsets[row] || 0
-				left = center.x + xOffset
+				let xOffset = this.properties.xOffsets[row] || 0;
+				left = center.x + xOffset;
 				ctx.beginPath();
 				if (this.options.fill) {
 					ctx.fillStyle = this.options.fillColor;
-					ctx.fillText(line, left, (top + fontSize / 2) + row * fontSize);
+					ctx.fillText(line, left, top + fontSize / 2 + row * fontSize);
 				}
 				if (this.options.stroke) {
 					ctx.strokeStyle = this.options.strokeColor;
 					ctx.lineWidth = this.options.strokeWidth;
-					ctx.strokeText(line, left, (top + fontSize / 2) + row * fontSize);
+					ctx.strokeText(line, left, top + fontSize / 2 + row * fontSize);
 				}
-				row++
+				row++;
 			}
 		}
 

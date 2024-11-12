@@ -43,7 +43,7 @@ class DocumentTools {
 			}
 		});
 	}
-	
+
 	static save() {
 		const data = JSON.stringify(viewport.layers.map((l) => l.serialize()));
 
