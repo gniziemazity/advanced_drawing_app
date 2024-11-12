@@ -250,7 +250,7 @@ textarea {
 	z-index: 1;
 }
 
-#strokeWidth {
+#strokeWidth, #strokeWidthNumber {
 	width: var(--input-medium-width);
 }
 
