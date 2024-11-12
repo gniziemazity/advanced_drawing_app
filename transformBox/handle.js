@@ -12,10 +12,11 @@ class Handle {
 		ROTATE: "rotate",
 	};
 
-	constructor(center, type) {
+	constructor(center, type, attachedHandle = null) {
 		this.center = center;
 		this.id = Shape.generateId();
 		this.type = type;
+		this.attachedHandle = attachedHandle;
 	}
 
 	draw(ctx, hitRegion = false) {
@@ -37,6 +38,15 @@ class Handle {
 				size,
 				size
 			);
+			if (this.attachedHandle) {
+				ctx.moveTo(this.center.x, this.center.y);
+				ctx.lineTo(
+					this.attachedHandle.center.x,
+					this.attachedHandle.center.y
+				);
+				ctx.strokeStyle = "black";
+				ctx.stroke();
+			}
 		}
 	}
 }

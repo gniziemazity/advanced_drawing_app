@@ -47,8 +47,10 @@ class Gizmo {
 			new Handle(Vector.mid([bottomLeft, bottomRight]), Handle.TYPES.BOTTOM),
 			new Handle(Vector.mid([topLeft, bottomLeft]), Handle.TYPES.LEFT),
 			new Handle(Vector.mid([topRight, bottomRight]), Handle.TYPES.RIGHT),
-			new Handle(rotationPoint, Handle.TYPES.ROTATE),
 		];
+		this.handles.push(
+			new Handle(rotationPoint, Handle.TYPES.ROTATE, this.handles[4])
+		);
 	}
 
 	#update() {
