@@ -67,13 +67,13 @@ class FiltersSection extends PanelSection {
 	changeChromaKey(index, value, save = true) {
 		viewport
 			.getSelectedShapes()
-			.forEach((s) => s.filters[index].setKeyFromHex(value), save);
+			.forEach((s) => s.filters[index].setKeyFromHex(value, save));
 	}
 
 	changeChromaThreshold(index, value, save = true) {
 		viewport
 			.getSelectedShapes()
-			.forEach((s) => s.filters[index].setThreshold(value), save);
+			.forEach((s) => s.filters[index].setThreshold(value, save));
 	}
 
 	addChromaFilter() {
