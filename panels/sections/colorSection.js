@@ -97,11 +97,26 @@ class ColorSection extends PanelSection {
 				id: "strokeWidth",
 				max: "30",
 				min: "1",
+                step: "1",
 				onchange: (e) => this.changeStrokeWidth(e.currentTarget.value),
 				oninput: (e) =>
 					this.changeStrokeWidth(e.currentTarget.value, false),
 				title: "Stroke Width",
 				type: "range",
+				value: "5",
+			})
+		);
+        holderDiv.appendChild(
+			createDOMElement("input", {
+				id: "strokeWidthNumber",
+				max: "30",
+				min: "1",
+                step: "1",
+				onchange: (e) => this.changeStrokeWidth(e.currentTarget.value),
+				oninput: (e) =>
+					this.changeStrokeWidth(e.currentTarget.value, false),
+				title: "Stroke Width",
+				type: "number",
 				value: "5",
 			})
 		);
@@ -149,6 +164,8 @@ class ColorSection extends PanelSection {
 	}
 
 	changeStrokeWidth(value, save = true) {
+        strokeWidthNumber.value = value;
+        strokeWidth.value = value;
 		viewport
 			.getSelectedShapes()
 			.forEach((s) => s.setOptions({ strokeWidth: Number(value) }, save));
