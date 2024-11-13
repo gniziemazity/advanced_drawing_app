@@ -98,6 +98,7 @@ class SelectTool extends GenericTool {
 					}
 				}
 			};
+
 			viewport
 				.getStageCanvas()
 				.addEventListener("pointermove", moveCallback);
@@ -179,15 +180,43 @@ class SelectTool extends GenericTool {
 		viewport.getStageCanvas().addEventListener("pointerup", upCallback);
 	}
 
+	keyCallback(e) {
+		let diff = Vector.zero();
+		switch (e.key) {
+			case "ArrowUp":
+				diff = new Vector(0, -1);
+				break;
+			case "ArrowDown":
+				diff = new Vector(0, 1);
+				break;
+			case "ArrowLeft":
+				diff = new Vector(-1, 0);
+				break;
+			case "ArrowRight":
+				diff = new Vector(1, 0);
+				break;
+			default:
+				return;
+		}
+		if (e.shiftKey) {
+			diff = diff.scale(10);
+		}
+		viewport.getSelectedShapes().forEach((s, i) => {
+			s.setCenter(Vector.add(s.center, diff), true);
+		});
+	}
+
 	configureEventListeners() {
 		viewport
 			.getStageCanvas()
 			.addEventListener("pointerdown", this.addPointerDownListener);
+		document.addEventListener("keydown", this.keyCallback);
 	}
 
 	removeEventListeners() {
 		viewport
 			.getStageCanvas()
 			.removeEventListener("pointerdown", this.addPointerDownListener);
+		document.removeEventListener("keydown", this.keyCallback);
 	}
 }
