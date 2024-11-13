@@ -1,7 +1,7 @@
 const contributors = [
 	"Yusuf Isyaku",
-	"Michael Golden",
 	"Pieter De Schepper",
+	"Michael Golden",
 	"Pesterenan",
 	"Rahul Thakare",
 	"Egbertpostma",

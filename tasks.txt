@@ -1,26 +1,26 @@
-Text tool improvements:
-1. Clicking on it and pressing delete does not delete it because the cursor appears (so it deletes the next letter)
-2. I feel like cursor should appear on a second click
+Custom Color Picker (Radu will do it in the next stream)
+
+Better mobile support
 
 Align / distribute shapes
 
-Stage properties tool
-  - Near the other properties? 
-  - Show all shapes as properties of stage mshryane
+Bezier Math, Booleans // proposed by Stable Media Diffusion Gallery
+
+Pen Support / PDF // proposed by Joys (Discord)
+
+Review Shape ID & Selection system
+
+Control Drag for Duplicate // proposed by Jonathan Gouwe
+
+Use navigator clipboard // proposed by Michael Golden
+
+Save History // proposed by Catakuri ?
+
+Shadows Matrix Box
+
+Eraser Tool // proposed by Firefox_TN
 
 
+For those who want to learn by reading:
 Steve Ruiz's explainers: https://www.steveruiz.me/archive
 Thanks to @hellothere8547 for pointing them out!
-
-
-FOR LATER:
-Bezier Math, Booleans ?? Stable Media Diffusion Gallery
-Shadows Matrix Box
-Save History Catakuri
-Pen Support / PDF : Joys (Discord)
-Review Shape ID & Selection system
-Custom Color Picker
-Eraser Tool Firefox_TN
-Control Drag for Duplicate Jonathan Gouwe
-Use navigator clipboard Michael Golden
-Icons for buttons mshryane
