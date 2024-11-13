@@ -38,6 +38,7 @@ class Cursor {
 		) {
 			return;
 		}
+		e.stopPropagation();
 		let textShape = Cursor.currentText;
 		let lines = textShape.parseText();
 		let currentIndex = Cursor.currentIndex;
@@ -45,8 +46,11 @@ class Cursor {
 		let line = lines[lineIndex];
 
 		switch (e.key) {
-			case "CapsLock":
 			case "Escape":
+				Cursor.stopEditMode();
+				viewport.selectShapes([]);
+				break;
+			case "CapsLock":
 			case "Control":
 			case "Shift":
 			case "Alt":

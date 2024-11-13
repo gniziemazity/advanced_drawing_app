@@ -288,7 +288,9 @@ class Viewport extends EventTarget {
 			}
 
 			const { shape, clickedPoint } = event.detail;
-			let adjustedPoint = this.getAdjustedPosition(clickedPoint);
+			let adjustedPoint = this.getAdjustedPosition(
+				clickedPoint.scale(1 / window.devicePixelRatio)
+			);
 
 			if (shape.rotation) {
 				adjustedPoint = Vector.rotateAroundCenter(
