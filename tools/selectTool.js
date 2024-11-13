@@ -14,7 +14,9 @@ class SelectTool extends GenericTool {
 	addPointerDownListener(e) {
 		if (e.button !== 0) return;
 
-		const startPosition = new Vector(e.offsetX, e.offsetY).scale(window.devicePixelRatio);
+		const startPosition = new Vector(e.offsetX, e.offsetY).scale(
+			window.devicePixelRatio
+		);
 
 		const [r, g, b, a] = viewport.hitTestLayer.ctx.getImageData(
 			startPosition.x,
@@ -55,8 +57,19 @@ class SelectTool extends GenericTool {
 			let isDragging = false;
 
 			const moveCallback = function (e) {
-				const mousePosition = new Vector(e.offsetX, e.offsetY).scale(window.devicePixelRatio);
-				const diff = Vector.subtract(mousePosition, startPosition).scale(1/window.devicePixelRatio);
+				const mousePosition = new Vector(e.offsetX, e.offsetY).scale(
+					window.devicePixelRatio
+				);
+				const diff = Vector.subtract(mousePosition, startPosition).scale(
+					1 / window.devicePixelRatio
+				);
+				if (e.shiftKey) {
+					if (Math.abs(diff.x) >= Math.abs(diff.y)) {
+						diff.y = 0;
+					} else {
+						diff.x = 0;
+					}
+				}
 				mouseDelta = viewport.getAdjustedScale(diff);
 				isDragging = true;
 				selectedShapes.forEach((s, i) => {
