@@ -224,6 +224,7 @@ textarea {
 
 #canvasHolder {
 	background-color: var(--bg-canvas);
+   touch-action: none;
 }
 
 #toolsHolder {
