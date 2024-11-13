@@ -1,10 +1,8 @@
 //Should only be used as an abstract class
 class GenericTool {
-    constructor() {
+	constructor() {}
 
-    }
-
-    getShortcut() {
+	getShortcut() {
 		return null;
 	}
 }

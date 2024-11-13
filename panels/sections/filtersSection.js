@@ -1,31 +1,30 @@
 class FiltersSection extends PanelSection {
+	constructor() {
+		super("Filters", { visible: false, sectionClass: "three_col_grid" });
+	}
 
-    constructor() {
-        super("Filters", { visible: false, sectionClass: "three_col_grid" });
-    }
-    
-    addContent(holderDiv) {
-        //Handled in the populatelayers
-    }
+	addContent(holderDiv) {
+		//Handled in the populatelayers
+	}
 
 	addTitleContent(holderDiv) {
-        holderDiv.appendChild(
+		holderDiv.appendChild(
 			createButtonWithIcon({
 				id: "addFilterBtn",
 				onclick: (e) => {
-                    e.stopPropagation();
-                    this.addChromaFilter();
-                },
+					e.stopPropagation();
+					this.addChromaFilter();
+				},
 				title: "Add Chroma Filter",
 				iconName: "plus",
 			})
 		);
-    }
+	}
 
 	reset() {
 		this.hide();
 	}
-	
+
 	populateFilters(filters) {
 		this.sectionContent.innerHTML = "";
 
@@ -34,8 +33,7 @@ class FiltersSection extends PanelSection {
 			this.sectionContent.appendChild(
 				createDOMElement("input", {
 					id: "colorKey_" + i,
-					onchange:
-						(e) => this.changeChromaKey(i, e.currentTarget.value),
+					onchange: (e) => this.changeChromaKey(i, e.currentTarget.value),
 					title: "Color Key",
 					value: filter.getHexColor(),
 					type: "color",
@@ -46,8 +44,8 @@ class FiltersSection extends PanelSection {
 					id: "threshold_" + i,
 					max: "255",
 					min: "0",
-					onchange:
-						(e) => this.changeChromaThreshold(i, e.currentTarget.value),
+					onchange: (e) =>
+						this.changeChromaThreshold(i, e.currentTarget.value),
 					title: "Threshold",
 					type: "range",
 					value: filter.threshold,

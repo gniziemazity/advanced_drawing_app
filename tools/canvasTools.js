@@ -28,6 +28,4 @@ class CanvasTools {
 
 		return tool;
 	}
-
-	
 }

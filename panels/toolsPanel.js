@@ -3,7 +3,7 @@ class ToolsPanel {
 		this.holderDiv = holderDiv;
 
 		this.#addDocumentTools(holderDiv);
-      	holderDiv.appendChild(createDOMElement("hr"));
+		holderDiv.appendChild(createDOMElement("hr"));
 
 		this.#addEditingTools(holderDiv);
 		holderDiv.appendChild(createDOMElement("hr"));
@@ -26,7 +26,9 @@ class ToolsPanel {
 			holderDiv.appendChild(
 				createButtonWithIcon({
 					id: tool.name + "Btn",
-					title: (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name),
+					title: shortcut
+						? `${tool.name} (${shortcut.toString()})`
+						: tool.name,
 					class: "tool-button",
 					onclick: tool.func,
 					iconName: tool.icon ?? tool.name.toLowerCase(),
@@ -45,7 +47,9 @@ class ToolsPanel {
 			holderDiv.appendChild(
 				createButtonWithIcon({
 					id: tool.name + "Btn",
-					title: (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name),
+					title: shortcut
+						? `${tool.name} (${shortcut.toString()})`
+						: tool.name,
 					class: "tool-button",
 					onclick: tool.func,
 					iconName: tool.icon ?? tool.name.toLowerCase(),
@@ -64,14 +68,15 @@ class ToolsPanel {
 			holderDiv.appendChild(
 				createButtonWithIcon({
 					id: tool.name + "Btn",
-					title: (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name),
+					title: shortcut
+						? `${tool.name} (${shortcut.toString()})`
+						: tool.name,
 					class: "tool-button",
 					onclick: tool.func,
 					iconName: tool.icon ?? tool.name.toLowerCase(),
 				})
 			);
 		}
-
 
 		HistoryTools.registerShortcuts();
 	}
@@ -82,13 +87,17 @@ class ToolsPanel {
 
 			const shortcut = tool.class.getShortcut();
 			holderDiv.appendChild(
-				createRadioWithImage(tool.name, (shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name), {
-					type: "radio",
-					class: "radio",
-					id: tool.name.toLowerCase() + "Radio",
-					name: "CanvasTools",
-					onchange: () => CanvasTools.selectTool(tool.name),
-				})
+				createRadioWithImage(
+					tool.name,
+					shortcut ? `${tool.name} (${shortcut.toString()})` : tool.name,
+					{
+						type: "radio",
+						class: "radio",
+						id: tool.name.toLowerCase() + "Radio",
+						name: "CanvasTools",
+						onchange: () => CanvasTools.selectTool(tool.name),
+					}
+				)
 			);
 		}
 

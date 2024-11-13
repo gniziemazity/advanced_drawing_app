@@ -72,9 +72,9 @@ class MyImage extends Shape {
 			// prevent errors in drawing image when it is not
 			// fully loaded.
 			setTimeout(() => {
-				this.draw(ctx, hitRegion)
-			}, 50)
-			return
+				this.draw(ctx, hitRegion);
+			}, 50);
+			return;
 		}
 
 		const center = this.center ? this.center : { x: 0, y: 0 };

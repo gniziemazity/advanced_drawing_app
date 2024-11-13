@@ -17,13 +17,13 @@ class Chroma {
 		};
 	}
 
-   apply(img) {
+	apply(img) {
 		if (this.cache) {
 			if (
-				this.cache.prevColorKey == this.colorKey
-				&& this.cache.prevThreshold == this.threshold
+				this.cache.prevColorKey == this.colorKey &&
+				this.cache.prevThreshold == this.threshold
 			) {
-				return this.cache.canvas
+				return this.cache.canvas;
 			}
 		}
 
@@ -48,7 +48,11 @@ class Chroma {
 			}
 		}
 		ctx.putImageData(imgData, 0, 0);
-		this.cache = {canvas, prevColorKey: this.colorKey, prevThreshold: this.threshold};
+		this.cache = {
+			canvas,
+			prevColorKey: this.colorKey,
+			prevThreshold: this.threshold,
+		};
 		return canvas;
 	}
 

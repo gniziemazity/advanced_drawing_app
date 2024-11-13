@@ -8,11 +8,11 @@ class Gizmo {
 		this.rotation = shape.rotation;
 
 		this.#generate();
-		shape.gizmo = this
+		shape.gizmo = this;
 	}
 
 	updatePosition(e) {
-		this.center = this.shape.center
+		this.center = this.shape.center;
 		this.#update();
 	}
 
@@ -75,10 +75,10 @@ class Gizmo {
 			BoundingBox.fromPoints(s.getPoints().map((p) => p.add(this.center)))
 		);
 
-		const startingSigns = selectedShapes.map(s => ({
+		const startingSigns = selectedShapes.map((s) => ({
 			widthSign: Math.sign(s.size.width),
-			heightSign: Math.sign(s.size.height)
-		}))
+			heightSign: Math.sign(s.size.height),
+		}));
 
 		const oldRotations = selectedShapes.map((s) => s.rotation);
 		let mouseDelta = null;
@@ -162,7 +162,7 @@ class Gizmo {
 					shape.setRotation(combinedAngle, false);
 				} else {
 					shape.setSize(
-						oldBox.width  * ratio.x * startingSigns[i].widthSign,
+						oldBox.width * ratio.x * startingSigns[i].widthSign,
 						oldBox.height * ratio.y * startingSigns[i].heightSign,
 						false
 					);

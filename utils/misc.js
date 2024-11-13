@@ -11,7 +11,7 @@ function createDOMElement(type, attributes, text) {
 	}
 	if (attributes) {
 		Object.entries(attributes).forEach(([key, value]) => {
-			if (key.indexOf('on') === 0) {
+			if (key.indexOf("on") === 0) {
 				element.addEventListener(key.substring(2), value);
 			} else {
 				element.setAttribute(key, value);
@@ -66,7 +66,7 @@ function createRadioWithImage(iconName, labelText, attributes) {
 	const image = new Image();
 	image.src = `drawings/icons/${iconName.toLowerCase()}.png`;
 	image.classList.add("icon");
-	image.title = attributes.title || labelText
+	image.title = attributes.title || labelText;
 	label.appendChild(image);
 
 	element.appendChild(label);

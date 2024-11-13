@@ -138,7 +138,7 @@ class Viewport extends EventTarget {
 			Layer.load(l, this.canvasWidth, this.canvasHeight)
 		);
 
-		this.redrawLayers(save)
+		this.redrawLayers(save);
 	}
 
 	redrawLayers(save = false) {
@@ -150,7 +150,11 @@ class Viewport extends EventTarget {
 			if (save) {
 				this.dispatchEvent(
 					new CustomEvent("layersChanged", {
-						detail: { layer: this.layers, count: this.layers.length, save },
+						detail: {
+							layer: this.layers,
+							count: this.layers.length,
+							save,
+						},
 					})
 				);
 			}
@@ -160,19 +164,19 @@ class Viewport extends EventTarget {
 	swapLayerById(layerId, layer) {
 		for (let i = 0; i < this.layers.length; i++) {
 			if (this.layers[i].id === layerId) {
-				this.layers[i] = layer
-				layer.id = layerId
-				this.redrawLayers()
-				this.selectedLayer = layer
+				this.layers[i] = layer;
+				layer.id = layerId;
+				this.redrawLayers();
+				this.selectedLayer = layer;
 				this.dispatchEvent(
 					new CustomEvent("layersChanged", {
 						detail: { layers: this.layers, count: this.layers.length },
 					})
 				);
-				return
+				return;
 			}
 		}
-		throw new Error("viewport.swapLayerById: no layers with id ", layerId)
+		throw new Error("viewport.swapLayerById: no layers with id ", layerId);
 	}
 
 	selectLayerByIndex(index) {
@@ -202,12 +206,12 @@ class Viewport extends EventTarget {
 		);
 	}
 
-   resizeStage(newWidth, newHeight) {
-      this.layers.forEach((l) => {
-         l.stageProperties.width = newWidth;
-         l.stageProperties.height = newHeight;
-      });
-   }
+	resizeStage(newWidth, newHeight) {
+		this.layers.forEach((l) => {
+			l.stageProperties.width = newWidth;
+			l.stageProperties.height = newHeight;
+		});
+	}
 
 	#handleChanges({ detail }) {
 		this.drawShapes();
@@ -258,15 +262,15 @@ class Viewport extends EventTarget {
 		this.addEventListener("shapesAdded", this.#handleChanges.bind(this));
 		this.addEventListener("shapesRemoved", this.#handleChanges.bind(this));
 		this.addEventListener("shapesReordered", this.#handleChanges.bind(this));
-        this.addEventListener("filterChanged", this.#handleChanges.bind(this));
+		this.addEventListener("filterChanged", this.#handleChanges.bind(this));
 		this.addEventListener("layersChanged", (event) => {
 			this.gizmos = [];
-         	this.layers.forEach((l) => {
+			this.layers.forEach((l) => {
 				l.shapes.forEach((s) => {
 					s.unselect(false);
 				});
-         	});
-		 	Cursor.stopEditMode()
+			});
+			Cursor.stopEditMode();
 			this.#handleChanges(event);
 		});
 
@@ -276,34 +280,37 @@ class Viewport extends EventTarget {
 		});
 
 		this.addEventListener("TextSelected", (event) => {
-			let selectedShapes = this.getSelectedShapes()
+			let selectedShapes = this.getSelectedShapes();
 
 			if (selectedShapes.length > 1) {
-				Cursor.stopEditMode()
-				return
+				Cursor.stopEditMode();
+				return;
 			}
 
-			const { shape, clickedPoint } = event.detail
-			let adjustedPoint = this.getAdjustedPosition(clickedPoint)
+			const { shape, clickedPoint } = event.detail;
+			let adjustedPoint = this.getAdjustedPosition(clickedPoint);
 
 			if (shape.rotation) {
-				adjustedPoint = Vector.rotateAroundCenter(adjustedPoint, shape.center, -shape.rotation)
+				adjustedPoint = Vector.rotateAroundCenter(
+					adjustedPoint,
+					shape.center,
+					-shape.rotation
+				);
 			}
 
-			let shapeHeight = shape.size.height
-			let top = shape.center.y - (shapeHeight / 2)
+			let shapeHeight = shape.size.height;
+			let top = shape.center.y - shapeHeight / 2;
 
-			let lines = shape.parseText()
-		
-			let ratioOnYaxis = Math.abs((adjustedPoint.y - top) / shapeHeight)
-			let lineIndex = Math.floor(ratioOnYaxis * lines.length)
-		
-			let line = lines[lineIndex] || ""
+			let lines = shape.parseText();
 
-			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line)
+			let ratioOnYaxis = Math.abs((adjustedPoint.y - top) / shapeHeight);
+			let lineIndex = Math.floor(ratioOnYaxis * lines.length);
 
-			Cursor.enterEditMode(shape, index, lineIndex)
+			let line = lines[lineIndex] || "";
 
+			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line);
+
+			Cursor.enterEditMode(shape, index, lineIndex);
 		});
 
 		this.addEventListener("textChanged", (event) => {
@@ -312,7 +319,7 @@ class Viewport extends EventTarget {
 		});
 		this.addEventListener("shapeUnselected", (event) => {
 			this.gizmos = this.getSelectedShapes().map((s) => new Gizmo(s));
-			Cursor.stopEditMode()
+			Cursor.stopEditMode();
 			this.#handleChanges(event);
 		});
 		this.addEventListener("gizmoChanged", () => this.drawShapes());

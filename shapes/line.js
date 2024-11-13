@@ -1,5 +1,5 @@
 class Line extends Path {
-    addPoint(point) {
+	addPoint(point) {
 		this.points = [this.points[0], point];
 	}
 }

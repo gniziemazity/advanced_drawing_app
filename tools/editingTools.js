@@ -66,7 +66,7 @@ class EditingTools {
 	}
 
 	static selectAll() {
-		viewport.selectShapes(viewport.selectedLayer.shapes)
+		viewport.selectShapes(viewport.selectedLayer.shapes);
 	}
 
 	static copy() {

@@ -15,8 +15,8 @@ class PropertiesPanel {
 			filters: new FiltersSection(),
 			arrange: new ArrangeSection(),
 			layers: new LayersSection(),
-		}
-		
+		};
+
 		for (const key of Object.keys(this.sections)) {
 			panelBodyDiv.appendChild(this.sections[key].getSection());
 		}
@@ -49,7 +49,7 @@ class PropertiesPanel {
 			this.sections[key].reset();
 		}
 	}
-	
+
 	getValues() {
 		return {
 			fillColor: fillColor.value,
