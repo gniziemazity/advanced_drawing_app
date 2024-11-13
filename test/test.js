@@ -26,7 +26,10 @@ class RandomCoordinatesGenerator {
 	static previousY = 0;
 
 	static getRandomXcanvasPoint() {
-		let newX = Math.round(Math.random() * viewport.getStageCanvas().width);
+		let newX = Math.round(
+			(Math.random() * viewport.getStageCanvas().width) /
+				window.devicePixelRatio
+		);
 		if (newX === RandomCoordinatesGenerator.previousX) {
 			return RandomCoordinatesGenerator.getRandomXcanvasPoint();
 		}
@@ -35,7 +38,10 @@ class RandomCoordinatesGenerator {
 	}
 
 	static getRandomYcanvasPoint() {
-		let newY = Math.round(Math.random() * viewport.getStageCanvas().height);
+		let newY = Math.round(
+			(Math.random() * viewport.getStageCanvas().height) /
+				window.devicePixelRatio
+		);
 		if (newY === RandomCoordinatesGenerator.previousY) {
 			return RandomCoordinatesGenerator.getRandomYcanvasPoint();
 		}
@@ -54,7 +60,9 @@ function getShapeAtPoint(x, y) {
 	viewport.gizmos = [];
 	viewport.drawShapes();
 
-	const startPosition = new Vector(e.offsetX, e.offsetY);
+	const startPosition = new Vector(e.offsetX, e.offsetY).scale(
+		window.devicePixelRatio
+	);
 
 	const [r, g, b, a] = viewport.hitTestLayer.ctx.getImageData(
 		startPosition.x,
