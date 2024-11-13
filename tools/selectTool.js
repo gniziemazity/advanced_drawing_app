@@ -60,8 +60,8 @@ class SelectTool extends GenericTool {
 			let isDragging = false;
 
 			const moveCallback = function (e) {
-				const mousePosition = new Vector(e.offsetX, e.offsetY).scale(window.devicePixelRatio);
-				const diff = Vector.subtract(mousePosition, startPosition).scale(1 / window.devicePixelRatio);
+				const mousePosition = new Vector(e.offsetX, e.offsetY);
+				const diff = Vector.subtract(mousePosition, startPosition);
 				mouseDelta = viewport.getAdjustedScale(diff);
 				isDragging = true;
 				selectedShapes.forEach((s, i) => {
