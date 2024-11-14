@@ -1,5 +1,10 @@
 Custom Color Picker (Radu will do it in the next stream)
 
+Gradient Tool
+
+Gizmo anchor point / support multiple resize strategies (konva) // proposed by Shmuel Kaminker
+Maybe using ctrl / cmd to toggle strategies // proposed by Teolag
+
 Better mobile support
 
 Align / distribute shapes
@@ -20,6 +25,7 @@ Shadows Matrix Box
 
 Eraser Tool // proposed by Firefox_TN
 
+Check out Krita
 
 For those who want to learn by reading:
 Steve Ruiz's explainers: https://www.steveruiz.me/archive
