@@ -178,6 +178,10 @@ class SelectTool extends GenericTool {
 	}
 
 	keyCallback(e) {
+		if (Cursor.isEditing) {
+			return;
+		}
+
 		let diff = Vector.zero();
 		switch (e.key) {
 			case "ArrowUp":
