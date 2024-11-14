@@ -17,6 +17,8 @@ class Layer {
 		this.canvas.style.height = canvasHeight + "px";
 		this.canvas.width = Math.floor(canvasWidth * pixelRatio);
 		this.canvas.height = Math.floor(canvasHeight * pixelRatio);
+		this.canvas.unscaledWidth = canvasWidth;
+		this.canvas.unscaledHeight = canvasHeight;
 		this.ctx = this.canvas.getContext("2d", {
 			willReadFrequently: true,
 		});
@@ -205,10 +207,10 @@ class Layer {
 
 	clearCanvas() {
 		this.ctx.clearRect(
-			-this.canvas.width / 2,
-			-this.canvas.height / 2,
-			this.canvas.width,
-			this.canvas.height
+			-this.canvas.unscaledWidth / 2,
+			-this.canvas.unscaledHeight / 2,
+			this.canvas.unscaledWidth,
+			this.canvas.unscaledHeight
 		);
 	}
 
