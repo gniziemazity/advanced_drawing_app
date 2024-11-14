@@ -37,6 +37,13 @@ class ColorSection extends PanelSection {
 	}
 
 	addContent(holderDiv) {
+		const colorSelectorContainer = createDOMElement("div", {
+			id: "colorSelectorContainer",
+		});
+		colorSelectorContainer.style.gridColumn = "3 span";
+      colorSelectorContainer.style.flexDirection = "column";
+		this.colorSelector = new ColorSelector(colorSelectorContainer);
+		holderDiv.appendChild(colorSelectorContainer);
 		holderDiv.appendChild(
 			createDOMElement("input", {
 				id: "fillColor",
@@ -97,7 +104,7 @@ class ColorSection extends PanelSection {
 				id: "strokeWidth",
 				max: "30",
 				min: "1",
-                step: "1",
+				step: "1",
 				onchange: (e) => this.changeStrokeWidth(e.currentTarget.value),
 				oninput: (e) =>
 					this.changeStrokeWidth(e.currentTarget.value, false),
@@ -106,12 +113,12 @@ class ColorSection extends PanelSection {
 				value: "5",
 			})
 		);
-        holderDiv.appendChild(
+		holderDiv.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidthNumber",
 				max: "30",
 				min: "1",
-                step: "1",
+				step: "1",
 				onchange: (e) => this.changeStrokeWidth(e.currentTarget.value),
 				oninput: (e) =>
 					this.changeStrokeWidth(e.currentTarget.value, false),
@@ -164,8 +171,8 @@ class ColorSection extends PanelSection {
 	}
 
 	changeStrokeWidth(value, save = true) {
-        strokeWidthNumber.value = value;
-        strokeWidth.value = value;
+		strokeWidthNumber.value = value;
+		strokeWidth.value = value;
 		viewport
 			.getSelectedShapes()
 			.forEach((s) => s.setOptions({ strokeWidth: Number(value) }, save));

@@ -52,9 +52,9 @@ class PropertiesPanel {
 
 	getValues() {
 		return {
-			fillColor: fillColor.value,
+			fillColor: this.sections["colors"].colorSelector.getFill(),
 			strokeColor: strokeColor.value,
-			fill: fill.checked,
+			fill: this.sections["colors"].colorSelector.getFill() !=null,
 			stroke: stroke.checked,
 			strokeWidth: Number(strokeWidth.value),
 			lineCap: "round",
