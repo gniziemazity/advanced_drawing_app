@@ -26,7 +26,7 @@ class RandomCoordinatesGenerator {
 	static previousY = 0;
 
 	static getRandomXcanvasPoint() {
-		let newX = Math.round(Math.random() * viewport.getStageCanvas());
+		let newX = Math.round(Math.random() * viewport.getStageCanvas().width);
 		if (newX === RandomCoordinatesGenerator.previousX) {
 			return RandomCoordinatesGenerator.getRandomXcanvasPoint();
 		}
