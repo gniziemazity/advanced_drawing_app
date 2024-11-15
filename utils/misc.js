@@ -112,3 +112,42 @@ function rotateCanvas(ctx, center, rotation) {
 	ctx.rotate(rotation);
 	ctx.translate(-center.x, -center.y);
 }
+
+class TimeSharer {
+	static opRecords = {}
+
+	static run(key, operation, opInterval = 500) {
+		if (TimeSharer.opRecords[key]) {
+			let opRecord = TimeSharer.opRecords[key]
+			if (Date.now() - opRecord.opTime < opRecord.opInterval) {
+				const latestOpTime = opRecord.opTime
+				// opRecord.latestOp = null is important so as to not
+				// run out dated op in previously set setTimeot below
+				opRecord.latestOp = null
+				opRecord.latestOp = operation
+				setTimeout(
+					() => {
+						if (opRecord.opTime === latestOpTime && opRecord.latestOp) {
+							// no operations since so run the last skipped op
+							opRecord.latestOp()
+							opRecord.latestOp = null
+						}
+					},
+					opRecord.opInterval
+				)
+				return opRecord.result
+			}
+			opRecord.result = operation()
+			opRecord.opTime = Date.now()
+
+			return opRecord.result
+		}
+		let opRecord = {}
+		opRecord.result = operation()
+		opRecord.opTime = Date.now()
+		opRecord.opInterval = opInterval
+		TimeSharer.opRecords[key] = opRecord
+		return opRecord.result
+	}
+
+}
