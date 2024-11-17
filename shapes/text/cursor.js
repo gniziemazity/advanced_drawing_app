@@ -7,6 +7,7 @@ class Cursor {
 
 	static attemptToEnterEditMode(shape, startPosition) {
 		if (shape.numberClicked && shape.numberClicked % 2 === 0) {
+			TextHighlight.reset()
 			viewport.dispatchEvent(
 				new CustomEvent("TextSelected", {
 					detail: { shape, clickedPoint: startPosition },
@@ -98,43 +99,74 @@ class Cursor {
 				break;
 
 			case "Backspace":
-				if (currentIndex > -1) {
-					line =
-						line.slice(0, currentIndex) + line.slice(currentIndex + 1);
-					lines[lineIndex] = line;
-					Cursor.currentIndex--;
-				} else if (lineIndex > 0) {
-					let previousLineLength = lines[lineIndex - 1].length;
-					lines[lineIndex - 1] += line;
-					lines.splice(lineIndex, 1);
-					Cursor.currentLineIndex--;
-					Cursor.currentIndex = previousLineLength - 1;
+				if (TextHighlight.currentHighlightDetails) {
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					endIndex++
+					let updatedText = textShape.text.slice(0, startIndex)
+						+ textShape.text.slice(endIndex)
+					TextHighlight.reset()
+					textShape.setText(updatedText)
+					Cursor.updateCursorPosition(startIndex - 1)
+				} else {
+					if (currentIndex > -1) {
+						line =
+							line.slice(0, currentIndex) + line.slice(currentIndex + 1);
+						lines[lineIndex] = line;
+						Cursor.currentIndex--;
+					} else if (lineIndex > 0) {
+						let previousLineLength = lines[lineIndex - 1].length;
+						lines[lineIndex - 1] += line;
+						lines.splice(lineIndex, 1);
+						Cursor.currentLineIndex--;
+						Cursor.currentIndex = previousLineLength - 1;
+					}
+					textShape.setText(lines.join("\n"));
 				}
-				textShape.setText(lines.join("\n"));
 				break;
 
 			case "Delete":
-				if (currentIndex + 1 < line.length) {
-					line =
-						line.slice(0, currentIndex + 1) +
-						line.slice(currentIndex + 2);
-					lines[lineIndex] = line;
-				} else if (lineIndex < lines.length - 1) {
-					lines[lineIndex] += lines[lineIndex + 1];
-					lines.splice(lineIndex + 1, 1);
+				if (TextHighlight.currentHighlightDetails) {
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					endIndex++
+					let updatedText = textShape.text.slice(0, startIndex)
+						+ textShape.text.slice(endIndex)
+					TextHighlight.reset()
+					textShape.setText(updatedText)
+					Cursor.updateCursorPosition(startIndex - 1)
+				} else {
+					if (currentIndex + 1 < line.length) {
+						line =
+							line.slice(0, currentIndex + 1) +
+							line.slice(currentIndex + 2);
+						lines[lineIndex] = line;
+					} else if (lineIndex < lines.length - 1) {
+						lines[lineIndex] += lines[lineIndex + 1];
+						lines.splice(lineIndex + 1, 1);
+					}
+					textShape.setText(lines.join("\n"));
 				}
-				textShape.setText(lines.join("\n"));
 				break;
 
 			case "Enter":
-				line =
-					line.slice(0, currentIndex + 1) +
-					"\n" +
-					line.slice(currentIndex + 1);
-				lines[Cursor.currentLineIndex] = line;
-				Cursor.currentIndex = -1;
-				Cursor.currentLineIndex++;
-				textShape.setText(lines.join("\n"));
+				if (TextHighlight.currentHighlightDetails) {
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					endIndex++
+					let updatedText = textShape.text.slice(0, startIndex)
+						+ '\n' + textShape.text.slice(endIndex)
+					TextHighlight.reset()
+					textShape.setText(updatedText)
+					Cursor.updateCursorPosition(startIndex + 1)
+					Cursor.currentIndex--
+				} else {
+					line =
+						line.slice(0, currentIndex + 1) +
+						"\n" +
+						line.slice(currentIndex + 1);
+					lines[Cursor.currentLineIndex] = line;
+					Cursor.currentIndex = -1;
+					Cursor.currentLineIndex++;
+					textShape.setText(lines.join("\n"));
+				}
 				break;
 
 			default:
@@ -144,13 +176,24 @@ class Cursor {
 					// e.g 'number lock' key
 					return;
 				}
-				line =
-					line.slice(0, currentIndex + 1) +
-					keyPressedValue +
-					line.slice(currentIndex + 1);
-				Cursor.currentIndex++;
-				lines[Cursor.currentLineIndex] = line;
-				textShape.setText(lines.join("\n"));
+				if (TextHighlight.currentHighlightDetails) {
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					endIndex++
+					let updatedText = textShape.text.slice(0, startIndex) +
+						keyPressedValue +
+						textShape.text.slice(endIndex)
+					TextHighlight.reset()
+					textShape.setText(updatedText)
+					Cursor.updateCursorPosition(startIndex)
+				} else {
+					line =
+						line.slice(0, currentIndex + 1) +
+						keyPressedValue +
+						line.slice(currentIndex + 1);
+					Cursor.currentIndex++;
+					lines[Cursor.currentLineIndex] = line;
+					textShape.setText(lines.join("\n"));
+				}
 				break;
 		}
 
@@ -267,5 +310,21 @@ class Cursor {
 		}
 		cursor.setText(textWithCursor, false);
 		return cursor;
+	}
+
+	static updateCursorPosition(indexInRawString) {
+		let index = 0
+		let lines = Cursor.currentText.parseText()
+		for (let row = 0; row < lines.length; row++) {
+			let line = lines[row]
+			index += line.length + (row > 0 ? 1 : 0) // +1 for \n
+			if (index >= indexInRawString) {
+				Cursor.currentLineIndex = row
+				Cursor.currentIndex = indexInRawString
+					- (index - line.length)
+				return
+			}
+		}
+		throw new Error("Cursor.updateCursorPosition: could not update Cursor")
 	}
 }

@@ -298,19 +298,9 @@ class Viewport extends EventTarget {
 				);
 			}
 
-			let shapeHeight = shape.size.height;
-			let top = shape.center.y - shapeHeight / 2;
+			let [row, index] = shape.getRowOfLineAndIndexAtPoint(adjustedPoint)
 
-			let lines = shape.parseText();
-
-			let ratioOnYaxis = Math.abs((adjustedPoint.y - top) / shapeHeight);
-			let lineIndex = Math.floor(ratioOnYaxis * lines.length);
-
-			let line = lines[lineIndex] || "";
-
-			let index = shape.getIndexOfTextAtPoint(adjustedPoint, line);
-
-			Cursor.enterEditMode(shape, index, lineIndex);
+			Cursor.enterEditMode(shape, index, row);
 		});
 
 		this.addEventListener("textChanged", (event) => {

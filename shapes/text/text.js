@@ -191,9 +191,9 @@ class Text extends Shape {
 				if (
 					// point is at left side of character
 					point.x -
-						left -
-						this.getTextWidthOnCanvas(line.slice(0, index)) -
-						xOffset <
+					left -
+					this.getTextWidthOnCanvas(line.slice(0, index)) -
+					xOffset <
 					this.getTextWidthOnCanvas(line[index]) / 2
 				) {
 					index--;
@@ -228,6 +228,7 @@ class Text extends Shape {
 		this.numberClicked += 1;
 		if (this.numberClicked % 2 !== 0) {
 			this.select();
+			TextHighlight.highlightAll(this)
 		}
 
 		if (this.numberClicked % 3 === 0) {
@@ -245,6 +246,21 @@ class Text extends Shape {
 				detail: { shape: this, save },
 			})
 		);
+	}
+
+	getRowOfLineAndIndexAtPoint(point) {
+		let shapeHeight = this.size.height;
+		let top = this.center.y - shapeHeight / 2;
+
+		let lines = this.parseText();
+
+		let ratioOnYaxis = Math.abs((point.y - top) / shapeHeight);
+		let row = Math.floor(ratioOnYaxis * lines.length);
+
+		let line = lines[row] || "";
+
+		let index = this.getIndexOfTextAtPoint(point, line);
+		return [row, index]
 	}
 
 	draw(ctx, hitRegion = false) {
@@ -294,6 +310,7 @@ class Text extends Shape {
 		}
 
 		ctx.restore();
+		TextHighlight.displayHighlight()
 	}
 }
 
