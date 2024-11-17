@@ -121,16 +121,13 @@ class TimeSharer {
 			let opRecord = TimeSharer.opRecords[key]
 			if (Date.now() - opRecord.opTime < opRecord.opInterval) {
 				const latestOpTime = opRecord.opTime
-				// opRecord.latestOp = null is important so as to not
-				// run out dated op in previously set setTimeot below
-				opRecord.latestOp = null
 				opRecord.latestOp = operation
 				setTimeout(
 					() => {
 						if (opRecord.opTime === latestOpTime && opRecord.latestOp) {
 							// no operations since so run the last skipped op
 							opRecord.latestOp()
-							opRecord.latestOp = null
+							opRecord.latestOp = null // dedup executing last op
 						}
 					},
 					opRecord.opInterval
