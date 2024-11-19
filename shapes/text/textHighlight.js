@@ -230,10 +230,14 @@ class TextHighlight {
                         highlightDesc.startIndex < highlightDesc.endIndex
                     ) {
                         highlightDesc.startIndex++
+                    } else {
+                        return TextHighlight.moveHighlight("arrowdown")
                     }
                 } else {
                     if (highlightDesc.endIndex < line.length) {
                         highlightDesc.endIndex++
+                    } else {
+                        return TextHighlight.moveHighlight("arrowdown")
                     }
                 }
                 break
@@ -243,6 +247,8 @@ class TextHighlight {
                         highlightDesc.startIndex > 0
                     ) {
                         highlightDesc.startIndex--
+                    } else {
+                        return TextHighlight.moveHighlight("arrowup")
                     }
                 } else {
                     if (
@@ -250,6 +256,8 @@ class TextHighlight {
                         highlightDesc.endIndex > highlightDesc.startIndex
                     ) {
                         highlightDesc.endIndex--
+                    } else {
+                        return TextHighlight.moveHighlight("arrowup")
                     }
                 }
                 break
