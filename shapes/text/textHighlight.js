@@ -5,6 +5,7 @@
 class TextHighlight {
 
     static currentHighlightDetails = null
+    static indexOfLineHighlightDescToMoveWithKey = null
 
     static displayHighlight() {
         let currentHighlightDetails = TextHighlight.currentHighlightDetails
@@ -14,6 +15,8 @@ class TextHighlight {
     }
 
     static highlight(textShape, linesHighlightDesc) {
+        Cursor.showCursor = false
+        Cursor.inPreEditMode = true
         let top = textShape.center.y - textShape.size.height / 2;
         let highlightRectangles = []
         linesHighlightDesc.forEach(lineHighlightDesc => {
@@ -51,7 +54,12 @@ class TextHighlight {
 
             highlightRectangles.push(highlightRect)
         });
-        viewport.overlayLayer.drawItems(highlightRectangles, false)
+        TextHighlight.drawHighlight(highlightRectangles)
+    }
+
+    static drawHighlight(highlightRectangles = []) {
+        viewport.overlayLayer.drawItems(highlightRectangles, true)
+        viewport.overlayLayer.drawItems(viewport.gizmos || [], false)
     }
 
     static highlightAll(textShape) {
@@ -101,6 +109,8 @@ class TextHighlight {
             mouseIndex++
         }
 
+        TextHighlight.indexOfLineHighlightDescToMoveWithKey = "end"
+
         if (mouseRow < startRow || (mouseRow == startRow && mouseIndex < startIndex)) {
             // simplify logic by always having startPoint above
             // and to the left
@@ -110,6 +120,7 @@ class TextHighlight {
             mouseIndex = startIndex
             startRow = tempRow
             startIndex = tempIndex
+            TextHighlight.indexOfLineHighlightDescToMoveWithKey = "start"
         }
 
         let linesHighlightDesc = []
@@ -150,6 +161,22 @@ class TextHighlight {
             linesHighlightDesc,
             currentText: textShape
         }
+        TextHighlight.displayHighlight()
+    }
+
+    static registerHighlightFromRowAndIndex(textShape, row, startIndex, endIndex) {
+        let lines = textShape.parseText()
+        let linesHighlightDesc = [{
+            startIndex,
+            endIndex,
+            line: lines[row],
+            row: row,
+        }]
+        TextHighlight.currentHighlightDetails = {
+            linesHighlightDesc,
+            currentText: textShape
+        }
+        TextHighlight.displayHighlight()
     }
 
     static getHighlightedIndeces() {
@@ -183,8 +210,96 @@ class TextHighlight {
         return [startIndex, endIndex]
     }
 
+    static moveHighlight(key) {
+        let indexOfHighlightDesc = TextHighlight.indexOfLineHighlightDescToMoveWithKey
+            == "start" ? 0 : TextHighlight.currentHighlightDetails.linesHighlightDesc.length - 1
+        let linesHighlightDesc = TextHighlight.currentHighlightDetails.linesHighlightDesc
+        let highlightDesc = linesHighlightDesc[indexOfHighlightDesc]
+        let row = highlightDesc.row
+        let lines = TextHighlight.currentHighlightDetails.currentText.parseText()
+        let line = lines[row]
+
+        let modifyStartIndex = TextHighlight.indexOfLineHighlightDescToMoveWithKey
+            == "start" ? true : false
+
+        switch (key.toLowerCase()) {
+            case "arrowright":
+                if (modifyStartIndex) {
+                    if (
+                        highlightDesc.startIndex < line.length &&
+                        highlightDesc.startIndex < highlightDesc.endIndex
+                    ) {
+                        highlightDesc.startIndex++
+                    }
+                } else {
+                    if (highlightDesc.endIndex < line.length) {
+                        highlightDesc.endIndex++
+                    }
+                }
+                break
+            case "arrowleft":
+                if (modifyStartIndex) {
+                    if (
+                        highlightDesc.startIndex > 0
+                    ) {
+                        highlightDesc.startIndex--
+                    }
+                } else {
+                    if (
+                        highlightDesc.endIndex > 0 &&
+                        highlightDesc.endIndex > highlightDesc.startIndex
+                    ) {
+                        highlightDesc.endIndex--
+                    }
+                }
+                break
+            case "arrowdown":
+                if (modifyStartIndex) {
+                    if (linesHighlightDesc.length > 1) {
+                        linesHighlightDesc.splice(0, 1)
+                    }
+                } else {
+                    if (row < lines.length - 1) {
+                        highlightDesc.endIndex = lines[row].length
+                        row++
+                        linesHighlightDesc.push({
+                            startIndex: 0,
+                            endIndex: Math.min(lines[row].length, 1),
+                            line: lines[row],
+                            row: row,
+                        })
+                    }
+                }
+                break
+            case "arrowup":
+                if (modifyStartIndex) {
+                    if (row > 0) {
+                        highlightDesc.startIndex = 0
+                        row--
+                        linesHighlightDesc.unshift({
+                            startIndex: Math.max(lines[row].length - 1, 0),
+                            endIndex: lines[row].length,
+                            line: lines[row],
+                            row: row,
+                        })
+                    }
+                } else {
+                    if (row > 0) {
+                        linesHighlightDesc.splice(linesHighlightDesc.length - 1, 1)
+                    }
+                }
+                break
+            default:
+                throw new Error(`TextHighlight.moveHighlight: ${key} not a valid key to move highlight`)
+        }
+        TextHighlight.displayHighlight()
+    }
+
     static reset() {
         TextHighlight.currentHighlightDetails = null
+        Cursor.inPreEditMode = false
+        TextHighlight.indexOfLineHighlightDescToMoveWithKey = null
+        TextHighlight.drawHighlight([])
     }
 
 

@@ -219,20 +219,12 @@ class Text extends Shape {
 
 	click() {
 		if (Cursor.isEditing) {
-			// this means we are currently editing this text
-			// but clicked a different part possibly trying
-			// to move the cursor there, therfore do nothing
 			return;
 		}
 
 		this.numberClicked += 1;
 		if (this.numberClicked % 2 !== 0) {
 			this.select();
-			TextHighlight.highlightAll(this)
-		}
-
-		if (this.numberClicked % 3 === 0) {
-			this.unselect();
 		}
 	}
 
@@ -240,6 +232,7 @@ class Text extends Shape {
 		this.numberClicked = 0;
 		this.selected = false;
 		this.gizmo = null;
+		TextHighlight.reset()
 
 		viewport.dispatchEvent(
 			new CustomEvent("shapeUnselected", {
@@ -280,14 +273,17 @@ class Text extends Shape {
 			let row = 0;
 			for (let line of lines) {
 				let xOffset = this.properties.xOffsets[row] || 0;
-				left = center.x + xOffset;
+				const hitTestRectTop = top + row * fontSize
+				let width = this.getTextWidthOnCanvas(line)
+
+				left = center.x + xOffset - width / 2;
+
 				ctx.beginPath();
-				const rgb = Shape.getHitRGB(this.id);
-				ctx.fillStyle = rgb;
-				ctx.strokeStyle = rgb;
-				ctx.lineWidth = this.options.strokeWidth + this.properties.dilation;
-				ctx.fillText(line, left, top + fontSize / 2 + row * fontSize);
-				ctx.strokeText(line, left, top + fontSize / 2 + row * fontSize);
+				// use rect for hit region, fillText causes some annoying
+				// missess when trying to click on text
+				ctx.rect(left, hitTestRectTop, width, fontSize);
+				this.applyHitRegionStyles(ctx, 5)
+
 				row++;
 			}
 		} else {

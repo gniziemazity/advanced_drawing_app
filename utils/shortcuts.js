@@ -2,7 +2,7 @@ class Shortcut {
 	constructor({ control, key, action }) {
 		this.control = control ?? false;
 		this.key = key ?? "";
-		this.action = action ?? (() => {});
+		this.action = action ?? (() => { });
 	}
 
 	toString() {
@@ -43,7 +43,7 @@ class ShortcutManager {
 
 	handleShortCutKeysPress(e) {
 		if (
-			Cursor.isEditing ||
+			Cursor.isEditing || Cursor.inPreEditMode ||
 			e.target instanceof HTMLInputElement ||
 			e.target instanceof HTMLTextAreaElement
 		) {
