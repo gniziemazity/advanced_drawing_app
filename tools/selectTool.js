@@ -69,9 +69,13 @@ class SelectTool extends GenericTool {
 				}
 				mouseDelta = viewport.getAdjustedScale(diff);
 				isDragging = true;
-				selectedShapes.forEach((s, i) => {
-					s.setCenter(Vector.add(oldCenters[i], mouseDelta), false);
-				});
+				if ((Cursor.isEditing || Cursor.inPreEditMode) && shape.text !== undefined) {
+					TextHighlight.registerHighlight(shape, startPosition, startPosition.add(mouseDelta))
+				} else {
+					selectedShapes.forEach((s, i) => {
+						s.setCenter(Vector.add(oldCenters[i], mouseDelta), false);
+					});
+				}
 			};
 
 			const upCallback = function (e) {
@@ -83,9 +87,13 @@ class SelectTool extends GenericTool {
 					.removeEventListener("pointerup", upCallback);
 
 				if (isDragging && mouseDelta.magnitude() > 0) {
-					selectedShapes.forEach((s, i) => {
-						s.setCenter(Vector.add(oldCenters[i], mouseDelta));
-					});
+					if ((Cursor.isEditing || Cursor.inPreEditMode) && shape.text !== undefined) {
+
+					} else {
+						selectedShapes.forEach((s, i) => {
+							s.setCenter(Vector.add(oldCenters[i], mouseDelta));
+						});
+					}
 				}
 
 				if (isClickingSelectedShape && !isDragging) {
@@ -178,7 +186,7 @@ class SelectTool extends GenericTool {
 	}
 
 	keyCallback(e) {
-		if (Cursor.isEditing) {
+		if (Cursor.isEditing || Cursor.inPreEditMode) {
 			return;
 		}
 

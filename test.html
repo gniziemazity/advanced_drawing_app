@@ -1,80 +1,87 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<title>ADVANCED DRAWING APP TEST</title>
-	</head>
-	<body>
-		<style>
-			main {
-				display: none;
-			}
-		</style>
-		<main>
-			<div id="contributorsContainer" class="menu-container">
-				<div id="contributors"></div>
-			</div>
 
-			<div id="canvasHolder"></div>
-			<div id="toolsHolder" class="panel"></div>
-			<div id="propertiesHolder" class="panel"></div>
-		</main>
-      
-		<script src="utils/vector.js"></script>
-		<script src="utils/boundingBox.js"></script>
-		<script src="utils/shortcuts.js"></script>
+<head>
+	<meta charset="utf-8" />
+	<title>ADVANCED DRAWING APP TEST</title>
+</head>
 
-		<script src="display/layer.js"></script>
-		<script src="display/viewport.js"></script>
-		<script src="display/cursor.js"></script>
+<body>
+	<style>
+		main {
+			display: none;
+		}
+	</style>
+	<main>
+		<div id="contributorsContainer" class="menu-container">
+			<div id="contributors"></div>
+		</div>
 
-    	<script src="filters/chroma.js"></script>
+		<div id="canvasHolder"></div>
+		<div id="toolsHolder" class="panel"></div>
+		<div id="propertiesHolder" class="panel"></div>
+	</main>
 
-		<script src="shapes/shapeFactory.js"></script>
-		<script src="shapes/shape.js"></script>
-		<script src="shapes/oval.js"></script>
-		<script src="shapes/text.js"></script>
-		<script src="shapes/rect.js"></script>
-		<script src="shapes/path.js"></script>
-		<script src="shapes/line.js"></script>
-		<script src="shapes/myImage.js"></script>
-		<script src="tools/genericTool.js"></script>
-		<script src="tools/selectTool.js"></script>
-		<script src="tools/shapes/shapeTool.js"></script>
-		<script src="tools/shapes/pathGeneratedShapeTool.js"></script>
-		<script src="tools/shapes/pathTool.js"></script>
-		<script src="tools/shapes/lineTool.js"></script>
-		<script src="tools/shapes/textTool.js"></script>
-		<script src="tools/shapes/myImageTool.js"></script>
-		<script src="tools/shapes/cornerGeneratedShapeTool.js"></script>
-		<script src="tools/shapes/rectTool.js"></script>
-		<script src="tools/shapes/ovalTool.js"></script>
-		<script src="tools/canvasTools.js"></script>
+	<script src="utils/vector.js"></script>
+	<script src="utils/boundingBox.js"></script>
+	<script src="utils/shortcuts.js"></script>
 
-		<script src="tools/documentTools.js"></script>
-		<script src="tools/historyTools.js"></script>
-		<script src="tools/editingTools.js"></script>
-		<script src="tools/transformTools.js"></script>
-		<script src="tools/layerTools.js"></script>
+	<script src="display/layer.js"></script>
+	<script src="display/viewport.js"></script>
+	<script src="display/cursor.js"></script>
 
-		<script src="panels/sections/panelSection.js"></script>
-		<script src="panels/sections/propertiesSection.js"></script>
-		<script src="panels/sections/colorSection.js"></script>
-		<script src="panels/sections/arrangeSection.js"></script>
-		<script src="panels/sections/textSection.js"></script>
-		<script src="panels/sections/filtersSection.js"></script>
-		<script src="panels/sections/layersSection.js"></script>
-		<script src="panels/propertiesPanel.js"></script>
-		<script src="panels/toolsPanel.js"></script>
+	<script src="filters/chroma.js"></script>
 
-		<script src="contributors.js"></script>
-		<script src="utils/misc.js"></script>
-		<script src="main.js"></script>
-		
-		<script src="transformBox/gizmo.js"></script>
-		<script src="transformBox/handle.js"></script>
+	<script src="shapes/shapeFactory.js"></script>
+	<script src="shapes/shape.js"></script>
+	<script src="shapes/oval.js"></script>
+	<script src="shapes/text/text.js"></script>
+	<script src="shapes/text/cursor.js"></script>
+	<script src="shapes/text/textHighlight.js"></script>
+	<script src="shapes/rect.js"></script>
+	<script src="shapes/path.js"></script>
+	<script src="shapes/line.js"></script>
+	<script src="shapes/myImage.js"></script>
+	<script src="tools/genericTool.js"></script>
+	<script src="tools/selectTool.js"></script>
+	<script src="tools/shapes/shapeTool.js"></script>
+	<script src="tools/shapes/pathGeneratedShapeTool.js"></script>
+	<script src="tools/shapes/pathTool.js"></script>
+	<script src="tools/shapes/lineTool.js"></script>
+	<script src="tools/shapes/textTool.js"></script>
+	<script src="tools/shapes/myImageTool.js"></script>
+	<script src="tools/shapes/cornerGeneratedShapeTool.js"></script>
+	<script src="tools/shapes/rectTool.js"></script>
+	<script src="tools/shapes/ovalTool.js"></script>
+	<script src="tools/canvasTools.js"></script>
 
-		<script src="test/previousDrawings.js"></script>
-		<script src="test/test.js"></script>
-	</body>
+	<script src="tools/documentTools.js"></script>
+	<script src="tools/historyTools.js"></script>
+	<script src="tools/editingTools.js"></script>
+	<script src="tools/transformTools.js"></script>
+	<script src="tools/layerTools.js"></script>
+
+	<script src="colorSelector/colorSelector.js"></script>
+
+	<script src="panels/sections/panelSection.js"></script>
+	<script src="panels/sections/propertiesSection.js"></script>
+	<script src="panels/sections/colorSection.js"></script>
+	<script src="panels/sections/arrangeSection.js"></script>
+	<script src="panels/sections/textSection.js"></script>
+	<script src="panels/sections/filtersSection.js"></script>
+	<script src="panels/sections/layersSection.js"></script>
+	<script src="panels/propertiesPanel.js"></script>
+	<script src="panels/toolsPanel.js"></script>
+
+	<script src="contributors.js"></script>
+	<script src="utils/misc.js"></script>
+	<script src="main.js"></script>
+
+	<script src="transformBox/gizmo.js"></script>
+	<script src="transformBox/handle.js"></script>
+
+	<script src="test/previousDrawings.js"></script>
+	<script src="test/test.js"></script>
+</body>
+
 </html>

@@ -16,6 +16,9 @@ class Text extends Shape {
 			dilation: 20, //for hit test
 		};
 
+		this.undoStack = []
+		this.redoStack = []
+
 		this.numberClicked = 0;
 
 		this.thinWhiteSpace = String.fromCharCode(8202); // helps in aligning text finely
@@ -191,9 +194,9 @@ class Text extends Shape {
 				if (
 					// point is at left side of character
 					point.x -
-						left -
-						this.getTextWidthOnCanvas(line.slice(0, index)) -
-						xOffset <
+					left -
+					this.getTextWidthOnCanvas(line.slice(0, index)) -
+					xOffset <
 					this.getTextWidthOnCanvas(line[index]) / 2
 				) {
 					index--;
@@ -219,9 +222,6 @@ class Text extends Shape {
 
 	click() {
 		if (Cursor.isEditing) {
-			// this means we are currently editing this text
-			// but clicked a different part possibly trying
-			// to move the cursor there, therfore do nothing
 			return;
 		}
 
@@ -229,22 +229,55 @@ class Text extends Shape {
 		if (this.numberClicked % 2 !== 0) {
 			this.select();
 		}
-
-		if (this.numberClicked % 3 === 0) {
-			this.unselect();
-		}
 	}
 
 	unselect(save = true) {
 		this.numberClicked = 0;
 		this.selected = false;
 		this.gizmo = null;
+		TextHighlight.reset()
 
 		viewport.dispatchEvent(
 			new CustomEvent("shapeUnselected", {
 				detail: { shape: this, save },
 			})
 		);
+	}
+
+	getRowOfLineAndIndexAtPoint(point) {
+		let shapeHeight = this.size.height;
+		let top = this.center.y - shapeHeight / 2;
+
+		let lines = this.parseText();
+
+		let ratioOnYaxis = Math.abs((point.y - top) / shapeHeight);
+		let row = Math.floor(ratioOnYaxis * lines.length);
+
+		let line = lines[row] || "";
+
+		let index = this.getIndexOfTextAtPoint(point, line);
+		return [row, index]
+	}
+
+	undo() {
+		if (this.undoStack?.length > 0) {
+			let currentSate = this.undoStack.pop()
+			this.redoStack.push(currentSate)
+			if (this.undoStack.length) {
+				Cursor.restoreState(this.undoStack[this.undoStack.length - 1])
+			}
+			if (this.undoStack.length === 0) {
+				this.undoStack.push(currentSate)
+			}
+		}
+	}
+
+	redo() {
+		if (this.redoStack?.length > 0) {
+			const currentState = this.redoStack.pop();
+			this.undoStack.push(currentState);
+			Cursor.restoreState(currentState)
+		}
 	}
 
 	draw(ctx, hitRegion = false) {
@@ -264,14 +297,17 @@ class Text extends Shape {
 			let row = 0;
 			for (let line of lines) {
 				let xOffset = this.properties.xOffsets[row] || 0;
-				left = center.x + xOffset;
+				const hitTestRectTop = top + row * fontSize
+				let width = this.getTextWidthOnCanvas(line)
+
+				left = center.x + xOffset - width / 2;
+
 				ctx.beginPath();
-				const rgb = Shape.getHitRGB(this.id);
-				ctx.fillStyle = rgb;
-				ctx.strokeStyle = rgb;
-				ctx.lineWidth = this.options.strokeWidth + this.properties.dilation;
-				ctx.fillText(line, left, top + fontSize / 2 + row * fontSize);
-				ctx.strokeText(line, left, top + fontSize / 2 + row * fontSize);
+				// use rect for hit region, fillText causes some annoying
+				// missess when trying to click on text
+				ctx.rect(left, hitTestRectTop, width, fontSize);
+				this.applyHitRegionStyles(ctx, 5)
+
 				row++;
 			}
 		} else {
@@ -294,6 +330,7 @@ class Text extends Shape {
 		}
 
 		ctx.restore();
+		TextHighlight.displayHighlight()
 	}
 }
 
