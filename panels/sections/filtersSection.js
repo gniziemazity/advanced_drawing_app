@@ -34,6 +34,12 @@ class FiltersSection extends PanelSection {
 				createDOMElement("input", {
 					id: "colorKey_" + i,
 					onchange: (e) => this.changeChromaKey(i, e.currentTarget.value),
+					oninput: (e) => {
+						const valueCopy = e.currentTarget.value
+						const operation = () => this.changeChromaKey(i, valueCopy)
+						const key = "colorKey_" + i
+						TimeSharer.run(key, operation)
+					},
 					title: "Color Key",
 					value: filter.getHexColor(),
 					type: "color",
@@ -46,6 +52,12 @@ class FiltersSection extends PanelSection {
 					min: "0",
 					onchange: (e) =>
 						this.changeChromaThreshold(i, e.currentTarget.value),
+					oninput: (e) => {
+						const valueCopy = e.currentTarget.value
+						const operation = () => this.changeChromaThreshold(i, valueCopy)
+						const key = "threshold_" + i
+						TimeSharer.run(key, operation)
+					},
 					title: "Threshold",
 					type: "range",
 					value: filter.threshold,
