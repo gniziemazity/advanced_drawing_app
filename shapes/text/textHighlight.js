@@ -215,6 +215,7 @@ class TextHighlight {
             == "start" ? 0 : TextHighlight.currentHighlightDetails.linesHighlightDesc.length - 1
         let linesHighlightDesc = TextHighlight.currentHighlightDetails.linesHighlightDesc
         let highlightDesc = linesHighlightDesc[indexOfHighlightDesc]
+        if (!highlightDesc) return
         let row = highlightDesc.row
         let lines = TextHighlight.currentHighlightDetails.currentText.parseText()
         let line = lines[row]
@@ -230,6 +231,11 @@ class TextHighlight {
                         highlightDesc.startIndex < highlightDesc.endIndex
                     ) {
                         highlightDesc.startIndex++
+                    } else if (
+                        highlightDesc.startIndex === highlightDesc.endIndex &&
+                        linesHighlightDesc.length === 1
+                    ) {
+                        TextHighlight.indexOfLineHighlightDescToMoveWithKey = "end"
                     } else {
                         return TextHighlight.moveHighlight("arrowdown")
                     }
@@ -256,6 +262,11 @@ class TextHighlight {
                         highlightDesc.endIndex > highlightDesc.startIndex
                     ) {
                         highlightDesc.endIndex--
+                    } else if (
+                        highlightDesc.endIndex === highlightDesc.startIndex &&
+                        linesHighlightDesc.length === 1
+                    ) {
+                        TextHighlight.indexOfLineHighlightDescToMoveWithKey = "start"
                     } else {
                         return TextHighlight.moveHighlight("arrowup")
                     }
@@ -265,6 +276,16 @@ class TextHighlight {
                 if (modifyStartIndex) {
                     if (linesHighlightDesc.length > 1) {
                         linesHighlightDesc.splice(0, 1)
+                    } else if (row < lines.length - 1) {
+                        highlightDesc.endIndex = lines[row].length
+                        row++
+                        linesHighlightDesc.push({
+                            startIndex: 0,
+                            endIndex: Math.min(lines[row].length, 1),
+                            line: lines[row],
+                            row: row,
+                        })
+                        TextHighlight.indexOfLineHighlightDescToMoveWithKey = "end"
                     }
                 } else {
                     if (row < lines.length - 1) {
@@ -292,8 +313,18 @@ class TextHighlight {
                         })
                     }
                 } else {
-                    if (row > 0) {
-                        linesHighlightDesc.splice(linesHighlightDesc.length - 1, 1)
+                    if (linesHighlightDesc.length > 1) {
+                        linesHighlightDesc.splice(linesHighlightDesc.length - 1)
+                    } else if (row > 0) {
+                        highlightDesc.startIndex = 0
+                        row--
+                        linesHighlightDesc.unshift({
+                            startIndex: Math.max(lines[row].length - 1, 0),
+                            endIndex: lines[row].length,
+                            line: lines[row],
+                            row: row,
+                        })
+                        TextHighlight.indexOfLineHighlightDescToMoveWithKey = "start"
                     }
                 }
                 break
