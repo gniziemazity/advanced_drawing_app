@@ -16,6 +16,9 @@ class Text extends Shape {
 			dilation: 20, //for hit test
 		};
 
+		this.undoStack = []
+		this.redoStack = []
+
 		this.numberClicked = 0;
 
 		this.thinWhiteSpace = String.fromCharCode(8202); // helps in aligning text finely
@@ -254,6 +257,27 @@ class Text extends Shape {
 
 		let index = this.getIndexOfTextAtPoint(point, line);
 		return [row, index]
+	}
+
+	undo() {
+		if (this.undoStack?.length > 0) {
+			let currentSate = this.undoStack.pop()
+			this.redoStack.push(currentSate)
+			if (this.undoStack.length) {
+				Cursor.restoreState(this.undoStack[this.undoStack.length - 1])
+			}
+			if (this.undoStack.length === 0) {
+				this.undoStack.push(currentSate)
+			}
+		}
+	}
+
+	redo() {
+		if (this.redoStack?.length > 0) {
+			const currentState = this.redoStack.pop();
+			this.undoStack.push(currentState);
+			Cursor.restoreState(currentState)
+		}
 	}
 
 	draw(ctx, hitRegion = false) {

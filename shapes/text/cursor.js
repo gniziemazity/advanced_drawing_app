@@ -6,6 +6,10 @@ class Cursor {
 	static isEditing = false;
 	static inPreEditMode = false;
 	static showCursor = false
+	static undoStack = null
+	static redoStack = null
+	static savedUndoStack = null
+	static savedRedoStack = null
 
 	static attemptToEnterEditMode(shape, startPosition) {
 		if (
@@ -16,6 +20,10 @@ class Cursor {
 			TextHighlight.highlightAll(shape)
 			Cursor.inPreEditMode = true
 			Cursor.currentText = shape
+			let lines = shape.parseText()
+			let lastRow = lines.length - 1
+			Cursor.currentIndex = lines[lastRow].length
+			Cursor.currentLineIndex = lastRow
 			Cursor.addEventListeners()
 		}
 
@@ -43,6 +51,8 @@ class Cursor {
 		Cursor.addEventListeners();
 		Cursor.isEditing = true;
 		Cursor.showCursor = true
+		Cursor.undoStack = []
+		Cursor.redoStack = []
 
 		Cursor.startCursorBlink();
 	}
@@ -62,6 +72,8 @@ class Cursor {
 		Cursor.currentLineIndex = 0;
 		Cursor.isEditing = false;
 		Cursor.showCursor = false
+		Cursor.undoStack = null
+		Cursor.redoStack = null
 		Cursor.removeEventListeners()
 		viewport.drawShapes();
 	}
@@ -128,6 +140,7 @@ class Cursor {
 
 	static startCursorBlink() {
 		let tick = 0;
+		clearInterval(Cursor.currentIntervalId)
 		Cursor.currentIntervalId = setInterval(() => {
 			if (tick % 2 === 0) {
 				if (!Cursor.showCursor) return
@@ -185,6 +198,45 @@ class Cursor {
 		let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(indexInRawString)
 		Cursor.currentLineIndex = row
 		Cursor.currentIndex = index
+	}
+
+	static undo() {
+		Cursor.currentText.undo()
+	}
+
+	static redo() {
+		Cursor.currentText.redo()
+	}
+
+	static registerChange() {
+		let currentText = Cursor.currentText
+
+		let lastState = currentText.undoStack[currentText.undoStack.length - 1]
+		if (
+			lastState &&
+			lastState.text === currentText.text
+		) {
+			return
+		}
+
+		currentText.redoStack = []
+		currentText.undoStack.push(
+			{
+				text: currentText.text,
+				cursorState: {
+					currentText: Cursor.currentText,
+					currentIndex: Cursor.currentIndex,
+					currentLineIndex: Cursor.currentLineIndex,
+				}
+			}
+		)
+	}
+
+	static restoreState(currentState) {
+		let text = currentState.text
+		let { currentText, currentIndex, currentLineIndex } = currentState.cursorState
+		currentText.setText(text, false)
+		if (text.length) Cursor.enterEditMode(currentText, currentIndex, currentLineIndex)
 	}
 
 	static handleKeyPress(e) {
@@ -347,7 +399,7 @@ class Cursor {
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ textShape.text.slice(endIndex)
 					TextHighlight.reset()
-					textShape.setText(highlightedText)
+					textShape.setText(highlightedText, false)
 					Cursor.updateCursorPosition(startIndex - 1)
 				} else {
 					if (currentIndex > -1) {
@@ -362,7 +414,7 @@ class Cursor {
 						Cursor.currentLineIndex--;
 						Cursor.currentIndex = previousLineLength - 1;
 					}
-					textShape.setText(lines.join("\n"));
+					textShape.setText(lines.join("\n"), false);
 				}
 				break;
 
@@ -373,7 +425,7 @@ class Cursor {
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ textShape.text.slice(endIndex)
 					TextHighlight.reset()
-					textShape.setText(highlightedText)
+					textShape.setText(highlightedText, false)
 					Cursor.updateCursorPosition(startIndex - 1)
 				} else {
 					if (currentIndex + 1 < line.length) {
@@ -385,7 +437,7 @@ class Cursor {
 						lines[lineIndex] += lines[lineIndex + 1];
 						lines.splice(lineIndex + 1, 1);
 					}
-					textShape.setText(lines.join("\n"));
+					textShape.setText(lines.join("\n"), false);
 				}
 				break;
 
@@ -396,7 +448,7 @@ class Cursor {
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ '\n' + textShape.text.slice(endIndex)
 					TextHighlight.reset()
-					textShape.setText(highlightedText)
+					textShape.setText(highlightedText, false)
 					Cursor.updateCursorPosition(startIndex + 1)
 					Cursor.currentIndex--
 				} else {
@@ -407,7 +459,7 @@ class Cursor {
 					lines[Cursor.currentLineIndex] = line;
 					Cursor.currentIndex = -1;
 					Cursor.currentLineIndex++;
-					textShape.setText(lines.join("\n"));
+					textShape.setText(lines.join("\n"), false);
 				}
 				break;
 
@@ -438,17 +490,17 @@ class Cursor {
 										let updatedText = textShape.text.slice(0, startIndex) +
 											copiedText +
 											textShape.text.slice(endIndex)
-										textShape.setText(updatedText);
+										textShape.setText(updatedText, false);
 										let indexInRawString = startIndex + copiedText.length
 										Cursor.updateCursorPosition(indexInRawString)
 									})
 								break
 							case "Z":
-								// TO DO
-								break
+								Cursor.undo()
+								return
 							case "Y":
-								// TO DO
-								break
+								Cursor.redo()
+								return
 						}
 					} else {
 						let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
@@ -457,7 +509,7 @@ class Cursor {
 							keyPressedValue +
 							textShape.text.slice(endIndex)
 						TextHighlight.reset()
-						textShape.setText(highlightedText)
+						textShape.setText(highlightedText, false)
 						Cursor.updateCursorPosition(startIndex)
 					}
 				} else {
@@ -481,16 +533,16 @@ class Cursor {
 										let updatedText = textShape.text.slice(0, startIndex) +
 											copiedText +
 											textShape.text.slice(startIndex)
-										textShape.setText(updatedText);
+										textShape.setText(updatedText, false);
 										let indexInRawString = startIndex + copiedText.length - 1
 										Cursor.updateCursorPosition(indexInRawString)
 									})
 							case "Z":
-								// TO DO
-								break
+								Cursor.undo()
+								return
 							case "Y":
-								// TO DO
-								break
+								Cursor.redo()
+								return
 						}
 					} else {
 						line =
@@ -499,15 +551,16 @@ class Cursor {
 							line.slice(currentIndex + 1);
 						Cursor.currentIndex++;
 						lines[Cursor.currentLineIndex] = line;
-						textShape.setText(lines.join("\n"));
+						textShape.setText(lines.join("\n"), false);
 					}
 				}
 				break;
 		}
 
+		Cursor.registerChange()
 		viewport.dispatchEvent(
 			new CustomEvent("textChanged", {
-				detail: { shape: textShape, save: true },
+				detail: { shape: textShape, save: false },
 			})
 		);
 	}
