@@ -179,7 +179,7 @@ class TextHighlight {
         TextHighlight.displayHighlight()
     }
 
-    static getHighlightedIndeces() {
+    static getHighlightedIndices() {
         let startIndex = -1
         let endIndex = -1
         let currentHighlightDetails = TextHighlight.currentHighlightDetails

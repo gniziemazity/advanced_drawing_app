@@ -283,7 +283,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [startIndex, _] = TextHighlight.getHighlightedIndeces()
+						let [startIndex, _] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(startIndex - 1)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -311,7 +311,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [_, endIndex] = TextHighlight.getHighlightedIndeces()
+						let [_, endIndex] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(endIndex)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -339,7 +339,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [startIndex, _] = TextHighlight.getHighlightedIndeces()
+						let [startIndex, _] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(startIndex - 1)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -368,7 +368,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [_, endIndex] = TextHighlight.getHighlightedIndeces()
+						let [_, endIndex] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(endIndex)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -394,7 +394,7 @@ class Cursor {
 
 			case "Backspace":
 				if (TextHighlight.currentHighlightDetails) {
-					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ textShape.text.slice(endIndex)
@@ -420,7 +420,7 @@ class Cursor {
 
 			case "Delete":
 				if (TextHighlight.currentHighlightDetails) {
-					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ textShape.text.slice(endIndex)
@@ -443,7 +443,7 @@ class Cursor {
 
 			case "Enter":
 				if (TextHighlight.currentHighlightDetails) {
-					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ '\n' + textShape.text.slice(endIndex)
@@ -477,7 +477,7 @@ class Cursor {
 								TextHighlight.highlightAll(textShape)
 								break
 							case "C":
-								let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+								let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 								endIndex++
 								let highlightedText = textShape.text.slice(0, endIndex)
 								navigator.clipboard.writeText(highlightedText)
@@ -485,7 +485,7 @@ class Cursor {
 							case "V":
 								navigator.clipboard.readText()
 									.then(copiedText => {
-										let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+										let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 										endIndex++
 										let updatedText = textShape.text.slice(0, startIndex) +
 											copiedText +
@@ -503,7 +503,7 @@ class Cursor {
 								return
 						}
 					} else {
-						let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+						let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 						endIndex++
 						let highlightedText = textShape.text.slice(0, startIndex) +
 							keyPressedValue +
