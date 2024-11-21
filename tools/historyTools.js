@@ -1,5 +1,6 @@
 class HistoryTools {
 	static _stacksByLayer = {};
+	static _textEditModeHistory = {}
 
 	static tools = [
 		{
@@ -115,5 +116,79 @@ class HistoryTools {
 		}
 		HistoryTools._stacksByLayer[layerId].redoStack = [];
 		return HistoryTools._stacksByLayer[layerId].redoStack;
+	}
+
+	static _getUndoStackForText(textId) {
+		if (HistoryTools._textEditModeHistory[textId]?.undoStack) {
+			return HistoryTools._textEditModeHistory[textId].undoStack;
+		}
+		if (!HistoryTools._textEditModeHistory[textId]) {
+			HistoryTools._textEditModeHistory[textId] = {};
+		}
+		HistoryTools._textEditModeHistory[textId].undoStack = [];
+		return HistoryTools._textEditModeHistory[textId].undoStack;
+	}
+
+	static _getRedoStackForText(textId) {
+		if (HistoryTools._textEditModeHistory[textId]?.redoStack) {
+			return HistoryTools._textEditModeHistory[textId].redoStack;
+		}
+		if (!HistoryTools._textEditModeHistory[textId]) {
+			HistoryTools._textEditModeHistory[textId] = {};
+		}
+		HistoryTools._textEditModeHistory[textId].redoStack = [];
+		return HistoryTools._textEditModeHistory[textId].redoStack;
+	}
+
+	static recordTextChange() {
+		let currentText = Cursor.currentText
+
+		let undoStack = HistoryTools._getUndoStackForText(currentText.id)
+
+		let lastState = undoStack[undoStack.length - 1]
+		if (
+			lastState &&
+			lastState.text === currentText.text
+		) {
+			return
+		}
+
+		currentText.redoStack = []
+		undoStack.push(
+			{
+				text: currentText.text,
+				cursorState: {
+					currentText: Cursor.currentText,
+					currentIndex: Cursor.currentIndex,
+					currentLineIndex: Cursor.currentLineIndex,
+				}
+			}
+		)
+	}
+
+	static textEditUndo() {
+		let undoStack = HistoryTools._getUndoStackForText(Cursor.currentText.id)
+		let redoStack = HistoryTools._getRedoStackForText(Cursor.currentText.id)
+
+		if (undoStack?.length > 0) {
+			let currentSate = undoStack.pop()
+			if (undoStack.length) {
+				Cursor.restoreState(undoStack[undoStack.length - 1])
+				redoStack.push(currentSate)
+			}
+			if (undoStack.length === 0) {
+				undoStack.push(currentSate)
+			}
+		}
+	}
+
+	static textEditRedo() {
+		let undoStack = HistoryTools._getUndoStackForText(Cursor.currentText.id)
+		let redoStack = HistoryTools._getRedoStackForText(Cursor.currentText.id)
+		if (redoStack?.length > 0) {
+			const currentState = redoStack.pop();
+			undoStack.push(currentState);
+			Cursor.restoreState(currentState)
+		}
 	}
 }

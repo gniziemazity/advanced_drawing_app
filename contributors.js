@@ -4,6 +4,7 @@ const contributors = [
 	"Michael Golden",
 	"Pesterenan",
 	"Rahul Thakare",
+	"Yaver Javid",
 	"Egbertpostma",
 	"Kabelo Tooka",
 	"Rajeshpillai",

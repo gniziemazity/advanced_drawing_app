@@ -6,10 +6,6 @@ class Cursor {
 	static isEditing = false;
 	static inPreEditMode = false;
 	static showCursor = false
-	static undoStack = null
-	static redoStack = null
-	static savedUndoStack = null
-	static savedRedoStack = null
 
 	static attemptToEnterEditMode(shape, startPosition) {
 		if (
@@ -22,9 +18,10 @@ class Cursor {
 			Cursor.currentText = shape
 			let lines = shape.parseText()
 			let lastRow = lines.length - 1
-			Cursor.currentIndex = lines[lastRow].length
+			Cursor.currentIndex = lines[lastRow].length - 1
 			Cursor.currentLineIndex = lastRow
 			Cursor.addEventListeners()
+			HistoryTools.recordTextChange()
 		}
 
 		if (
@@ -51,8 +48,6 @@ class Cursor {
 		Cursor.addEventListeners();
 		Cursor.isEditing = true;
 		Cursor.showCursor = true
-		Cursor.undoStack = []
-		Cursor.redoStack = []
 
 		Cursor.startCursorBlink();
 	}
@@ -72,8 +67,6 @@ class Cursor {
 		Cursor.currentLineIndex = 0;
 		Cursor.isEditing = false;
 		Cursor.showCursor = false
-		Cursor.undoStack = null
-		Cursor.redoStack = null
 		Cursor.removeEventListeners()
 		viewport.drawShapes();
 	}
@@ -200,38 +193,6 @@ class Cursor {
 		Cursor.currentIndex = index
 	}
 
-	static undo() {
-		Cursor.currentText.undo()
-	}
-
-	static redo() {
-		Cursor.currentText.redo()
-	}
-
-	static registerChange() {
-		let currentText = Cursor.currentText
-
-		let lastState = currentText.undoStack[currentText.undoStack.length - 1]
-		if (
-			lastState &&
-			lastState.text === currentText.text
-		) {
-			return
-		}
-
-		currentText.redoStack = []
-		currentText.undoStack.push(
-			{
-				text: currentText.text,
-				cursorState: {
-					currentText: Cursor.currentText,
-					currentIndex: Cursor.currentIndex,
-					currentLineIndex: Cursor.currentLineIndex,
-				}
-			}
-		)
-	}
-
 	static restoreState(currentState) {
 		let text = currentState.text
 		let { currentText, currentIndex, currentLineIndex } = currentState.cursorState
@@ -283,7 +244,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [startIndex, _] = TextHighlight.getHighlightedIndeces()
+						let [startIndex, _] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(startIndex - 1)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -311,7 +272,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [_, endIndex] = TextHighlight.getHighlightedIndeces()
+						let [_, endIndex] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(endIndex)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -339,7 +300,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [startIndex, _] = TextHighlight.getHighlightedIndeces()
+						let [startIndex, _] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(startIndex - 1)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -347,7 +308,7 @@ class Cursor {
 					}
 				} else {
 					if (e.shiftKey) {
-						if (currentIndex > 0) {
+						if (currentIndex > -1) {
 							let row = lineIndex
 							let startIndex = currentIndex
 							let endIndex = currentIndex + 1
@@ -368,7 +329,7 @@ class Cursor {
 					if (e.shiftKey) {
 						TextHighlight.moveHighlight(e.key)
 					} else {
-						let [_, endIndex] = TextHighlight.getHighlightedIndeces()
+						let [_, endIndex] = TextHighlight.getHighlightedIndices()
 						let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(endIndex)
 						Cursor.currentLineIndex = row
 						Cursor.currentIndex = index
@@ -394,7 +355,7 @@ class Cursor {
 
 			case "Backspace":
 				if (TextHighlight.currentHighlightDetails) {
-					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ textShape.text.slice(endIndex)
@@ -420,7 +381,7 @@ class Cursor {
 
 			case "Delete":
 				if (TextHighlight.currentHighlightDetails) {
-					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ textShape.text.slice(endIndex)
@@ -443,7 +404,7 @@ class Cursor {
 
 			case "Enter":
 				if (TextHighlight.currentHighlightDetails) {
-					let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
 					let highlightedText = textShape.text.slice(0, startIndex)
 						+ '\n' + textShape.text.slice(endIndex)
@@ -477,7 +438,7 @@ class Cursor {
 								TextHighlight.highlightAll(textShape)
 								break
 							case "C":
-								let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+								let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 								endIndex++
 								let highlightedText = textShape.text.slice(0, endIndex)
 								navigator.clipboard.writeText(highlightedText)
@@ -485,7 +446,7 @@ class Cursor {
 							case "V":
 								navigator.clipboard.readText()
 									.then(copiedText => {
-										let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+										let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 										endIndex++
 										let updatedText = textShape.text.slice(0, startIndex) +
 											copiedText +
@@ -496,14 +457,14 @@ class Cursor {
 									})
 								break
 							case "Z":
-								Cursor.undo()
+								HistoryTools.textEditUndo()
 								return
 							case "Y":
-								Cursor.redo()
+								HistoryTools.textEditRedo()
 								return
 						}
 					} else {
-						let [startIndex, endIndex] = TextHighlight.getHighlightedIndeces()
+						let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 						endIndex++
 						let highlightedText = textShape.text.slice(0, startIndex) +
 							keyPressedValue +
@@ -538,10 +499,10 @@ class Cursor {
 										Cursor.updateCursorPosition(indexInRawString)
 									})
 							case "Z":
-								Cursor.undo()
+								HistoryTools.textEditUndo()
 								return
 							case "Y":
-								Cursor.redo()
+								HistoryTools.textEditRedo()
 								return
 						}
 					} else {
@@ -557,7 +518,7 @@ class Cursor {
 				break;
 		}
 
-		Cursor.registerChange()
+		HistoryTools.recordTextChange()
 		viewport.dispatchEvent(
 			new CustomEvent("textChanged", {
 				detail: { shape: textShape, save: false },
