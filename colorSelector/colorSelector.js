@@ -1,7 +1,7 @@
 class ColorSelector {
 	constructor(
 		holderDiv,
-		width = 150,
+		width = 190,
 		height = 100,
 		hue = 0,
 		saturation = 0.5,
@@ -9,6 +9,7 @@ class ColorSelector {
 		showFill = true
 	) {
 		this.holderDiv = holderDiv;
+		this.changeFillCallback = null;
 
 		this.width = width;
 		this.height = height;
@@ -22,6 +23,8 @@ class ColorSelector {
 		this.slCanvas = document.createElement("canvas");
 		this.slCanvas.width = this.width;
 		this.slCanvas.height = this.height;
+		this.slCanvas.style.width=this.width+"px";
+		this.slCanvas.style.height=this.height+"px";
 
 		this.slCtx = this.slCanvas.getContext("2d");
 		this.holderDiv.appendChild(this.slCanvas);
@@ -36,19 +39,18 @@ class ColorSelector {
 		this.outputCanvas.height = 30;
 		this.outputAndHue.appendChild(this.outputCanvas);
 
-		this.outputAndHue.appendChild(
-			createDOMElement("input", {
-				id: "hueControl",
-				max: "360",
-				min: "0",
-				step: "1",
-				onchange: (e) => this.#changeHue(e.currentTarget.value),
-				oninput: (e) => this.#changeHue(e.currentTarget.value, false),
-				title: "Hue",
-				type: "range",
-				value: this.hue,
-			})
-		);
+		this.hueControl = createDOMElement("input", {
+			id: "hueControl",
+			max: "360",
+			min: "0",
+			step: "1",
+			onchange: (e) => this.#changeHue(e.currentTarget.value),
+			oninput: (e) => this.#changeHue(e.currentTarget.value, false),
+			title: "Hue",
+			type: "range",
+			value: this.hue,
+		});
+		this.outputAndHue.appendChild(this.hueControl);
 
 		this.#generateSLGradient(this.hue, this.slCtx);
 		this.#showOutputColor(
@@ -62,13 +64,46 @@ class ColorSelector {
 		this.#addEventListeners();
 	}
 
-   getFill(){
-      if(this.showFill){
-         return `hsl(${this.hue}, ${this.saturation * 100}%, ${this.lightness * 100}%)`;
-      }else{
-         return null;
-      }
-   }
+	get value() {
+		let fill = this.getHsl();
+		if (fill) {
+			fill = hslToHex(...fill);
+		}
+		return fill;
+	}
+
+	set value(value) {
+		if (value) {
+			this.showFill = true;
+			const [h, s, l] = hexToHsl(value);
+			this.hue = h;
+			this.saturation = s;
+			this.lightness = l;
+		} else {
+			this.showFill = false;
+		}
+		this.#generateSLGradient(this.hue, this.slCtx);
+
+		this.#showOutputColor(
+			this.hue,
+			this.saturation,
+			this.lightness,
+			this.showFill,
+			this.outputCanvas
+		);
+	}
+
+	addEventListener(type, callback) {
+		this.changeFillCallback = callback;
+	}
+
+	getHsl() {
+		if (this.showFill) {
+			return [this.hue, this.saturation, this.lightness];
+		} else {
+			return null;
+		}
+	}
 
 	#addEventListeners() {
 		this.outputCanvas.addEventListener("click", (e) => {
@@ -80,11 +115,14 @@ class ColorSelector {
 				this.showFill,
 				this.outputCanvas
 			);
+			this.changeFillCallback(this.value);
 		});
 
 		this.slCanvas.addEventListener("pointerdown", (e) => {
 			const updateSL = (e) => this.#updateSL(e);
-         updateSL(e);
+
+			updateSL(e);
+
 			this.slCanvas.addEventListener("pointermove", updateSL);
 			this.slCanvas.addEventListener("pointerup", () => {
 				this.slCanvas.removeEventListener("pointermove", updateSL);
@@ -110,6 +148,8 @@ class ColorSelector {
 			this.showFill,
 			this.outputCanvas
 		);
+
+		this.changeFillCallback(this.value);
 	}
 
 	#changeHue(value, save = true) {
@@ -122,6 +162,8 @@ class ColorSelector {
 			this.showFill,
 			this.outputCanvas
 		);
+
+		this.changeFillCallback(this.value);
 	}
 
 	#showOutputColor(hue, saturation, lightness, showFill, canvas) {
@@ -146,10 +188,10 @@ class ColorSelector {
 		const { width, height } = ctx.canvas;
 
 		// To-Do speedup this
-      const stepSize = 2;
-		for (let x = 0; x < width; x+=stepSize) {
-			for (let y = 0; y < height; y+=stepSize) {
-				const saturation = (x / width);
+		const stepSize = 2;
+		for (let x = 0; x < width; x += stepSize) {
+			for (let y = 0; y < height; y += stepSize) {
+				const saturation = x / width;
 				const lightnessDecreaseFactor = 1 - (0.5 * x) / width;
 				const lightness =
 					1 -

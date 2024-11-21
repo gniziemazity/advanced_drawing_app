@@ -23,6 +23,7 @@
 
 	--toolbar-width: 35px;
 	--input-width: 110px;
+	--input-large-width: 60px;
 	--input-medium-width: 40px;
 	--input-small-width: 20px;
 }
@@ -249,7 +250,11 @@ textarea {
 	z-index: 1;
 }
 
-#strokeWidth, #strokeWidthNumber {
+#strokeWidth {
+	width: var(--input-large-width);
+}
+
+#strokeWidthNumber {
 	width: var(--input-medium-width);
 }
 
