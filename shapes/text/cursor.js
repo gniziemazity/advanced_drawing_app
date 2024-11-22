@@ -8,32 +8,13 @@ class Cursor {
 	static showCursor = false
 
 	static attemptToEnterEditMode(shape, startPosition) {
-		if (
-			shape.numberClicked &&
-			shape.numberClicked % 2 === 0 &&
-			!Cursor.isEditing
-		) {
-			TextHighlight.highlightAll(shape)
-			Cursor.inPreEditMode = true
-			Cursor.currentText = shape
-			let lines = shape.parseText()
-			let lastRow = lines.length - 1
-			Cursor.currentIndex = lines[lastRow].length - 1
-			Cursor.currentLineIndex = lastRow
-			Cursor.addEventListeners()
-			HistoryTools.recordTextChange()
-		}
-
-		if (
-			Cursor.isEditing ||
-			(shape.numberClicked &&
-				shape.numberClicked % 3 === 0)
-		) {
+		if (shape.numberClicked && shape.numberClicked % 2 === 0) {
 			viewport.dispatchEvent(
 				new CustomEvent("TextSelected", {
 					detail: { shape, clickedPoint: startPosition },
 				})
 			);
+			HistoryTools.recordTextChange()
 		}
 	}
 
@@ -149,7 +130,11 @@ class Cursor {
 		let textShape = Cursor.currentText;
 		let lines = textShape.parseText();
 		let line = lines[Cursor.currentLineIndex];
-		let cursor = new Text(textShape.center, propertiesPanel.getValues());
+		let cursor = new Text(textShape.center, {
+			...propertiesPanel.getValues(),
+			fillColor: "black",
+			strokeColor: "black"
+		});
 		cursor.properties = JSON.parse(JSON.stringify(textShape.properties));
 		cursor.rotation = textShape.rotation;
 		let textWithCursor = "";
@@ -308,7 +293,7 @@ class Cursor {
 					}
 				} else {
 					if (e.shiftKey) {
-						if (currentIndex > -1) {
+						if (currentIndex > -2) {
 							let row = lineIndex
 							let startIndex = currentIndex
 							let endIndex = currentIndex + 1
@@ -338,7 +323,7 @@ class Cursor {
 				} else {
 					if (e.shiftKey) {
 						let row = lineIndex
-						if (currentIndex < lines[row].length - 1) {
+						if (currentIndex < lines[row].length) {
 							let startIndex = currentIndex + 1
 							let endIndex = currentIndex + 2
 							TextHighlight.indexOfLineHighlightDescToMoveWithKey = "end"
@@ -466,11 +451,11 @@ class Cursor {
 					} else {
 						let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 						endIndex++
-						let highlightedText = textShape.text.slice(0, startIndex) +
+						let updatedText = textShape.text.slice(0, startIndex) +
 							keyPressedValue +
 							textShape.text.slice(endIndex)
 						TextHighlight.reset()
-						textShape.setText(highlightedText, false)
+						textShape.setText(updatedText, false)
 						Cursor.updateCursorPosition(startIndex)
 					}
 				} else {
