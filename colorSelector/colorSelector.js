@@ -235,6 +235,12 @@ class ColorSelector {
 
 	//This is called by the colorInput element that has been clicked to show the color selector
 	show(caller) {
+		//If same input is clicked, we just close the color selector
+		if (this.activeInput === caller) {
+			this.activeInput = null;
+			this.hide();
+			return;
+		}
 		this.visible = true;
 		this.activeInput = caller;
 		this.holderDiv.style.display = "block";
