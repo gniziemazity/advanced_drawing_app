@@ -6,37 +6,15 @@ class Cursor {
 	static isEditing = false;
 	static inPreEditMode = false;
 	static showCursor = false
-	static undoStack = null
-	static redoStack = null
-	static savedUndoStack = null
-	static savedRedoStack = null
 
 	static attemptToEnterEditMode(shape, startPosition) {
-		if (
-			shape.numberClicked &&
-			shape.numberClicked % 2 === 0 &&
-			!Cursor.isEditing
-		) {
-			TextHighlight.highlightAll(shape)
-			Cursor.inPreEditMode = true
-			Cursor.currentText = shape
-			let lines = shape.parseText()
-			let lastRow = lines.length - 1
-			Cursor.currentIndex = lines[lastRow].length
-			Cursor.currentLineIndex = lastRow
-			Cursor.addEventListeners()
-		}
-
-		if (
-			Cursor.isEditing ||
-			(shape.numberClicked &&
-				shape.numberClicked % 3 === 0)
-		) {
+		if (shape.numberClicked && shape.numberClicked % 2 === 0) {
 			viewport.dispatchEvent(
 				new CustomEvent("TextSelected", {
 					detail: { shape, clickedPoint: startPosition },
 				})
 			);
+			HistoryTools.recordTextChange()
 		}
 	}
 
@@ -51,8 +29,6 @@ class Cursor {
 		Cursor.addEventListeners();
 		Cursor.isEditing = true;
 		Cursor.showCursor = true
-		Cursor.undoStack = []
-		Cursor.redoStack = []
 
 		Cursor.startCursorBlink();
 	}
@@ -72,8 +48,6 @@ class Cursor {
 		Cursor.currentLineIndex = 0;
 		Cursor.isEditing = false;
 		Cursor.showCursor = false
-		Cursor.undoStack = null
-		Cursor.redoStack = null
 		Cursor.removeEventListeners()
 		viewport.drawShapes();
 	}
@@ -156,7 +130,11 @@ class Cursor {
 		let textShape = Cursor.currentText;
 		let lines = textShape.parseText();
 		let line = lines[Cursor.currentLineIndex];
-		let cursor = new Text(textShape.center, propertiesPanel.getValues());
+		let cursor = new Text(textShape.center, {
+			...propertiesPanel.getValues(),
+			fillColor: "black",
+			strokeColor: "black"
+		});
 		cursor.properties = JSON.parse(JSON.stringify(textShape.properties));
 		cursor.rotation = textShape.rotation;
 		let textWithCursor = "";
@@ -198,38 +176,6 @@ class Cursor {
 		let [row, index] = Cursor.getCursorRowAndIndexFromRawStringIndex(indexInRawString)
 		Cursor.currentLineIndex = row
 		Cursor.currentIndex = index
-	}
-
-	static undo() {
-		Cursor.currentText.undo()
-	}
-
-	static redo() {
-		Cursor.currentText.redo()
-	}
-
-	static registerChange() {
-		let currentText = Cursor.currentText
-
-		let lastState = currentText.undoStack[currentText.undoStack.length - 1]
-		if (
-			lastState &&
-			lastState.text === currentText.text
-		) {
-			return
-		}
-
-		currentText.redoStack = []
-		currentText.undoStack.push(
-			{
-				text: currentText.text,
-				cursorState: {
-					currentText: Cursor.currentText,
-					currentIndex: Cursor.currentIndex,
-					currentLineIndex: Cursor.currentLineIndex,
-				}
-			}
-		)
 	}
 
 	static restoreState(currentState) {
@@ -347,7 +293,7 @@ class Cursor {
 					}
 				} else {
 					if (e.shiftKey) {
-						if (currentIndex > 0) {
+						if (currentIndex > -2) {
 							let row = lineIndex
 							let startIndex = currentIndex
 							let endIndex = currentIndex + 1
@@ -377,7 +323,7 @@ class Cursor {
 				} else {
 					if (e.shiftKey) {
 						let row = lineIndex
-						if (currentIndex < lines[row].length - 1) {
+						if (currentIndex < lines[row].length) {
 							let startIndex = currentIndex + 1
 							let endIndex = currentIndex + 2
 							TextHighlight.indexOfLineHighlightDescToMoveWithKey = "end"
@@ -496,20 +442,20 @@ class Cursor {
 									})
 								break
 							case "Z":
-								Cursor.undo()
+								HistoryTools.textEditUndo()
 								return
 							case "Y":
-								Cursor.redo()
+								HistoryTools.textEditRedo()
 								return
 						}
 					} else {
 						let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 						endIndex++
-						let highlightedText = textShape.text.slice(0, startIndex) +
+						let updatedText = textShape.text.slice(0, startIndex) +
 							keyPressedValue +
 							textShape.text.slice(endIndex)
 						TextHighlight.reset()
-						textShape.setText(highlightedText, false)
+						textShape.setText(updatedText, false)
 						Cursor.updateCursorPosition(startIndex)
 					}
 				} else {
@@ -538,10 +484,10 @@ class Cursor {
 										Cursor.updateCursorPosition(indexInRawString)
 									})
 							case "Z":
-								Cursor.undo()
+								HistoryTools.textEditUndo()
 								return
 							case "Y":
-								Cursor.redo()
+								HistoryTools.textEditRedo()
 								return
 						}
 					} else {
@@ -557,7 +503,7 @@ class Cursor {
 				break;
 		}
 
-		Cursor.registerChange()
+		HistoryTools.recordTextChange()
 		viewport.dispatchEvent(
 			new CustomEvent("textChanged", {
 				detail: { shape: textShape, save: false },
