@@ -26,6 +26,8 @@
 	--input-large-width: 60px;
 	--input-medium-width: 40px;
 	--input-small-width: 20px;
+
+	--transparent-grid-background: #cccccc;
 }
 
 /* Dark mode if the user's system prefers it */
@@ -224,7 +226,7 @@ textarea {
 
 #canvasHolder {
 	background-color: var(--bg-canvas);
-   touch-action: none;
+	touch-action: none;
 }
 
 #toolsHolder {
@@ -342,4 +344,64 @@ input[type="checkbox"]:checked::before {
 
 .highlight-bg {
 	background-color: var(--highlight-color);
+}
+
+.colorInput {
+	position: relative;
+	background-image: linear-gradient(
+			45deg,
+			var(--transparent-grid-background) 25%,
+			transparent 25%
+		),
+		linear-gradient(
+			-45deg,
+			var(--transparent-grid-background) 25%,
+			transparent 25%
+		),
+		linear-gradient(
+			45deg,
+			transparent 75%,
+			var(--transparent-grid-background) 75%
+		),
+		linear-gradient(
+			-45deg,
+			transparent 75%,
+			var(--transparent-grid-background) 75%
+		);
+	background-size: 10px 10px;
+	background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+}
+
+.colorInput.noColor {
+	background: linear-gradient(
+		to top right,
+		white 0%,
+		white 48%,
+		red 48%,
+		red 52%,
+		white 52%,
+		white 100%
+	);
+}
+
+.colorInput > div {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#colorSelector {
+	padding: var(--padding);
+	background: var(--bg-panel);
+	box-shadow: 0 0 10px var(--border-color);
+}
+
+#colorSelector input {
+	width: 75px;
+}
+
+#colorSelector input[type="number"] {
+	width: 49px;
 }

@@ -103,15 +103,20 @@ class PanelSection {
 				(p) => p.key === key
 			);
 			let value = selectedProperties[key];
+			let el;
 			switch (selectedProperty.type) {
 				case "number":
 					if (Number(value)) {
 						value = Math.round(value);
 					}
 				case "string":
-					const el = document.getElementById(selectedProperty.inputId);
+					el = document.getElementById(selectedProperty.inputId);
 					el.value = value === null ? "" : value;
 					el.placeholder = value || placeholderText;
+					break;
+				case "color":
+					el = document.getElementById(selectedProperty.inputId);
+					el.setColor(value);
 					break;
 				case "boolean":
 					document.getElementById(selectedProperty.inputId).checked =

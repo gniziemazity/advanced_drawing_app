@@ -4,6 +4,18 @@ class ColorSection extends PanelSection {
 		this.registerShortcuts();
 		this.panelProperties = [
 			{
+				key: "fillColor",
+				type: "color",
+				inputId: "fillColor",
+				extractor: this.getFillColor.bind(this),
+			},
+			{
+				key: "strokeColor",
+				type: "color",
+				inputId: "strokeColor",
+				extractor: this.getStrokeColor.bind(this),
+			},
+			{
 				key: "strokeWidth",
 				type: "number",
 				inputId: "strokeWidth",
@@ -13,26 +25,30 @@ class ColorSection extends PanelSection {
 	}
 
 	addContent(holderDiv) {
-		const colorSelectorContainer = createDOMElement("div", {
-			id: "colorSelectorContainer",
+		this.fillColorInput = new ColorInput({
+			id: "fillColor",
+			defaultColor: "#ffffffff",
+			onChange: this.changeFill.bind(this),
 		});
-		colorSelectorContainer.style.gridColumn = "2 span";
-		colorSelectorContainer.style.flexDirection = "column";
-		this.fillColorSelector = new ColorSelector(
-			colorSelectorContainer
-		);
-		this.fillColorSelector.value="#ffffff";
-		this.fillColorSelector.addEventListener("input", this.changeFill);
-		this.strokeColorSelector = new ColorSelector(
-			colorSelectorContainer
-		);
-		this.strokeColorSelector.value="#000000";
-		this.strokeColorSelector.addEventListener("input", this.changeStroke);
-		holderDiv.appendChild(colorSelectorContainer);
-		
-		const otherControls=document.createElement("div");
+		this.strokeColorInput = new ColorInput({
+			id: "strokeColor",
+			defaultColor: "#000000ff",
+			onChange: this.changeStroke.bind(this),
+		});
+		holderDiv.appendChild(this.fillColorInput.getDomNode());
+		holderDiv.appendChild(this.strokeColorInput.getDomNode());
+
+		const otherControls = document.createElement("div");
 		holderDiv.appendChild(otherControls);
-		
+		holderDiv.appendChild(
+			createDOMElement("input", {
+				id: "fill",
+				checked: true,
+				onchange: (e) => this.changeFill(e.currentTarget.checked),
+				title: "Fill",
+				type: "checkbox",
+			})
+		);
 		otherControls.appendChild(
 			createButtonWithIcon({
 				id: "resetBtn",
@@ -51,7 +67,7 @@ class ColorSection extends PanelSection {
 				iconName: "swap_colors",
 			})
 		);
-		
+
 		otherControls.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidth",
@@ -133,17 +149,17 @@ class ColorSection extends PanelSection {
 	}
 
 	resetColors() {
-		this.fillColorSelector.value = "#ffffff";
-		this.strokeColorSelector.value = "#000000";
-		this.changeFill(this.fillColorSelector.value);
-		this.changeStroke(this.strokeColorSelector.value);
+		this.fillColorInput.setColor("#FFFFFFFF");
+		this.strokeColorInput.setColor("#000000FF");
+		this.changeFill(this.fillColorInput.getColor());
+		this.changeStroke(this.strokeColorInput.getColor());
 	}
 
 	swapColors() {
 		const aux = this.fillColorSelector.value;
 
-		this.fillColorSelector.value=this.strokeColorSelector.value;
-		this.strokeColorSelector.value=aux;
+		this.fillColorSelector.value = this.strokeColorSelector.value;
+		this.strokeColorSelector.value = aux;
 
 		this.changeFill(this.fillColorSelector.value);
 		this.changeStroke(this.strokeColorSelector.value);
