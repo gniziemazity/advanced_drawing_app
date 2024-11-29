@@ -156,13 +156,11 @@ class ColorSection extends PanelSection {
 	}
 
 	swapColors() {
-		const aux = this.fillColorSelector.value;
-
-		this.fillColorSelector.value = this.strokeColorSelector.value;
-		this.strokeColorSelector.value = aux;
-
-		this.changeFill(this.fillColorSelector.value);
-		this.changeStroke(this.strokeColorSelector.value);
+		const aux = this.fillColorInput.getColor();
+      this.fillColorInput.setColor(this.strokeColorInput.getColor());
+      this.strokeColorInput.setColor(aux);
+		this.changeFill(this.fillColorInput.getColor());
+		this.changeStroke(this.strokeColorInput.getColor());
 	}
 
 	getFillColor(shape) {
