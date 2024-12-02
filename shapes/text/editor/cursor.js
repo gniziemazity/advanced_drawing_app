@@ -214,7 +214,6 @@ class Cursor {
 		let lineIndex = Cursor.currentLineIndex;
 		let line = lines[lineIndex];
 
-		Cursor.clearCanvas()
 		switch (e.key) {
 			case "Escape":
 				Cursor.stopEditMode();
@@ -347,6 +346,7 @@ class Cursor {
 				return;
 
 			case "Backspace":
+				Cursor.clearCanvas()
 				if (TextHighlight.currentHighlightDetails) {
 					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
@@ -373,6 +373,7 @@ class Cursor {
 				break;
 
 			case "Delete":
+				Cursor.clearCanvas()
 				if (TextHighlight.currentHighlightDetails) {
 					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
@@ -396,6 +397,7 @@ class Cursor {
 				break;
 
 			case "Enter":
+				Cursor.clearCanvas()
 				if (TextHighlight.currentHighlightDetails) {
 					let [startIndex, endIndex] = TextHighlight.getHighlightedIndices()
 					endIndex++
@@ -418,6 +420,7 @@ class Cursor {
 				break;
 
 			default:
+				Cursor.clearCanvas()
 				let keyPressedValue = e.key;
 				if (keyPressedValue.length !== 1) {
 					// speacial keys that has not been handled
