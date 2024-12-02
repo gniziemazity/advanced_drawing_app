@@ -1,31 +1,19 @@
 class ColorSection extends PanelSection {
 	constructor() {
-		super("Color", { sectionClass: "three_col_grid" });
+		super("Color");
 		this.registerShortcuts();
 		this.panelProperties = [
 			{
 				key: "fillColor",
-				type: "string",
+				type: "color",
 				inputId: "fillColor",
 				extractor: this.getFillColor.bind(this),
 			},
 			{
-				key: "fill",
-				type: "boolean",
-				inputId: "fill",
-				extractor: this.getFill.bind(this),
-			},
-			{
 				key: "strokeColor",
-				type: "string",
+				type: "color",
 				inputId: "strokeColor",
 				extractor: this.getStrokeColor.bind(this),
-			},
-			{
-				key: "stroke",
-				type: "boolean",
-				inputId: "stroke",
-				extractor: this.getStroke.bind(this),
 			},
 			{
 				key: "strokeWidth",
@@ -37,22 +25,21 @@ class ColorSection extends PanelSection {
 	}
 
 	addContent(holderDiv) {
-		const colorSelectorContainer = createDOMElement("div", {
-			id: "colorSelectorContainer",
+		this.fillColorInput = new ColorInput({
+			id: "fillColor",
+			defaultColor: "#ffffffff",
+			onChange: this.changeFill.bind(this),
 		});
-		colorSelectorContainer.style.gridColumn = "3 span";
-      colorSelectorContainer.style.flexDirection = "column";
-		this.colorSelector = new ColorSelector(colorSelectorContainer);
-		holderDiv.appendChild(colorSelectorContainer);
-		holderDiv.appendChild(
-			createDOMElement("input", {
-				id: "fillColor",
-				onchange: (e) => this.changeFillColor(e.currentTarget.value),
-				oninput: (e) => this.changeFillColor(e.currentTarget.value, false),
-				title: "Fill Color",
-				type: "color",
-			})
-		);
+		this.strokeColorInput = new ColorInput({
+			id: "strokeColor",
+			defaultColor: "#000000ff",
+			onChange: this.changeStroke.bind(this),
+		});
+		holderDiv.appendChild(this.fillColorInput.getDomNode());
+		holderDiv.appendChild(this.strokeColorInput.getDomNode());
+
+		const otherControls = document.createElement("div");
+		holderDiv.appendChild(otherControls);
 		holderDiv.appendChild(
 			createDOMElement("input", {
 				id: "fill",
@@ -62,7 +49,7 @@ class ColorSection extends PanelSection {
 				type: "checkbox",
 			})
 		);
-		holderDiv.appendChild(
+		otherControls.appendChild(
 			createButtonWithIcon({
 				id: "resetBtn",
 				title: "Reset (D)",
@@ -71,26 +58,7 @@ class ColorSection extends PanelSection {
 				iconName: "reset_colors",
 			})
 		);
-		holderDiv.appendChild(
-			createDOMElement("input", {
-				id: "strokeColor",
-				onchange: (e) => this.changeStrokeColor(e.currentTarget.value),
-				oninput: (e) =>
-					this.changeStrokeColor(e.currentTarget.value, false),
-				title: "Stroke Color",
-				type: "color",
-			})
-		);
-		holderDiv.appendChild(
-			createDOMElement("input", {
-				id: "stroke",
-				checked: true,
-				onchange: (e) => this.changeStroke(e.currentTarget.checked),
-				title: "Stroke",
-				type: "checkbox",
-			})
-		);
-		holderDiv.appendChild(
+		otherControls.appendChild(
 			createButtonWithIcon({
 				id: "swapBtn",
 				title: "Swap (X)",
@@ -99,7 +67,8 @@ class ColorSection extends PanelSection {
 				iconName: "swap_colors",
 			})
 		);
-		holderDiv.appendChild(
+
+		otherControls.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidth",
 				max: "30",
@@ -111,9 +80,10 @@ class ColorSection extends PanelSection {
 				title: "Stroke Width",
 				type: "range",
 				value: "5",
+				style: "margin-left: 20px",
 			})
 		);
-		holderDiv.appendChild(
+		otherControls.appendChild(
 			createDOMElement("input", {
 				id: "strokeWidthNumber",
 				max: "30",
@@ -146,28 +116,28 @@ class ColorSection extends PanelSection {
 		);
 	}
 
-	changeFillColor(value, save = true) {
-		viewport
-			.getSelectedShapes()
-			.forEach((s) => s.setOptions({ fillColor: value }, save));
-	}
-
 	changeFill(value) {
-		viewport
-			.getSelectedShapes()
-			.forEach((s) => s.setOptions({ fill: value }));
-	}
-
-	changeStrokeColor(value, save = true) {
-		viewport
-			.getSelectedShapes()
-			.forEach((s) => s.setOptions({ strokeColor: value }, save));
+		if (!value) {
+			viewport
+				.getSelectedShapes()
+				.forEach((s) => s.setOptions({ fill: false }));
+		} else {
+			viewport
+				.getSelectedShapes()
+				.forEach((s) => s.setOptions({ fill: true, fillColor: value }));
+		}
 	}
 
 	changeStroke(value) {
-		viewport
-			.getSelectedShapes()
-			.forEach((s) => s.setOptions({ stroke: value }));
+		if (!value) {
+			viewport
+				.getSelectedShapes()
+				.forEach((s) => s.setOptions({ stroke: false }));
+		} else {
+			viewport
+				.getSelectedShapes()
+				.forEach((s) => s.setOptions({ strokeColor: value }));
+		}
 	}
 
 	changeStrokeWidth(value, save = true) {
@@ -179,21 +149,18 @@ class ColorSection extends PanelSection {
 	}
 
 	resetColors() {
-		fillColor.value = "#ffffff";
-		strokeColor.value = "#000000";
-		this.changeFillColor(fillColor.value);
-		this.changeStrokeColor(strokeColor.value);
+		this.fillColorInput.setColor("#FFFFFFFF");
+		this.strokeColorInput.setColor("#000000FF");
+		this.changeFill(this.fillColorInput.getColor());
+		this.changeStroke(this.strokeColorInput.getColor());
 	}
 
 	swapColors() {
-		const fillStyle = fillColor.value;
-		const strokeStyle = strokeColor.value;
-
-		fillColor.value = strokeStyle;
-		strokeColor.value = fillStyle;
-
-		this.changeFillColor(fillColor.value);
-		this.changeStrokeColor(strokeColor.value);
+		const aux = this.fillColorInput.getColor();
+      this.fillColorInput.setColor(this.strokeColorInput.getColor());
+      this.strokeColorInput.setColor(aux);
+		this.changeFill(this.fillColorInput.getColor());
+		this.changeStroke(this.strokeColorInput.getColor());
 	}
 
 	getFillColor(shape) {
