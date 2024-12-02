@@ -48,8 +48,8 @@ class SelectTool extends GenericTool {
 		if (shape) {
 			if (!isClickingSelectedShape) {
 				shape.click();
-				if (shape.text !== undefined) {
-					Cursor.attemptToEnterEditMode(shape, startPosition);
+				if (shape.isText()) {
+					shape.attemptToEnterEditMode(startPosition);
 				}
 			}
 			const selectedShapes = viewport.getSelectedShapes();
@@ -69,8 +69,13 @@ class SelectTool extends GenericTool {
 				}
 				mouseDelta = viewport.getAdjustedScale(diff);
 				isDragging = true;
-				if ((Cursor.isEditing || Cursor.inPreEditMode) && shape.text !== undefined) {
-					TextHighlight.registerHighlight(shape, startPosition, startPosition.add(mouseDelta))
+				if ((Cursor.isEditing || Cursor.inPreEditMode) && shape.isText()) {
+					TextHighlight.registerHighlight(
+						shape.editor,
+						viewport.getAdjustedPosition(startPosition),
+						viewport.getAdjustedPosition(startPosition.add(mouseDelta)),
+						Cursor.canvas
+					)
 				} else {
 					selectedShapes.forEach((s, i) => {
 						s.setCenter(Vector.add(oldCenters[i], mouseDelta), false);
@@ -87,7 +92,7 @@ class SelectTool extends GenericTool {
 					.removeEventListener("pointerup", upCallback);
 
 				if (isDragging && mouseDelta.magnitude() > 0) {
-					if ((Cursor.isEditing || Cursor.inPreEditMode) && shape.text !== undefined) {
+					if ((Cursor.isEditing || Cursor.inPreEditMode) && shape.isText()) {
 
 					} else {
 						selectedShapes.forEach((s, i) => {
@@ -98,8 +103,8 @@ class SelectTool extends GenericTool {
 
 				if (isClickingSelectedShape && !isDragging) {
 					shape.click();
-					if (shape.text !== undefined) {
-						Cursor.attemptToEnterEditMode(shape, startPosition);
+					if (shape.isText()) {
+						shape.attemptToEnterEditMode(startPosition);
 					}
 				}
 			};

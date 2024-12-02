@@ -28,7 +28,7 @@ class RandomCoordinatesGenerator {
 	static getRandomXcanvasPoint() {
 		let newX = Math.round(
 			(Math.random() * viewport.getStageCanvas().width) /
-				window.devicePixelRatio
+			window.devicePixelRatio
 		);
 		if (newX === RandomCoordinatesGenerator.previousX) {
 			return RandomCoordinatesGenerator.getRandomXcanvasPoint();
@@ -40,7 +40,7 @@ class RandomCoordinatesGenerator {
 	static getRandomYcanvasPoint() {
 		let newY = Math.round(
 			(Math.random() * viewport.getStageCanvas().height) /
-				window.devicePixelRatio
+			window.devicePixelRatio
 		);
 		if (newY === RandomCoordinatesGenerator.previousY) {
 			return RandomCoordinatesGenerator.getRandomYcanvasPoint();
@@ -219,10 +219,8 @@ function TestAllShapesCanBeDeleted() {
 				simulateShapeDelete(mid.x, mid.y, mid.x, mid.y);
 				assert(
 					viewport.getShapes().length === 0,
-					`failed to delete ${
-						shapeTool.name
-					}: shapes length should be 0 after delete, shape.length is: ${
-						viewport.getShapes().length
+					`failed to delete ${shapeTool.name
+					}: shapes length should be 0 after delete, shape.length is: ${viewport.getShapes().length
 					}`
 				);
 				success(
@@ -264,10 +262,8 @@ function TestAllShapesCanBeCopyAndPasted() {
 				simulateShapeCopyAndPaste(mid.x, mid.y, mid.x, mid.y);
 				assert(
 					viewport.getShapes().length === 2,
-					`copy-pasting ${
-						shapeTool.name
-					}: shapes length should be x2 after copy and paste, shape.length is: ${
-						viewport.getShapes().length
+					`copy-pasting ${shapeTool.name
+					}: shapes length should be x2 after copy and paste, shape.length is: ${viewport.getShapes().length
 					}`
 				);
 				success(

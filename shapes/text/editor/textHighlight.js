@@ -1,33 +1,30 @@
-// handle draw highlight
-// records indexes
-// gives index range in main text
-
 class TextHighlight {
 
     static currentHighlightDetails = null
     static indexOfLineHighlightDescToMoveWithKey = null
+    static canvas = null
 
     static displayHighlight() {
         let currentHighlightDetails = TextHighlight.currentHighlightDetails
         if (currentHighlightDetails) {
-            TextHighlight.highlight(currentHighlightDetails.currentText, currentHighlightDetails.linesHighlightDesc)
+            TextHighlight._highlight(currentHighlightDetails.currentEditor, currentHighlightDetails.linesHighlightDesc)
         }
     }
 
-    static highlight(textShape, linesHighlightDesc) {
+    static _highlight(editor, linesHighlightDesc) {
         Cursor.showCursor = false
         Cursor.inPreEditMode = true
-        let top = textShape.center.y - textShape.size.height / 2;
+        let top = editor.center.y - editor.size.height / 2;
         let highlightRectangles = []
         linesHighlightDesc.forEach(lineHighlightDesc => {
             let { startIndex, endIndex, line, row } = lineHighlightDesc
-            let xOffset = textShape.properties.xOffsets[row] || 0;
-            let left = textShape.center.x + xOffset
-                - textShape.getTextWidthOnCanvas(line) / 2
-                + textShape.getTextWidthOnCanvas(line.slice(0, startIndex))
+            let xOffset = editor.properties.xOffsets[row] || 0;
+            let left = editor.center.x + xOffset
+                - editor.getTextWidthOnCanvas(line) / 2
+                + editor.getTextWidthOnCanvas(line.slice(0, startIndex))
 
-            let right = left + textShape.getTextWidthOnCanvas(line.slice(startIndex, endIndex));
-            let fontSize = textShape.properties.fontSize
+            let right = left + editor.getTextWidthOnCanvas(line.slice(startIndex, endIndex));
+            let fontSize = editor.properties.fontSize
             let height = fontSize
             let width = right - left
             let center = Vector.zero()
@@ -42,15 +39,16 @@ class TextHighlight {
                 fill: true,
                 lineCap: "round",
             };
-            if (textShape.rotation) {
+            if (editor.rotation) {
                 center = Vector.rotateAroundCenter(
                     center,
-                    textShape.center,
-                    textShape.rotation
+                    editor.center,
+                    editor.rotation
                 )
             }
-            let highlightRect = new Rect(center, size, options)
-            highlightRect.rotation = textShape.rotation
+
+            let highlightRect = { center, size, options }
+            highlightRect.rotation = editor.rotation
 
             highlightRectangles.push(highlightRect)
         });
@@ -58,12 +56,37 @@ class TextHighlight {
     }
 
     static drawHighlight(highlightRectangles = []) {
-        viewport.overlayLayer.drawItems(highlightRectangles, true)
-        viewport.overlayLayer.drawItems(viewport.gizmos || [], false)
+        if (!TextHighlight.canvas) return
+        let ctx = TextHighlight.canvas.getContext("2d")
+        Cursor.clearCanvas()
+        highlightRectangles.forEach(rectangleData => {
+            const center = rectangleData.center
+
+            const left = center.x - rectangleData.size.width / 2;
+            const top = center.y - rectangleData.size.height / 2;
+
+            ctx.beginPath();
+            rotateCanvas(ctx, center, rectangleData.rotation);
+            ctx.rect(left, top, rectangleData.size.width, rectangleData.size.height);
+            rotateCanvas(ctx, center, -rectangleData.rotation);
+
+            ctx.strokeStyle = rectangleData.options.strokeColor;
+            ctx.fillStyle = rectangleData.options.fillColor;
+            ctx.lineWidth = rectangleData.options.strokeWidth;
+            ctx.lineCap = rectangleData.options.lineCap;
+            ctx.lineJoin = rectangleData.options.lineJoin;
+            if (rectangleData.options.fill) {
+                ctx.fill();
+            }
+            if (rectangleData.options.stroke) {
+                ctx.stroke();
+            }
+        })
     }
 
-    static highlightAll(textShape) {
-        let linesHighlightDesc = textShape.parseText().map((line, index) => {
+    static highlightAll(editor, canvas) {
+        TextHighlight.canvas = canvas
+        let linesHighlightDesc = editor.parseText().map((line, index) => {
             return {
                 startIndex: 0,
                 endIndex: line.length,
@@ -73,31 +96,30 @@ class TextHighlight {
         })
         TextHighlight.currentHighlightDetails = {
             linesHighlightDesc,
-            currentText: textShape
+            currentEditor: editor
         }
-        TextHighlight.highlight(textShape, linesHighlightDesc)
+        TextHighlight._highlight(editor, linesHighlightDesc)
     }
 
-    static registerHighlight(textShape, startPosition, mousePosition) {
-        let adjustedStartPos = viewport.getAdjustedPosition(startPosition)
-        let adjustedMousePos = viewport.getAdjustedPosition(mousePosition)
-        if (textShape.rotation) {
-            adjustedStartPos = Vector.rotateAroundCenter(
-                adjustedStartPos,
-                textShape.center,
-                -textShape.rotation
+    static registerHighlight(editor, startPosition, mousePosition, canvas) {
+        TextHighlight.canvas = canvas
+        if (editor.rotation) {
+            startPosition = Vector.rotateAroundCenter(
+                startPosition,
+                editor.center,
+                -editor.rotation
             );
-            adjustedMousePos = Vector.rotateAroundCenter(
-                adjustedMousePos,
-                textShape.center,
-                -textShape.rotation
+            mousePosition = Vector.rotateAroundCenter(
+                mousePosition,
+                editor.center,
+                -editor.rotation
             );
         }
 
-        let [startRow, startIndex] = textShape.getRowOfLineAndIndexAtPoint(adjustedStartPos)
-        let [mouseRow, mouseIndex] = textShape.getRowOfLineAndIndexAtPoint(adjustedMousePos)
+        let [startRow, startIndex] = editor.getRowOfLineAndIndexAtPoint(startPosition)
+        let [mouseRow, mouseIndex] = editor.getRowOfLineAndIndexAtPoint(mousePosition)
 
-        let lines = textShape.parseText()
+        let lines = editor.parseText()
 
         if (!lines[startRow] || !lines[mouseRow]) return
 
@@ -159,13 +181,14 @@ class TextHighlight {
         }
         TextHighlight.currentHighlightDetails = {
             linesHighlightDesc,
-            currentText: textShape
+            currentEditor: editor
         }
         TextHighlight.displayHighlight()
     }
 
-    static registerHighlightFromRowAndIndex(textShape, row, startIndex, endIndex) {
-        let lines = textShape.parseText()
+    static registerHighlightFromRowAndIndex(editor, row, startIndex, endIndex, canvas) {
+        TextHighlight.canvas = canvas
+        let lines = editor.parseText()
         let linesHighlightDesc = [{
             startIndex,
             endIndex,
@@ -174,7 +197,7 @@ class TextHighlight {
         }]
         TextHighlight.currentHighlightDetails = {
             linesHighlightDesc,
-            currentText: textShape
+            currentEditor: editor
         }
         TextHighlight.displayHighlight()
     }
@@ -189,7 +212,7 @@ class TextHighlight {
         let linesHighlightDesc = currentHighlightDetails.linesHighlightDesc
         let startRow = linesHighlightDesc[0].row
         let endRow = linesHighlightDesc[linesHighlightDesc.length - 1].row
-        let lines = currentHighlightDetails.currentText.parseText()
+        let lines = currentHighlightDetails.currentEditor.parseText()
         startIndex = 0
         endIndex = 0
         for (let row = 0; row < lines.length; row++) {
@@ -217,7 +240,7 @@ class TextHighlight {
         let highlightDesc = linesHighlightDesc[indexOfHighlightDesc]
         if (!highlightDesc) return
         let row = highlightDesc.row
-        let lines = TextHighlight.currentHighlightDetails.currentText.parseText()
+        let lines = TextHighlight.currentHighlightDetails.currentEditor.parseText()
         let line = lines[row]
 
         let modifyStartIndex = TextHighlight.indexOfLineHighlightDescToMoveWithKey

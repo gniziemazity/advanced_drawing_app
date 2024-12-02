@@ -220,11 +220,11 @@ class PropertiesSection extends PanelSection {
 	}
 
 	getWidth(shape) {
-		return shape.size.width;
+		return shape.getWidth();
 	}
 
 	getHeight(shape) {
-		return shape.size.height;
+		return shape.getHeight();
 	}
 
 	getRotation(shape) {
