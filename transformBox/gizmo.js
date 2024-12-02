@@ -78,8 +78,8 @@ class Gizmo {
 		);
 
 		const startingSigns = selectedShapes.map((s) => ({
-			widthSign: Math.sign(s.size.width),
-			heightSign: Math.sign(s.size.height),
+			widthSign: Math.sign(s.getWidth()),
+			heightSign: Math.sign(s.getHeight()),
 		}));
 
 		const oldRotations = selectedShapes.map((s) => s.rotation);
@@ -173,7 +173,7 @@ class Gizmo {
 		};
 
 		const upCallback = (e) => {
-			selectedShapes.forEach((s) => s.setSize(s.size.width, s.size.height));
+			selectedShapes.forEach((s) => s.setSize(s.getWidth(), s.getHeight()))
 			viewport
 				.getStageCanvas()
 				.removeEventListener("pointermove", moveCallback);

@@ -54,14 +54,14 @@ class TextSection extends PanelSection {
 	changeFontSize(value, save = true) {
 		viewport
 			.getSelectedShapes()
-			.filter((s) => s.text !== undefined)
+			.filter((s) => s.isText())
 			.forEach((s) => s.setFontSize(value, save));
 	}
 
 	changeTextAlignment(value, save = true) {
 		viewport
 			.getSelectedShapes()
-			.filter((s) => s.text !== undefined)
+			.filter((s) => s.isText())
 			.forEach((s) => s.setAlignment(value, save));
 
 		this.sectionContent
@@ -79,9 +79,9 @@ class TextSection extends PanelSection {
 	}
 
 	getFontSize(shape) {
-		return shape.text !== undefined ? shape.getFontSize() : "";
+		return shape.isText() ? shape.getFontSize() : "";
 	}
 	getTextAlignment(shape) {
-		return shape.text !== undefined ? shape.getAlignment() : "";
+		return shape.isText() ? shape.getAlignment() : "";
 	}
 }

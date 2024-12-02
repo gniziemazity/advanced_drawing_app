@@ -50,6 +50,16 @@ class Viewport extends EventTarget {
 		);
 		container.appendChild(this.overlayLayer.canvas);
 
+		// editor layer made it much more easier to not
+		// clash with gizmos drawn on overlay layer
+		this.editorLayer = new Layer(
+			this.canvasWidth,
+			this.canvasHeight,
+			stageProperties,
+			Layer.TYPES.OVERLAY
+		);
+		container.appendChild(this.editorLayer.canvas);
+
 		this.hitTestLayer = new Layer(
 			this.canvasWidth,
 			this.canvasHeight,
@@ -300,7 +310,8 @@ class Viewport extends EventTarget {
 
 			let [row, index] = shape.getRowOfLineAndIndexAtPoint(adjustedPoint)
 
-			Cursor.enterEditMode(shape, index, row);
+			Cursor.enterEditMode(this.editorLayer.canvas, shape.editor, index, row);
+			Cursor.onStopEdit = () => shape.unselect
 		});
 
 		this.addEventListener("textChanged", (event) => {

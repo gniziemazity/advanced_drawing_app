@@ -44,6 +44,10 @@ class Shape {
 		);
 	}
 
+	isText() {
+		return false
+	}
+
 	setCenter(center, save = true) {
 		this.center = center;
 		this.gizmo?.updatePosition();
@@ -153,6 +157,14 @@ class Shape {
 
 	setPoints(points) {
 		throw new Error("setPoints method must be implemented");
+	}
+
+	getWidth() {
+		return this.size.width;
+	}
+
+	getHeight() {
+		return this.size.height;
 	}
 
 	draw(ctx) {
